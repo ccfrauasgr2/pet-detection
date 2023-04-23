@@ -14,4 +14,6 @@ General steps to achieve the project goal:
 - Develop API Connection Between the Sensor Node, Cluster & WebApp
 - Test Full System
 
+System Architecture:
+
 ## Tech-Stack
