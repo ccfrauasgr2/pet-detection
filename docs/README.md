@@ -1,7 +1,5 @@
 # Project Documentation
 
-[[_TOC_]]
-
 ## Overview
 
 **Objective**: The project *Automatic Pet Detection With Edge Computing* aims to develop an edge computing solution for the automatic detection of pets (cats, dogs, golden hamster). General steps to achieve the project goal:
