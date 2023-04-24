@@ -12,9 +12,15 @@
 - Develop API Connection Between the Sensor Node, Cluster & WebApp
 - Test Full System
 
-**Duration**: From 12.04.2023 to 05.07.2023
+**Duration**: 12.04.2023 - 05.07.2023
 
-**Members**: Vincent Roßknecht, Jonas Hülsmann, Ekrem Bugday, Marco Tenderra, Minh Kien Nguyen, Alexander Atanassov
+**Members**: 
+- Vincent Roßknecht
+- Jonas Hülsmann
+- Ekrem Bugday
+- Marco Tenderra
+- Minh Kien Nguyen
+- Alexander Atanassov
 
 **Source Code**: [Link](https://github.com/ccfrauasgr2/pet-detection/tree/main)
 
@@ -24,7 +30,34 @@
 
 **System Behavior**:
 
+Sequence Diagram
+
 **Project Plan**:
+```mermaid
+flowchart TD
+    subgraph F1: Transform Dynamic Data
+    data01[/Video Data/]:::data
+    
+  
+    end
+
+    subgraph F2: Process Static Data
+    
+    
+    
+    end
+
+    subgraph F3: Construct Digital Twin
+    
+    
+    data06 --> step23
+    end
+
+    
+    classDef data fill:#ff6361,color:#ffffff,stroke-width:2px,stroke:#000000
+
+```
+
 
 **Hardware**:
 
