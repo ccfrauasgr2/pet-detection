@@ -18,14 +18,14 @@ TODO: Table of contents
 
 **Group 2**:
 
-| Member              | MatrNr. | Uni-Mail                     |
-| ------------------- | ------- | ---------------------------- |
-| Vincent Roßknecht   |         |                              |
-| Jonas Hülsmann      |         |                              |
-| Ekrem Bugday        |         |                              |
-| Marco Tenderra      |         |                              |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de |
-| Alexander Atanassov |         |                              |
+| Member              | MatrNr. | Uni-Mail                            |
+| ------------------- | ------- | ----------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |
+| Ekrem Bugday        |         |                                     |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |
 
 **Source Code**: [Link](https://github.com/ccfrauasgr2/pet-detection/tree/main)
 
