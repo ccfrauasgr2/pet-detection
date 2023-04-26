@@ -120,9 +120,26 @@ The following questions have to be answered:
 
 The following questions have to be answered:
 
+
 - What is the general purpose of the component?
 - Which tools/service/tech stacks were used and why?
 - How were these used to achieve the general purpose?
 - Example Results
 - Known problems and improvement suggestions
+
+##SetUp Raspberry Pi
+- Install PI-Imager
+- Insert SD-Card into SD-Card reader
+- Select Operating System Raspberry Pi OS(32-bit/64-bit)  and SD-Card in PI-Imager
+- Configure PI-Name as pi[none/1/2/3/4]
+- Configure User name as Admin
+- Select create SSH option
+- Configure WiFi to AndroidAP
+- Write to SD-Card
+- Start Raspberry Pi with SD-Card
+- ssh from Windows into the PI with admin@[ip-adress or pi-name.local]
+- sudo raspi-config -> interface -> VNC -> Enable
+- Install VNC view on Windows
+- Create new connection with IP adress from PI
+- Connect and first time accept certificate
 
