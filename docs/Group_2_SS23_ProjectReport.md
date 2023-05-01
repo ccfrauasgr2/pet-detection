@@ -18,20 +18,27 @@ TODO: Table of contents
 
 **Group 2**:
 
-| Member              | MatrNr. | Uni-Mail                     |
-| ------------------- | ------- | ---------------------------- |
-| Vincent Roßknecht   |         |                              |
-| Jonas Hülsmann      |         |                              |
-| Ekrem Bugday        |         |                              |
-| Marco Tenderra      |         |                              |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de |
-| Alexander Atanassov |         |                              |
+| Member              | MatrNr. | Uni-Mail                            |
+| ------------------- | ------- | ----------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |
+| Ekrem Bugday        |         |                                     |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |
 
 **Source Code**: [Link](https://github.com/ccfrauasgr2/pet-detection/tree/main)
 
 **Presentation Slides**: [Link](https://docs.google.com/presentation/d/1wE96Q1euAeaRYBAPP1TrVFQCkrlQES2NmLTt2wVjyIs/edit?usp=sharing)
 
 **Hardware**:
+- 1 Raspberry Pi 4 Model B with 32 GB MicroSD
+- 4 Raspberry Pi 3 Model B with 4x 32 GB MicroSD
+- 1 Apple charger with USB-C to USB-C
+- 1 Anker PowerPort with 6 Ports
+- 2 TP-Link TL-SG105 5 Port Desktop switch
+- 6 Lan Cable
+- 4 CoolReal USB-C to USB-C Cable
 
 **System Architecture**:
 
