@@ -22,7 +22,7 @@ TODO: Table of contents
 | ------------------- | ------- | ----------------------------------- |
 | Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |
 | Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |
-| Ekrem Bugday        |         |                                     |
+| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |
 | Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |
 | Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |
