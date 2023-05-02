@@ -103,6 +103,27 @@ The following questions have to be answered:
 - Example Results
 - Known problems and improvement suggestions
 
+## Set up Raspberry Pi 4
+- Insert an empty SD-Card into local PC
+- Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC
+- In the Raspberry Pi Imager:
+  - For Operating System, select Raspberry Pi OS (32-bit/64-bit)
+  - For Storage, select the inserted SD-Card
+  - In Advanced options (Cog icon):
+    - Set `pi.local` as hostname
+    - Set `admin` as username
+    - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
+    - Enable `Configure wireless LAN` option, then add network details so that Raspberry Pi 4 will automatically connect to the network
+  - Write to SD-Card
+- [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card
+- [SSH into Raspberry Pi](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) 4 from local PC with the command `ssh admin@pi.local`
+- SSH only provides *terminal* access to Raspberry Pi 4. To *remotely control the desktop interface* of Raspberry Pi 4, we use VNC (Virtual Network Computing). To enable VNC connection:
+  - First, enable VNC Server on Raspberry Pi 4. SSH into Raspberry Pi 4 from local PC, then enter `sudo raspi-config`. Now with the arrows select `Interfacing Options`, navigate to `VNC`, choose `Yes`, and select `Ok`.
+  - Install [Real VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/) on local PC
+  - Open local VNC Viewer, enter `pi.local:0` or `[IP address of Raspberry Pi 4]`. To find the IP address of Raspberry Pi 4, SSH into Raspberry Pi 4 from local PC, then enter `hostname -I`.
+  - Enter login credentials that were set while configuring Raspberry Pi Imager. If not set, default username is `pi` and default password is `raspberry`.
+  - The VNC session should start, and the Raspberry Pi desktop should be available.
+
 # Cluster
 
 The following questions have to be answered:
@@ -112,6 +133,8 @@ The following questions have to be answered:
 - How were these used to achieve the general purpose?
 - Example Results
 - Known problems and improvement suggestions
+
+## Set up Raspberry Pi 3
 
 # Database
 
@@ -134,19 +157,5 @@ The following questions have to be answered:
 - Example Results
 - Known problems and improvement suggestions
 
-##SetUp Raspberry Pi
-- Install PI-Imager
-- Insert SD-Card into SD-Card reader
-- Select Operating System Raspberry Pi OS(32-bit/64-bit)  and SD-Card in PI-Imager
-- Configure PI-Name as pi[none/1/2/3/4]
-- Configure User name as Admin
-- Select create SSH option
-- Configure WiFi to AndroidAP
-- Write to SD-Card
-- Start Raspberry Pi with SD-Card
-- ssh from Windows into the PI with admin@[ip-adress or pi-name.local]
-- sudo raspi-config -> interface -> VNC -> Enable
-- Install VNC view on Windows
-- Create new connection with IP adress from PI
-- Connect and first time accept certificate
+
 
