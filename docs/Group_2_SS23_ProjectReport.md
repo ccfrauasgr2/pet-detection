@@ -139,7 +139,7 @@ The following questions have to be answered:
 ## Set up Raspberry Pi 3
 
 - Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4)
-- Set `pi[1|2|3|4].local` as hostname for each of four available Raspberry Pi 3
+- Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3
 
 ## Set up k3s Kubernetes Cluster
 
