@@ -112,7 +112,7 @@ The following questions have to be answered:
   - For Operating System, select Raspberry Pi OS (32-bit/64-bit)
   - For Storage, select the inserted SD-Card
   - In Advanced options (Cog icon):
-    - Set `pi0.local` as hostname
+    - Set `pi0` as hostname
     - Set `admin` as username
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
     - Enable `Configure wireless LAN` option, then add network details so that Raspberry Pi 4 will automatically connect to the network
@@ -123,7 +123,7 @@ The following questions have to be answered:
   - First, enable VNC Server on Raspberry Pi 4. SSH into Raspberry Pi 4 from local PC, then enter `sudo raspi-config`. Now with the arrows select `Interfacing Options`, navigate to `VNC`, choose `Yes`, and select `Ok`.
   - Install [Real VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/) on local PC
   - Open local VNC Viewer, enter `pi0.local:0` or `[IP address of Raspberry Pi 4]`. To find the IP address of Raspberry Pi 4, SSH into Raspberry Pi 4 from local PC, then enter `hostname -I`.
-  - Enter login credentials that were set while configuring Raspberry Pi Imager. If not set, default username is `pi` and default password is `raspberry`.
+  - Enter login credentials that were set while configuring Raspberry Pi Imager.
   - The VNC session should start, and the Raspberry Pi desktop should be available.
 
 # Cluster
