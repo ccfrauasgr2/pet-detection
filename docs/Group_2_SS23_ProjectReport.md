@@ -94,11 +94,10 @@ flowchart TD
     id13[Prepare\nTraining Data]:::_sensornode
     id14[Train & Validate\nModel]:::_sensornode
     id15[Deploy\nTrained Model]:::_sensornode
-    id16[Import\nModel]:::_sensornode
     
     
     id11 --> id12
-    id13 & id16 --> id14 --> id15
+    id13 --> id14 --> id15
     end
 
     subgraph Jonas, Kien, Ekrem
@@ -163,6 +162,14 @@ The following questions have to be answered:
   - Open local VNC Viewer, enter `pi0.local:0` or `[IP address of Raspberry Pi 4]`. To find the IP address of Raspberry Pi 4, SSH into Raspberry Pi 4 from local PC, then enter `hostname -I`.
   - Enter login credentials that were set while configuring Raspberry Pi Imager.
   - The VNC session should start, and the Raspberry Pi desktop should be available.
+
+## Set up Camera Module
+
+## Prepare Training Data
+
+## Train & Validate Model
+
+## Deploy Trained Model
 
 # Cluster
 
