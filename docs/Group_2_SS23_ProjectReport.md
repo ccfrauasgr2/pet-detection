@@ -39,8 +39,46 @@ TODO: Table of contents
 - 2 TP-Link TL-SG105 5 Port Desktop switch
 - 6 Lan Cable
 - 4 CoolReal USB-C to USB-C Cable
+- Missing Camera Module
 
 **System Architecture**:
+
+```mermaid
+flowchart TD
+  
+  id1[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nSensor Node]
+  id6[<img src='img/camera-module.jpg' width='48' height='48' />\nCamera Module]
+  
+
+  subgraph cluster[Kubernetes Cluster]
+  id2[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nMaster Node]
+  id3[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nWorker Node]
+  id4[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nWorker Node]
+  id5[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nWorker Node]
+
+  
+
+  id2 --- id3
+  id2 --- id4
+  id2 --- id5
+  end
+
+  subgraph dockerSensorNode[Docker Container]
+  id7[YOLOv8]
+  id8[Django REST API]
+  end
+
+  subgraph dockerCluster[Docker Container]
+  id9[Database]
+  id10[Django REST API]
+  id11[Angular Frontend]
+  end
+
+  id6 --- id1 --how the SN and cluster are connected--- cluster
+  dockerSensorNode --deployed on--> id1
+  dockerCluster --deployed on--> cluster
+  
+```
 
 **System Behavior**:
 
@@ -52,7 +90,7 @@ flowchart TD
     
     subgraph Marco & Vincent
     id11[Set up\nRaspberry Pi 4]:::_sensornode
-    id12[Set up\nCamera Modules]:::_sensornode
+    id12[Set up\nCamera Module]:::_sensornode
     id13[Prepare\nTraining Data]:::_sensornode
     id14[Train & Validate\nModel]:::_sensornode
     id15[Deploy\nTrained Model]:::_sensornode
