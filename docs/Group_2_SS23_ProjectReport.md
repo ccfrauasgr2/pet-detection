@@ -82,7 +82,11 @@ flowchart TD
 
 **System Behavior**:
 
-TODO: Sequence Diagram
+TODO: Sequence Diagram for each use case in the following table, which is used for system testing.
+
+| Use Case | Input   | Process  | Output            |
+| -------- | ------- | -------- | ----------------- |
+| 1        | Picture | Blackbox | Detection Results |
 
 **Project Plan & Task Distribution**:
 ```mermaid
