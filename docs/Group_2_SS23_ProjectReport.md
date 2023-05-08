@@ -82,11 +82,27 @@ flowchart TD
 
 **System Behavior**:
 
-TODO: Use case table for system testing
+TODO: Sequence Diagram
+> **_TRIGGER CONDITION:_**
+> The camera takes a photo every X seconds during the time it detects pet (i.e., detect phase).
 
-| Use Case | Input   | Process  | Output            |
-| -------- | ------- | -------- | ----------------- |
-| 1        | Picture | Blackbox | Detection Results |
+
+X depends on the time taken to send the photo over the network and the time taken to store/write the photo in the database. Ideally, X should be 2 or 3 seconds.
+
+Telegram notifications are sent at the beginning (optional) and at the end of each detect phase.
+
+When detect phase starts:
+
+`A wild Pikachu appeared!` (LOL - Just kidding)
+
+`<ANIMAL_TYPES> detected at <START_TIME> on <DATE>`
+
+`<PHOTO_WITH_BOUNDING_BOXES_&_ANIMAL_TYPES_&_CONF_VALUE>`
+
+When detect phase ends: 
+
+`In <DURATION> seconds from <START_TIME> to <END_TIME> on <DATE>: <ANIMAL_TYPEs> were detected, X pictures were taken, and the highest confidence value is <HIGHEST_CONF_VALUE> `
+
 
 **Project Plan & Task Distribution**:
 ```mermaid
