@@ -70,22 +70,26 @@ flowchart TD
 
   masterNode --manages--> workerNode1
   frontendContainer1 --- restapiContainer1
-  camera --- model --- sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1
+  camera --- model --> sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1
 
 ```
 
 **System Behavior**:
 
 TODO: Text description
-> **_TRIGGER CONDITION:_**
-> The camera takes a photo every X seconds during the time it detects pet (i.e., detect phase).
+> **_IDEA:_**
+> - Live detection
+> - Detect phase starts when the model detects pet for the first time (since the beginning of live detection OR after the previous detect phase ends).
+> - Detect phase ends when the model no longer detects pet.
+> - Telegram notifications are sent at the beginning and at the end of each detect phase.
+> - The first detection result (successful pet detection) is sent right away to the cluster for Telegram notification.
+> - Beside the first detection result, only subsequent detection results at 2- or 3-second intervals until the detect phase ends are sent to the cluster.
+> - These detection results should be sent in batches to reduce overhead and improve efficiency. 
+> - This process can be realized by using the REST API and a buffer in the sensor node: If the buffer reaches a certain size or timer, the detection results are sent to the REST API in the sensor node in batches. When the detect phase ends, any remaining results in the buffer are also sent to the REST API in the sensor node in batches.
+> - The REST API containers in the cluster receive the detection results and store them in the persistent volume.
+> - The frontend containers on the worker nodes periodically query the REST API containers for any new detected pets and display them.
 
-
-X depends on the time taken to send the photo over the network and the time taken to store/write the photo in the database. Ideally, X should be 2 or 3 seconds.
-
-Telegram notifications are sent at the beginning (optional) and at the end of each detect phase.
-
-When detect phase starts:
+Telegram message when detect phase starts:
 
 `A wild Pikachu appeared!` (LOL - Just kidding)
 
@@ -93,7 +97,7 @@ When detect phase starts:
 
 `<PHOTO_WITH_BOUNDING_BOXES_&_ANIMAL_TYPES_&_CONF_VALUE>`
 
-When detect phase ends: 
+Telegram message when detect phase ends: 
 
 `In <DURATION> seconds from <START_TIME> to <END_TIME> on <DATE>: <ANIMAL_TYPEs> were detected, X pictures were taken, and the highest confidence value is <HIGHEST_CONF_VALUE> `
 
