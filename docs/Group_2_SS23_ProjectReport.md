@@ -45,7 +45,7 @@ TODO: Table of contents
 
 ```mermaid
 flowchart TD
-  camera[Camera\nModule]
+  camera[Camera]
 
   subgraph sensornode[Sensor Node]
     sensorNodeAPI[REST API]
@@ -69,9 +69,9 @@ flowchart TD
   end
 
   masterNode --manages--> workerNode1
-  frontendContainer1 --- restapiContainer1
-  camera --- model --> sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1
-
+  frontendContainer1 --- restapiContainer1 & restapiContainer1 & restapiContainer1
+  camera --> model --> sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1 & workerStorage1 & workerStorage1
+  restapiContainer1 & restapiContainer1 --- persistentVolumne
 ```
 
 **System Behavior**:
@@ -108,29 +108,47 @@ flowchart TD
     
     subgraph Marco & Vincent
     id11[Set up\nRaspberry Pi 4]:::_sensornode
-    id12[Set up\nCamera Module]:::_sensornode
+    id12[Set up\nCamera]:::_sensornode
     id13[Prepare\nTraining Data]:::_sensornode
     id14[Train & Validate\nModel]:::_sensornode
     id15[Deploy\nTrained Model]:::_sensornode
+    id16[Wrap\nCamera & Model]:::_wrap
     
     
     id11 --> id12
     id13 --> id14 --> id15
+    id12 & id15 --> id16
     end
 
     subgraph Jonas, Kien, Ekrem
     id21[Set up\nRaspberry Pi 3]:::_cluster
-    id22[Set up\nk3s Kubernetes Cluster]:::_cluster
-    id23[Set up\nDatabase in Cluster]:::_cluster
-    id24[Develop\nREST API]:::_api
+    id22[Set up\nKubernetes Cluster]:::_cluster
+    id23[Set up\nStorage Service]:::_cluster
+    id24[Develop\nREST API\nCluster]:::_api
+    id25[Deploy\nREST API Container]:::_api
+    id26[Develop\nREST API\nSensor Node]:::_api
+
 
     id21 --> id22 --> id23
+    id24 & id26 --> id25
     end
 
     subgraph Alex
     id31[Develop\nWebApp]:::_webapp
+    id32[Deploy\nWebApp Container]:::_webapp
+
+    id31 --> id32
     end
-   
+    
+    subgraph Entire Group
+    id41[Wrap\nWebApp & Storage Service & REST API Cluster]:::_wrap
+    id42[Wrap\nCamera & Model & REST API Sensor Node]:::_wrap
+    id43[Wrap\nSystem]:::_wrap
+
+    id23 & id32 & id25 --> id41
+    id25 & id16 --> id42
+    id41 & id42 --> id43
+    end
  
 
     subgraph Topics
@@ -138,6 +156,7 @@ flowchart TD
     id02[API]:::_api
     id03[Cluster]:::_cluster
     id04[WebApp]:::_webapp
+    id05[Wrap]:::_wrap
     end
    
 
@@ -145,6 +164,7 @@ flowchart TD
     classDef _cluster fill:#4285f4,color:#ffffff,stroke-width:2px,stroke:#000000
     classDef _api fill:#fbbc05,color:#ffffff,stroke-width:2px,stroke:#000000
     classDef _webapp fill:#34a853,color:#ffffff,stroke-width:2px,stroke:#000000
+    classDef _wrap fill:#36454f,color:#ffffff,stroke-width:2px,stroke:#000000
 ```
 
 
