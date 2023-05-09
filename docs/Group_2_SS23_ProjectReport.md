@@ -45,44 +45,38 @@ TODO: Table of contents
 
 ```mermaid
 flowchart TD
-  
-  id1[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nSensor Node]
-  id6[<img src='img/camera-module.jpg' width='48' height='48' />\nCamera Module]
-  
+  camera[Camera\nModule]
+
+  subgraph sensornode[Sensor Node]
+    sensorNodeAPI[REST API]
+    model[Detection\nModel]
+  end
 
   subgraph cluster[Kubernetes Cluster]
-  id2[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nMaster Node]
-  id3[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nWorker Node]
-  id4[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nWorker Node]
-  id5[<img src='img/Raspberry_Pi_Logo.svg' width='38' height='48' />\nWorker Node]
 
-  
+    subgraph masterNode[Master Node]
+      storageService[Storage\nService]
+      masterStorage[Storage\nRes.]
+    end
 
-  id2 --- id3
-  id2 --- id4
-  id2 --- id5
+    subgraph workerNode1[Worker Node x 3]
+      workerStorage1[Storage\nRes.]
+      restapiContainer1[REST API\nContainer]
+      frontendContainer1[Frontend\nContainer]
+    end
+
+    persistentVolumne[Persistent\nVolumne]
   end
 
-  subgraph dockerSensorNode[Docker Container]
-  id7[YOLOv8]
-  id8[Django REST API]
-  end
+  masterNode --manages--> workerNode1
+  frontendContainer1 --- restapiContainer1
+  camera --- model --- sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1
 
-  subgraph dockerCluster[Docker Container]
-  id9[Database]
-  id10[Django REST API]
-  id11[Angular Frontend]
-  end
-
-  id6 --- id1 --how the SN and cluster are connected--- cluster
-  dockerSensorNode --deployed on--> id1
-  dockerCluster --deployed on--> cluster
-  
 ```
 
 **System Behavior**:
 
-TODO: Sequence Diagram
+TODO: Text description
 > **_TRIGGER CONDITION:_**
 > The camera takes a photo every X seconds during the time it detects pet (i.e., detect phase).
 
