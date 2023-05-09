@@ -69,9 +69,8 @@ flowchart TD
   end
 
   masterNode --manages--> workerNode1
-  frontendContainer1 --- restapiContainer1 & restapiContainer1 & restapiContainer1
-  camera --> model --> sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1 & workerStorage1 & workerStorage1
-  restapiContainer1 & restapiContainer1 --- persistentVolumne
+  frontendContainer1 --- restapiContainer1
+  camera --> model --> sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1 
 ```
 
 **System Behavior**:
