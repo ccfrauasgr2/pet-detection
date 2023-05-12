@@ -16,16 +16,16 @@ TODO: Table of contents
 
 **Duration**: 12.04.2023 - 05.07.2023
 
-**Group 2**:
+**Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            |
-| ------------------- | ------- | ----------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |
-| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |
+| Member              | MatrNr. | Uni-Mail                            | Task |
+| ------------------- | ------- | ----------------------------------- | ---- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |      |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |      |
+| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |      |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |      |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |      |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |      |
 
 **Source Code**: [Link](https://github.com/ccfrauasgr2/pet-detection/tree/main)
 
@@ -44,11 +44,10 @@ TODO: Table of contents
 **System Architecture**:
 
 ```mermaid
-flowchart TD
+flowchart LR
   camera[Camera]
 
   subgraph sensornode[Sensor Node]
-    sensorNodeAPI[REST API]
     model[Detection\nModel]
   end
 
@@ -56,21 +55,28 @@ flowchart TD
 
     subgraph masterNode[Master Node]
       storageService[Storage\nService]
-      masterStorage[Storage\nRes.]
+      dfs[Distributed File\nSystem]
     end
 
-    subgraph workerNode1[Worker Node x 3]
-      workerStorage1[Storage\nRes.]
-      restapiContainer1[REST API\nContainer]
-      frontendContainer1[Frontend\nContainer]
-    end
+    subgraph workerNode[Worker Node x 3]
+      frontendContainer[Frontend\nContainer]
+      
+      subgraph backendContainer[Backend Container]
+        restapiContainer[REST API]
+        dbmsContainer[DBMS]
+      end
 
-    persistentVolumne[Persistent\nVolumne]
+      persistentVolume[Persistent\nVolume]
+    end 
   end
 
-  masterNode --manages--> workerNode1
-  frontendContainer1 --- restapiContainer1
-  camera --> model --> sensorNodeAPI --> restapiContainer1 --- persistentVolumne --- storageService --- masterStorage & workerStorage1 
+  userInterface[User\nInterface]
+  bot[Telegram\nBot]
+
+  masterNode -.controls.-> workerNode
+  frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
+  camera --> sensornode --> restapiContainer
+  userInterface & bot --- frontendContainer
 ```
 
 **System Behavior**:
@@ -101,69 +107,57 @@ Telegram message when detect phase ends:
 `In <DURATION> seconds from <START_TIME> to <END_TIME> on <DATE>: <ANIMAL_TYPEs> were detected, X pictures were taken, and the highest confidence value is <HIGHEST_CONF_VALUE> `
 
 
-**Project Plan & Task Distribution**:
+**Project Plan**:
 ```mermaid
 flowchart TD
     
-    subgraph Marco & Vincent
-    id11[Set up\nRaspberry Pi 4]:::_sensornode
-    id12[Set up\nCamera]:::_sensornode
-    id13[Prepare\nTraining Data]:::_sensornode
-    id14[Train & Validate\nModel]:::_sensornode
-    id15[Deploy\nTrained Model]:::_sensornode
-    id16[Wrap\nCamera & Model]:::_wrap
+    
+    id11[Set up\nRaspberry Pi 4]
+    id12[Set up\nCamera]
+    id13[Prepare\nTraining Data]
+    id14[Train & Validate\nModel]
+    id15[Deploy\nTrained Model]
+    id16[Wrap\nCamera & Model]
     
     
     id11 --> id12
     id13 --> id14 --> id15
     id12 & id15 --> id16
-    end
+    
 
-    subgraph Jonas, Kien, Ekrem
-    id21[Set up\nRaspberry Pi 3]:::_cluster
-    id22[Set up\nKubernetes Cluster]:::_cluster
-    id23[Set up\nStorage Service]:::_cluster
-    id24[Develop\nREST API\nCluster]:::_api
-    id25[Deploy\nREST API Container]:::_api
-    id26[Develop\nREST API\nSensor Node]:::_api
+    
+    id21[Set up\nRaspberry Pi 3]
+    id22[Set up\nKubernetes Cluster]
+    id23[Set up\nStorage Service]
+    id27[Set up\nDFS]
+    id24[Develop\nREST API\nCluster]
+    id25[Deploy\nREST API Container]
+    id26[Develop\nREST API\nSensor Node]
 
 
-    id21 --> id22 --> id23
+    id21 --> id22 --> id23 & id27
     id24 & id26 --> id25
-    end
+    
 
-    subgraph Alex
-    id31[Develop\nWebApp]:::_webapp
-    id32[Deploy\nWebApp Container]:::_webapp
+    
+    id31[Develop\nWebApp]
+    id32[Deploy\nWebApp Container]
 
     id31 --> id32
-    end
     
-    subgraph Entire Group
-    id41[Wrap\nWebApp & Storage Service & REST API Cluster]:::_wrap
-    id42[Wrap\nCamera & Model & REST API Sensor Node]:::_wrap
-    id43[Wrap\nSystem]:::_wrap
+    
+    
+    id41[Wrap\nWebApp & Storage Service & REST API Cluster]
+    id42[Wrap\nCamera & Model & REST API Sensor Node]
+    id43[Wrap\nSystem]
 
-    id23 & id32 & id25 --> id41
+    id23 & id25 & id27 & id32 --> id41
     id25 & id16 --> id42
     id41 & id42 --> id43
-    end
- 
+    
 
-    subgraph Topics
-    id01[Sensor Node]:::_sensornode
-    id02[API]:::_api
-    id03[Cluster]:::_cluster
-    id04[WebApp]:::_webapp
-    id05[Wrap]:::_wrap
-    end
    
 
-    classDef _sensornode fill:#ea4335,color:#ffffff,stroke-width:2px,stroke:#000000
-    classDef _cluster fill:#4285f4,color:#ffffff,stroke-width:2px,stroke:#000000
-    classDef _api fill:#fbbc05,color:#ffffff,stroke-width:2px,stroke:#000000
-    classDef _webapp fill:#34a853,color:#ffffff,stroke-width:2px,stroke:#000000
-    classDef _wrap fill:#36454f,color:#ffffff,stroke-width:2px,stroke:#000000
 ```
 
 
