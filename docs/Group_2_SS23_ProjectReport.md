@@ -61,9 +61,9 @@ flowchart LR
     subgraph workerNode[Worker Node x 3]
       frontendContainer[Frontend\nContainer]
       
-      subgraph backendContainer[Backend Container]
-        restapiContainer[REST API]
-        dbmsContainer[DBMS]
+      subgraph backendContainer[Backend]
+        restapiContainer[REST API\nContainer]
+        dbmsContainer[DBMS\nContainer]
       end
 
       persistentVolume[Persistent\nVolume]
@@ -126,16 +126,16 @@ flowchart TD
     id21[Set up\nRaspberry Pi 3]
     id22[Set up\nKubernetes Cluster]
     id23[Set up\nStorage Service]
-    id24[Develop\nREST API]
-    id25[Deploy\nBackend Container]
+    id24[Develop\nREST API Container]
+    id25[Deploy\nBackend]
     id26[Pull & Configure\nDBMS Container]
     id27[Set up\nDFS & PV]
 
     id21 --> id22 --> id23 & id27
     id24 & id26 --> id25
         
-    id31[Develop\nFrontend]
-    id32[Deploy\nFrontend Container]
+    id31[Develop\nFrontend Container]
+    id32[Deploy\nFrontend]
     id33[Create\nTelegram Bot]
 
     id31 --> id32
