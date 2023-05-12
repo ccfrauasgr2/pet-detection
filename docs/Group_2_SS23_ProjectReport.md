@@ -18,14 +18,14 @@ TODO: Table of contents
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Task |
-| ------------------- | ------- | ----------------------------------- | ---- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |      |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |      |
-| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |      |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |      |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |      |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |      |
+| Member              | MatrNr. | Uni-Mail                            | Tasks |
+| ------------------- | ------- | ----------------------------------- | ----- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |       |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |       |
+| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |       |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |       |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |       |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |       |
 
 **Source Code**: [Link](https://github.com/ccfrauasgr2/pet-detection/tree/main)
 
@@ -55,7 +55,7 @@ flowchart LR
 
     subgraph masterNode[Master Node]
       storageService[Storage\nService]
-      dfs[Distributed File\nSystem]
+      dfs[Distributed\nFile System]
     end
 
     subgraph workerNode[Worker Node x 3]
@@ -70,13 +70,13 @@ flowchart LR
     end 
   end
 
-  userInterface[User\nInterface]
+  ui[User\nInterface]
   bot[Telegram\nBot]
 
   masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
   camera --> sensornode --> restapiContainer
-  userInterface & bot --- frontendContainer
+  ui & bot --- frontendContainer
 ```
 
 **System Behavior**:
@@ -117,43 +117,34 @@ flowchart TD
     id13[Prepare\nTraining Data]
     id14[Train & Validate\nModel]
     id15[Deploy\nTrained Model]
-    id16[Wrap\nCamera & Model]
-    
+    id16[Wrap\nSensor Node]
     
     id11 --> id12
     id13 --> id14 --> id15
     id12 & id15 --> id16
-    
-
-    
+        
     id21[Set up\nRaspberry Pi 3]
     id22[Set up\nKubernetes Cluster]
     id23[Set up\nStorage Service]
-    id27[Set up\nDFS]
-    id24[Develop\nREST API\nCluster]
-    id25[Deploy\nREST API Container]
-    id26[Develop\nREST API\nSensor Node]
-
+    id24[Develop\nREST API]
+    id25[Deploy\nBackend Container]
+    id26[Pull & Configure\nDBMS Container]
+    id27[Set up\nDFS & PV]
 
     id21 --> id22 --> id23 & id27
     id24 & id26 --> id25
-    
-
-    
-    id31[Develop\nWebApp]
-    id32[Deploy\nWebApp Container]
+        
+    id31[Develop\nFrontend]
+    id32[Deploy\nFrontend Container]
+    id33[Create\nTelegram Bot]
 
     id31 --> id32
     
-    
-    
-    id41[Wrap\nWebApp & Storage Service & REST API Cluster]
-    id42[Wrap\nCamera & Model & REST API Sensor Node]
-    id43[Wrap\nSystem]
+    id41[Wrap\nCluster]
+    id42[Wrap\nSystem]
 
-    id23 & id25 & id27 & id32 --> id41
-    id25 & id16 --> id42
-    id41 & id42 --> id43
+    id23 & id27 & id25 & id32 & id33 --> id41
+    id41 & id16 --> id42
     
 
    
