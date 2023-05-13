@@ -70,14 +70,28 @@ flowchart LR
     end 
   end
 
-  ui[User\nInterface]
-  bot[Telegram\nBot]
-
+  
+  bot[Telegram\nNotification Bot]
+  
+  bot --- restapiContainer
   masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
   camera --> sensornode --> restapiContainer
-  ui & bot --- frontendContainer
+  
 ```
+
+| Component                                   | Role                                                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Camera                                      | captures visual data and sends them to the sensor node                                    |
+| Detection Model                             | analyzes visual data to detect and classify pet                                           |
+| Persistent Volume (PV)                      | serves as the persistent storage resource in the cluster                                  |
+| Storage Service                             | manages the underlying storage infrastructure of the persistent volume                    |
+| Distributed File System (DFS)               | allows nodes in the cluster to access and share the same persistent volume                |
+| Frontend Container                          | provides user interface and handles user interactions                                     |
+| REST API Container                          | exposes endpoints to facilitate communication and data exchange between system components |
+| Database Management System (DBMS) Container | handles write and read queries for storing and retrieving detection results               |
+| Telegram Notification Bot (TNB)             | sends detection result notifications to user's Telegram account                           |
+|                                             |                                                                                           |
 
 **System Behavior**:
 
@@ -136,7 +150,7 @@ flowchart TD
         
     id31[Develop\nFrontend Container]
     id32[Deploy\nFrontend]
-    id33[Create\nTelegram Bot]
+    id33[Implement\nTNB]
 
     id31 --> id32
     
