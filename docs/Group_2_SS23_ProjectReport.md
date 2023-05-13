@@ -16,17 +16,6 @@ TODO: Table of contents
 
 **Duration**: 12.04.2023 - 05.07.2023
 
-**Group 2 Info & Task Distribution**:
-
-| Member              | MatrNr. | Uni-Mail                            | Tasks |
-| ------------------- | ------- | ----------------------------------- | ----- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  |       |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      |       |
-| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |       |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            |       |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        |       |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de |       |
-
 **Source Code**: [Link](https://github.com/ccfrauasgr2/pet-detection/tree/main)
 
 **Presentation Slides**: [Link](https://docs.google.com/presentation/d/1wE96Q1euAeaRYBAPP1TrVFQCkrlQES2NmLTt2wVjyIs/edit?usp=sharing)
@@ -72,7 +61,7 @@ flowchart LR
 
   
   bot[Telegram\nNotification Bot]
-  
+
   bot --- restapiContainer
   masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
@@ -85,13 +74,12 @@ flowchart LR
 | Camera                                      | captures visual data and sends them to the sensor node                                    |
 | Detection Model                             | analyzes visual data to detect and classify pet                                           |
 | Persistent Volume (PV)                      | serves as the persistent storage resource in the cluster                                  |
-| Storage Service                             | manages the underlying storage infrastructure of the persistent volume                    |
+| Storage Service   (SS)                      | manages the underlying storage infrastructure of the persistent volume                    |
 | Distributed File System (DFS)               | allows nodes in the cluster to access and share the same persistent volume                |
 | Frontend Container                          | provides user interface and handles user interactions                                     |
 | REST API Container                          | exposes endpoints to facilitate communication and data exchange between system components |
 | Database Management System (DBMS) Container | handles write and read queries for storing and retrieving detection results               |
 | Telegram Notification Bot (TNB)             | sends detection result notifications to user's Telegram account                           |
-|                                             |                                                                                           |
 
 **System Behavior**:
 
@@ -125,7 +113,7 @@ Telegram message when detect phase ends:
 ```mermaid
 flowchart TD
     
-    
+    subgraph Sensor Node
     id11[Set up\nRaspberry Pi 4]
     id12[Set up\nCamera]
     id13[Prepare\nTraining Data]
@@ -136,36 +124,50 @@ flowchart TD
     id11 --> id12
     id13 --> id14 --> id15
     id12 & id15 --> id16
+    end
         
+    subgraph Cluster
     id21[Set up\nRaspberry Pi 3]
     id22[Set up\nKubernetes Cluster]
-    id23[Set up\nStorage Service]
-    id24[Develop\nREST API Container]
+    id23[Set up\nPV & SS & DFS]
+    id24[Develop\nREST API]
     id25[Deploy\nBackend]
-    id26[Pull & Configure\nDBMS Container]
-    id27[Set up\nDFS & PV]
+    id26[Configure\nDBMS]
+    
 
-    id21 --> id22 --> id23 & id27
+    id21 --> id22 --> id23 
     id24 & id26 --> id25
         
-    id31[Develop\nFrontend Container]
+    id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
     id33[Implement\nTNB]
 
     id31 --> id32
-    
-    id41[Wrap\nCluster]
-    id42[Wrap\nSystem]
 
-    id23 & id27 & id25 & id32 & id33 --> id41
-    id41 & id16 --> id42
+    id41[Wrap\nCluster]
+    end
+
+    
+    id51[Wrap\nSystem]
+
+    id23  & id25 & id32 & id33 --> id41
+    id41 & id16 --> id51
     
 
    
 
 ```
 
+**Group 2 Info & Task Distribution**:
 
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                           |
+| ------------------- | ------- | ----------------------------------- | --------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Train & Validate Model                                          |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3, Set up Kubernetes Cluster, Develop REST API |
+| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |                                                                 |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera,                              |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Implement TNB                                                   |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend                                                |
 
 
 # Sensor Node
@@ -199,13 +201,15 @@ The following questions have to be answered:
   - Enter login credentials that were set while configuring Raspberry Pi Imager.
   - The VNC session should start, and the Raspberry Pi desktop should be available.
 
-## Set up Camera Module
+## Set up Camera
 
 ## Prepare Training Data
 
 ## Train & Validate Model
 
 ## Deploy Trained Model
+
+## Wrap Sensor Node
 
 # Cluster
 
@@ -222,30 +226,25 @@ The following questions have to be answered:
 - Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4)
 - Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3
 
-## Set up k3s Kubernetes Cluster
+## Set up Kubernetes Cluster
 
-## Set up Database in Cluster
+## Set up Storage Service
 
-# Database
+## Set up PV & SS & DFS
 
-The following questions have to be answered:
+## Develop REST API
 
-- What is the general purpose of the component?
-- Which tools/service/tech stacks were used and why?
-- How were these used to achieve the general purpose?
-- Example Results
-- Known problems and improvement suggestions
+## Configure DBMS
 
-# WebApp
+## Deploy Backend
 
-The following questions have to be answered:
+## Develop Frontend
 
+## Deploy Frontend
 
-- What is the general purpose of the component?
-- Which tools/service/tech stacks were used and why?
-- How were these used to achieve the general purpose?
-- Example Results
-- Known problems and improvement suggestions
+## Implement TNB
+
+## Wrap Cluster
 
 
 
