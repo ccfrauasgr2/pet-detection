@@ -28,7 +28,7 @@ TODO: Table of contents
 - 2 TP-Link TL-SG105 5 Port Desktop switch
 - 6 Lan Cable
 - 4 CoolReal USB-C to USB-C Cable
-- Missing Camera Module
+- 1 Raspberry Pi Camera Module 2
 
 **System Architecture**:
 
