@@ -202,9 +202,9 @@ The following questions have to be answered:
   - The VNC session should start, and the Raspberry Pi desktop should be available.
 
 ## Set up Camera
-To install the Raspberry Pi Camera Module 2 onto the Raspberry Pi 4 Model B it is nessesary to plug the Camera Connector into the Camera slot of the Motherboard.
-Inordrer to do this we first must unplug the camera Module slot. Afterwards we push the camera connector into the slot. The camera needs to face to the direction of the Backplate(USB and Eithernet port).
-Afterwards we can try it out via a Terminal command "libcamera-still -o test.jpg".
+
+- To connect Raspberry Pi Camera Module 2 to Raspberry Pi 4, follow the steps listed in [Connect the Camera Module](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera/2). Make sure the Camera Module faces the USB and Ethernet ports.
+- To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
 
