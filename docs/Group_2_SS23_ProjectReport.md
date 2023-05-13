@@ -79,7 +79,7 @@ flowchart LR
 | Frontend Container                          | provides user interface and handles user interactions                                     |
 | REST API Container                          | exposes endpoints to facilitate communication and data exchange between system components |
 | Database Management System (DBMS) Container | handles write and read queries for storing and retrieving detection results               |
-| Telegram Notification Bot (TNB)             | sends detection result notifications to user's Telegram account                           |
+| Telegram Notification Bot (TNB)             | notifies user about detection results via Telegram                                        |
 
 **System Behavior**:
 
