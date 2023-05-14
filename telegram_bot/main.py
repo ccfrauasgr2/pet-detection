@@ -1,27 +1,30 @@
-import logging
-from telegram import Update
-from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
+import os
+from dotenv import load_dotenv
+import requests
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+# TODO: Define a method for sending notifications and run this method inside any PUT or POST request
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, how can I help you?")
+def send_telegram_notification(detection_results):
+    """
+    notifies user about detection results via Telegram Bot
+    """
+    # Load environment variables from .env file
+    load_dotenv()
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.text)
+    # Retrieve the bot token and chat ID from environment variables
+    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+    group_chat_id = os.getenv('TELEGRAM_CHAT_ID')
 
-if __name__ == '__main__':
-    access_token = input("Please input your Bot API Token:")
+    caption = detection_results
+    img = open("img/sample_img.png", 'rb')
 
-    application = ApplicationBuilder().token(access_token).build()
+    url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id={group_chat_id}&caption={caption}'
+    response = requests.post(url, files={'photo': img})
     
-    start_handler = CommandHandler('start', start)
-    echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
+    if response.status_code == 200:
+        print('Notification sent successfully!')
+    else:
+        print('Failed to send notification.')
 
-    application.add_handler(start_handler)
-    application.add_handler(echo_handler)
-    
-    application.run_polling()
+# Example usage
+send_telegram_notification('Detection results')
