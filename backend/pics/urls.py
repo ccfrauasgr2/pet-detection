@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('pics/', views.pic_list),
     path('pics/<int:id>', views.pic_detail),
+    path('pets/post', views.pet_camera_post),
+    path('pets/get_all', views.pet_get_all),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
