@@ -207,8 +207,59 @@ The following questions have to be answered:
 - To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
+1. Annotate images using MegaDetector
+2. Convert the annotation format to the YOLOv8 format using the `convert_to_yolov8_annotation.py` [script](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node\model_training). The annotations are extracted from the .json file and are written into multiple .txt files. Furthermore the annotation for the bounding box itself changes from Megadetector:<br>
+`<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`<br>
+to YOLO<br>
+`<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`<br>
+More on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).
+3. Split the dataset into training, validation and test images. The number of images we used:
+
+| Pet | Training | Validation | Test |
+| ---- | ---- | ---- | ---- |
+| Cat | 13.875 | 1.816 | 1.740 |
+| Dog | 14.782 | 1.871 | 1.848 |
+| Total | 28.657 | 3.687 | 3.588 |
 
 ## Train & Validate Model
+The training and validation for the YOLOv8 model is done in Google Colab.<br>
+First we need to setup the Google Colab notebook. To train a YOLOv8 model install ultralytics, this project was done with version 8.0.105.
+```python
+!pip install ultralytics
+import ultralytics
+```
+In addition, it is necessary to establish a connection with Google Drive to conveniently access the training and validation datasets.
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
+When dealing with a large number of files, it is advisable to compress the datasets into .zip files. These compressed files can be easily extracted using the `!unzip` command within the Google Colab notebook.<br>
+Now we can start training, for better performance choose a GPU runtime in Google Colab. We need to create a .yaml file to provide the paths to the datasets.
+```yaml
+train: yolov8/data/train
+val: yolov8/data/train
+
+# number of classes
+nc: 2
+
+names: ['cat', 'dog']
+```
+To start training run the following command, all possible parameters are listed [here](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/yolo/cfg/default.yaml).
+```bash
+!yolo task=detect mode=train model=yolov8s.pt data=path/to/dataset.yaml epochs=20 batch=-1 project=path/to/result_storage name=pets
+```
+We chose the yolov8s model as our base because it offers a balance between training speed and accuracy, which suits our needs effectively.<br>
+The results from the training, including the model, can be found in the `project` directory. The summary of our training can be found [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/docs/img/results.png).<br>
+Here is an explanaition for the different metrics from the results:
+
+- `train/box_loss` and `val/box_loss`: These metrics measure the discrepancy between predicted bounding box coordinates and the ground truth bounding box coordinates during training and validation, respectively.
+- `train/cis_loss` and `val/cls_loss`: These metrics address class imbalance by quantifying the difference between predicted class probabilities and the true class labels during training and validation, respectively.
+- `train/dfl_loss` and `val/dfl_loss`: These metrics handle the issue of long-tail distribution by evaluating the discrepancy between predicted class distributions and the ground truth class distributions during training and validation, respectively.
+- `metrics/precision` and `metrics/recall(B)`: Precision measures the accuracy of positive predictions, while recall (sensitivity) calculates the ratio of correctly predicted positive samples to the total number of actual positive samples. Both metrics provide insights into model performance.
+- `metrics/mAP50` and `metrics/mAP50-95(B)`: Mean Average Precision (mAP) at an IoU threshold of 0.50 and mAP across a range of IoU thresholds (from 0.50 to 0.95 with a step size of 0.05) measure the average precision of correctly localized and classified objects, providing comprehensive evaluations of model performance at different IoU thresholds.<br>
+
+After further testing on our model with the 'Test' dataset, we obtained the following results:<br>
+TODO: Insert Results
 
 ## Deploy Trained Model
 
