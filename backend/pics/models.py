@@ -12,11 +12,11 @@ class Pic(models.Model):
 
 
 class Pet(models.Model):
-    image = models.BinaryField()
+    image = models.CharField(max_length=2732)
     date = models.CharField(max_length=10)
     time = models.CharField(max_length=5)
     type = models.BooleanField()
-    accuracy = models.IntegerField(max_length=3)
+    accuracy = models.IntegerField()
     bid = models.IntegerField()
 
     # json_data = models.JSONField()
