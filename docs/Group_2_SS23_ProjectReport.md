@@ -258,8 +258,10 @@ Here is an explanaition for the different metrics from the results:
 - `metrics/precision` and `metrics/recall(B)`: Precision measures the accuracy of positive predictions, while recall (sensitivity) calculates the ratio of correctly predicted positive samples to the total number of actual positive samples. Both metrics provide insights into model performance.
 - `metrics/mAP50` and `metrics/mAP50-95(B)`: Mean Average Precision (mAP) at an IoU threshold of 0.50 and mAP across a range of IoU thresholds (from 0.50 to 0.95 with a step size of 0.05) measure the average precision of correctly localized and classified objects, providing comprehensive evaluations of model performance at different IoU thresholds.<br>
 
-After further testing on our model with the 'Test' dataset, we obtained the following results:<br>
-TODO: Insert Results
+### Testing
+
+To ensure the quality of the model, there were some further tests done on it. For this we use another dataset with images the model was neither trained or validated with. This dataset contains 3.589 more images of both cats and dogs. The model was used to identify the pet on these images and return the pet and the bounding box for every image. With the python script `top1_mAP.py` [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node\model_training) the top-1-accuracy (t1a) and the mean average Precision (mAP) are calculated. For the mAP calculation we used the python package `sklearn` function `average_precision_score`. The results are t1a = 87.68% and mAP = 96.983%.
+
 
 ## Deploy Trained Model
 
