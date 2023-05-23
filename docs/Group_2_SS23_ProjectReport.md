@@ -164,7 +164,6 @@ flowchart TD
 | ------------------- | ------- | ----------------------------------- | --------------------------------------------------------------- |
 | Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Train & Validate Model                                          |
 | Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3, Set up Kubernetes Cluster, Develop REST API |
-| Ekrem Bugday        | 1325425 | ekrem.bugday@stud.fra-uas.de        |                                                                 |
 | Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera,                              |
 | Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Implement TNB                                                   |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend                                                |
