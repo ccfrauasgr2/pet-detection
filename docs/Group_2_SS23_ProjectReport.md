@@ -43,8 +43,7 @@ flowchart LR
   subgraph cluster[Kubernetes Cluster]
 
     subgraph masterNode[Master Node]
-      storageService[Storage\nService]
-      dfs[Distributed\nFile System]
+      dss[Distributed\nStorage Service]
     end
 
     subgraph workerNode[Worker Node x 3]
@@ -69,17 +68,16 @@ flowchart LR
   
 ```
 
-| Component                                   | Role                                                                                      |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Camera                                      | captures visual data and sends them to the sensor node                                    |
-| Detection Model                             | analyzes visual data to detect and classify pet                                           |
-| Persistent Volume (PV)                      | serves as the persistent storage resource in the cluster                                  |
-| Storage Service   (SS)                      | manages the underlying storage infrastructure of the persistent volume                    |
-| Distributed File System (DFS)               | allows nodes in the cluster to access and share the same persistent volume                |
-| Frontend Container                          | provides user interface and handles user interactions                                     |
-| REST API Container                          | exposes endpoints to facilitate communication and data exchange between system components |
-| Database Management System (DBMS) Container | handles write and read queries for storing and retrieving detection results               |
-| Telegram Notification Bot (TNB)             | notifies user about detection results via Telegram                                        |
+| Component                                   | Role                                                                                                                                               |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                                      | captures visual data and sends them to the sensor node                                                                                             |
+| Detection Model                             | analyzes visual data to detect and classify pet                                                                                                    |
+| Persistent Volume (PV)                      | serves as the persistent storage resource in the cluster                                                                                           |
+| Distributed Storage Service (DSS)           | manages the underlying storage infrastructure of the persistent volume, allows nodes in the cluster to access and share the same persistent volume |
+| Frontend Container                          | provides user interface and handles user interactions                                                                                              |
+| REST API Container                          | exposes endpoints to facilitate communication and data exchange between system components                                                          |
+| Database Management System (DBMS) Container | handles write and read queries for storing and retrieving detection results                                                                        |
+| Telegram Notification Bot (TNB)             | notifies user about detection results via Telegram                                                                                                 |
 
 **System Behavior**:
 
@@ -129,7 +127,7 @@ flowchart TD
     subgraph Cluster
     id21[Set up\nRaspberry Pi 3]
     id22[Set up\nKubernetes Cluster]
-    id23[Set up\nPV & SS & DFS]
+    id23[Set up\nPV & DSS]
     id24[Develop\nREST API]
     id25[Deploy\nBackend]
     id26[Configure\nDBMS]
@@ -162,10 +160,10 @@ flowchart TD
 
 | Member              | MatrNr. | Uni-Mail                            | Tasks                                                           |
 | ------------------- | ------- | ----------------------------------- | --------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Train & Validate Model                                          |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data, Train & Validate Model                   |
 | Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3, Set up Kubernetes Cluster, Develop REST API |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera,                              |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Implement TNB                                                   |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera, Prepare Training Data        |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Implement TNB, Set up PV & DSS                                  |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend                                                |
 
 
@@ -230,9 +228,7 @@ The following questions have to be answered:
 
 ## Set up Kubernetes Cluster
 
-## Set up Storage Service
-
-## Set up PV & SS & DFS
+## Set up PV & DSS
 
 ## Develop REST API
 
