@@ -58,8 +58,8 @@ def calculate_mAP(target_folder, test_folder):
     return mAP
 
 # CHANGE DIR
-target_folder_path = 'D:/A_Master/1. Semester/Cloud Computing/results/target' #path/to/correct/labels
-test_folder_path = 'D:/A_Master/1. Semester/Cloud Computing/results/predict/labels' #path/to/labels/from/testing
+target_folder_path = 'path/to/correct/labels'
+test_folder_path = 'path/to/labels/from/testing' 
 
 # TOP 1 ACCURACY
 accuracy = calculate_top1_accuracy(target_folder_path, test_folder_path)
