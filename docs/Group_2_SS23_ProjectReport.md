@@ -68,16 +68,16 @@ flowchart LR
   
 ```
 
-| Component                              | Role                                                                                                                                                                           |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Camera                                 | captures visual data and sends them to the sensor node                                                                                                                         |
-| Detection Model                        | analyzes visual data to detect and classify pet                                                                                                                                |
-| Persistent Volume (PV)                 | serves as the shared persistent storage resource in the cluster                                                                                                                |
-| Distributed Storage Service (DSS)      | manages the underlying storage infrastructure of the persistent volume, allows nodes (DBMS pods) in the cluster to read and write to the shared persistent volume consistently |
-| Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                                                                |
-| REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                                                                            |
-| Database Management System (DBMS) Pod+ | handles write and read queries for storing and retrieving detection results, scalable                                                                                          |
-| Telegram Notification Bot (TNB)        | notifies user about detection results via Telegram                                                                                                                             |
+| Component                              | Role                                                                                                                                                                                |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                                 | captures visual data and sends them to the sensor node                                                                                                                              |
+| Detection Model                        | analyzes visual data to detect and classify pet                                                                                                                                     |
+| Persistent Volume (PV)                 | serves as the shared persistent storage resource in the cluster                                                                                                                     |
+| Distributed Storage System (DSS)       | manages the underlying storage infrastructure of the persistent volume, allows concurrent read and write operations to the shared persistent volume, ensures high data availability |
+| Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                                                                     |
+| REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                                                                                 |
+| Database Management System (DBMS) Pod+ | handles write and read queries for storing and retrieving detection results, scalable                                                                                               |
+| Telegram Notification Bot (TNB)        | notifies user about detection results via Telegram                                                                                                                                  |
 
 
 **System Behavior**:
