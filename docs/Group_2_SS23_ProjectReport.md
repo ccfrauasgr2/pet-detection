@@ -182,13 +182,14 @@ The following questions have to be answered:
 - Insert an empty SD-Card into local PC
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC
 - In the Raspberry Pi Imager:
-  - For Operating System, select Raspberry Pi OS (32-bit/64-bit)
+  - For Operating System, select `Raspberry Pi OS Lite (64-bit)`
   - For Storage, select the inserted SD-Card
   - In Advanced options (Cog icon):
     - Set `pi0` as hostname
-    - Set `admin` as username
+    - Set `admin` as username and set password
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
-    - Enable `Configure wireless LAN` option, then add network details so that Raspberry Pi 4 will automatically connect to the network
+    - Enable `Configure wireless LAN` option, then add network details (SSID & password) so that Raspberry Pi 4 will automatically connect to the network
+    - To save the above advance options for further use, set Image customization options to `to always use`
   - Write to SD-Card
 - [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card
 - [SSH into Raspberry Pi](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) 4 from local PC with the command `ssh admin@pi0.local`
