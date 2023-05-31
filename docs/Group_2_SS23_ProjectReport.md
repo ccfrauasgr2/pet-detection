@@ -4,15 +4,7 @@ TODO: Table of contents
 
 **Introduction**: The project *Automatic Pet Detection With Edge Computing* is part of the Cloud Computing SS23 module of Prof. Dr. Christian Baun at the Frankfurt University of Applied Sciences. Further information about the module can be found [here](https://www.christianbaun.de/CGC23/index.html).
 
-**Objective**: This project aims to develop an edge computing solution for the automatic detection of cats, dogs, golden hamster. General steps to achieve the project goal are:
-- Set up a Sensor Node (Raspberry Pi 4) with Camera Modules
-- Train a Model to Detect Pets
-- Deploy the Trained Model on the Sensor Node
-- Set up a Cluster of Raspberry Pi 3 Nodes
-- Set up a Database for Storing Detection Results 
-- Develop a WebApp for Displaying Detection Results
-- Develop API Connection Between the Sensor Node, Cluster & WebApp
-- Test Full System
+**Objective**: This project aims to develop an edge computing solution for the automatic detection of cats and dogs. General steps to achieve the project goal are listed in the **Project Plan** part in this Overview section.
 
 **Duration**: 12.04.2023 - 05.07.2023
 
@@ -170,14 +162,6 @@ flowchart TD
 
 # Sensor Node
 
-The following questions have to be answered:
-
-- What is the general purpose of the component?
-- Which tools/service/tech stacks were used and why?
-- How were these used to achieve the general purpose?
-- Example Results
-- Known problems and improvement suggestions
-
 ## Set up Raspberry Pi 4
 - Insert an empty SD-Card into local PC
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC
@@ -214,14 +198,6 @@ The following questions have to be answered:
 ## Wrap Sensor Node
 
 # Cluster
-
-The following questions have to be answered:
-
-- What is the general purpose of the component?
-- Which tools/service/tech stacks were used and why?
-- How were these used to achieve the general purpose?
-- Example Results
-- Known problems and improvement suggestions
 
 ## Set up Raspberry Pi 3
 
