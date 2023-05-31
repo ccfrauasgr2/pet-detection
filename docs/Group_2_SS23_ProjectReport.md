@@ -166,13 +166,13 @@ flowchart TD
 - Insert an empty SD-Card into local PC
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC
 - In the Raspberry Pi Imager:
-  - For Operating System, select `Raspberry Pi OS Lite (64-bit)`
+  - For Operating System, select `Raspberry Pi OS Lite (32|64-bit)`
   - For Storage, select the inserted SD-Card
   - In Advanced options (Cog icon):
     - Set `pi0` as hostname
-    - Set `admin` as username and set password
+    - Set `admin` as username and set own password
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
-    - Enable `Configure wireless LAN` option, then add network details (SSID & password) so that Raspberry Pi 4 will automatically connect to the network
+    - Enable `Configure wireless LAN` option, then add network details (SSID & password) so that Raspberry Pi 4 will automatically connect to the network. It is recommended to select specific values for the SSID and password, and set these values as name and password for a Wi-Fi hotspot on a portable device (e.g., smartphone). This way, the Raspberry Pi 4 can be connected to and accessed from anywhere that the portable device's Wi-Fi hotspot is available.
     - To save the above advance options for further use, set Image customization options to `to always use`
   - Write to SD-Card
 - [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card
