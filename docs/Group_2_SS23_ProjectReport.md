@@ -24,6 +24,28 @@ TODO: Table of contents
 
 **Network Architecture**:
 
+```mermaid
+flowchart LR
+  hotspot[Hotspot]
+  router[Router]
+  sensornode[Sensor Node]
+  switch[Switch]
+
+
+subgraph cluster[Kubernetes Cluster]
+  master[Master Node]
+  worker[3 Worker Nodes]
+end  
+  
+  localpc[Local PC]
+
+  hotspot -. WLAN .- router ==LAN=== switch ==LAN=== master
+  switch ==3 x LAN=== worker
+  router -. WLAN .- localpc & sensornode
+
+
+```
+
 **System Architecture**:
 
 ```mermaid
