@@ -22,6 +22,8 @@ TODO: Table of contents
 - 4 CoolReal USB-C to USB-C Cable
 - 1 Raspberry Pi Camera Module 2
 
+**Network Architecture**
+
 **System Architecture**:
 
 ```mermaid
@@ -119,15 +121,16 @@ flowchart TD
         
     subgraph Cluster
     id21[Set up\nRaspberry Pi 3]
-    id22[Set up\nKubernetes Cluster]
-    id23[Set up\nPV & DSS]
-    id24[Develop\nREST API]
-    id25[Deploy\nBackend]
-    id26[Configure\nDBMS]
+    id22[Set up\nNetwork Architecture]
+    id23[Set up\nKubernetes Cluster]
+    id24[Set up\nPV & DSS]
+    id25[Develop\nREST API]
+    id26[Deploy\nBackend]
+    id27[Configure\nDBMS]
     
 
-    id21 --> id22 --> id23 
-    id24 & id26 --> id25
+    id21 --> id22 --> id23 --> id24
+    id25 & id27 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
@@ -141,7 +144,7 @@ flowchart TD
     
     id51[Wrap\nSystem]
 
-    id23  & id25 & id32 & id33 --> id41
+    id24  & id26 & id32 & id33 --> id41
     id41 & id16 --> id51
     
 
@@ -151,13 +154,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                          |
-| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data, Train & Validate Model                                  |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3, Set up Kubernetes Cluster, Develop REST API, Implement TNB |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera, Prepare Training Data, Develop REST API     |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3, Set up Kubernetes Cluster, Set up PV & DSS, Implement TNB  |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend, Develop REST API                                             |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                      |
+| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data, Train & Validate Model                                                              |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3, Set up Kubernetes Cluster, Develop REST API, Implement TNB                             |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera, Prepare Training Data, Develop REST API                                 |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3, Set up Network Architecture, Set up Kubernetes Cluster, Set up PV & DSS, Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend, Develop REST API                                                                         |
 
 
 # Sensor Node
@@ -166,7 +169,7 @@ flowchart TD
 - Insert an empty SD-Card into local PC
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC
 - In the Raspberry Pi Imager:
-  - For Operating System, select `Raspberry Pi OS Lite (32|64-bit)`
+  - For Operating System, select `Raspberry Pi OS Lite (32-bit)`
   - For Storage, select the inserted SD-Card
   - In Advanced options (Cog icon):
     - Set `pi0` as hostname
@@ -202,7 +205,10 @@ flowchart TD
 ## Set up Raspberry Pi 3
 
 - Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4)
+- For Operating System, select `Raspberry Pi OS Lite (64-bit)`
 - Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3
+
+## Set up Network Architecture
 
 ## Set up Kubernetes Cluster
 
