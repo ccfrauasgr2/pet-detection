@@ -35,13 +35,17 @@ flowchart LR
 
 subgraph cluster[Kubernetes Cluster]
   master[Master Node]
-  worker[3 Worker Nodes]
+  worker1[Worker Node]
+  worker2[Worker Node]
+  worker3[Worker Node]
 end  
   
   localpc[Local PC]
 
   hotspot -. WLAN .- router ==LAN=== switch ==LAN=== master
-  switch ==3 x LAN=== worker
+  switch ==LAN=== worker1
+  switch ==LAN=== worker2
+  switch ==LAN=== worker3
   router -. WLAN .- localpc & sensornode
 
 
@@ -177,13 +181,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                      |
-| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data, Train & Validate Model                                                              |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3, Set up Kubernetes Cluster, Develop REST API, Implement TNB                             |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4, Set up Camera, Prepare Training Data, Develop REST API                                 |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3, Set up Network Architecture, Set up Kubernetes Cluster, Set up PV & DSS, Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend, Develop REST API                                                                         |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                  |
+| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                                       |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3<br/>Set up Kubernetes Cluster<br/>Develop REST API<br/>Implement TNB                                |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Network Architecture<br/>Set up Raspberry 4<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API    |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3<br/>Set up Network Architecture<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                                  |
 
 
 # Sensor Node
