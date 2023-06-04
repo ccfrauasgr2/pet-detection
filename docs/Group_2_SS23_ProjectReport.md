@@ -64,7 +64,7 @@ flowchart LR
   subgraph cluster[Kubernetes Cluster]
 
     subgraph masterNode[Master Node]
-      dss[Distributed\nStorage Service]
+      dss[Distributed\nStorage System]
     end
 
     subgraph workerNode[3 Worker Nodes]
