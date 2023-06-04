@@ -13,14 +13,15 @@ TODO: Table of contents
 **Presentation Slides**: [Link](https://docs.google.com/presentation/d/1wE96Q1euAeaRYBAPP1TrVFQCkrlQES2NmLTt2wVjyIs/edit?usp=sharing)
 
 **Hardware**:
-- 1 Raspberry Pi 4 Model B with 32GB MicroSDHC
-- 4 Raspberry Pi 3 Model B+ with 4x 32GB MicroSDHC
-- 1 Apple Charger with USB-C to USB-C
-- 1 Anker PowerPort with 6 Ports
-- 2 TP-Link TL-SG105 5 Port Desktop Switch
-- 6 LAN Cable
-- 4 CoolReal USB-C to USB-C Cable
-- 1 Raspberry Pi Camera Module 2
+- 1x Raspberry Pi 4 Model B
+- 4x Raspberry Pi 3 Model B+
+- 5x Samsung EVO Plus 32GB MicroSDHC
+- 1x Apple USB-C-to-USB-C Charger
+- 1x Anker 6-Port PowerPort
+- 2x TP-Link TL-SG105 5-Port Desktop Switch
+- 6x LAN Cable
+- 4x CoolReal USB-C-to-USB-C Cable
+- 1x Raspberry Pi Camera Module 2
 
 **Network Architecture**:
 
