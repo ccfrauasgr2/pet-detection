@@ -4,7 +4,7 @@ TODO: Table of contents
 
 **Introduction**: The project *Automatic Pet Detection With Edge Computing* is part of the Cloud Computing SS23 module of Prof. Dr. Christian Baun at the Frankfurt University of Applied Sciences. Further information about the module can be found [here](https://www.christianbaun.de/CGC23/index.html).
 
-**Objective**: This project aims to develop an edge computing solution for the automatic detection of cats and dogs. General steps to achieve the project goal are listed in the **Project Plan** part in this Overview section.
+**Objective**: This project aims to develop an edge computing solution for the automatic detection of cats and dogs. General steps to achieve the project goal are listed in the **Project Plan** part of this Overview section.
 
 **Duration**: 12.04.2023 - 05.07.2023
 
@@ -13,16 +13,16 @@ TODO: Table of contents
 **Presentation Slides**: [Link](https://docs.google.com/presentation/d/1wE96Q1euAeaRYBAPP1TrVFQCkrlQES2NmLTt2wVjyIs/edit?usp=sharing)
 
 **Hardware**:
-- 1 Raspberry Pi 4 Model B with 32 GB MicroSD
-- 4 Raspberry Pi 3 Model B with 4x 32 GB MicroSD
-- 1 Apple charger with USB-C to USB-C
+- 1 Raspberry Pi 4 Model B with 32GB MicroSDHC
+- 4 Raspberry Pi 3 Model B+ with 4x 32GB MicroSDHC
+- 1 Apple Charger with USB-C to USB-C
 - 1 Anker PowerPort with 6 Ports
-- 2 TP-Link TL-SG105 5 Port Desktop switch
-- 6 Lan Cable
+- 2 TP-Link TL-SG105 5 Port Desktop Switch
+- 6 LAN Cable
 - 4 CoolReal USB-C to USB-C Cable
 - 1 Raspberry Pi Camera Module 2
 
-**Network Architecture**
+**Network Architecture**:
 
 **System Architecture**:
 
@@ -175,7 +175,7 @@ flowchart TD
     - Set `pi0` as hostname
     - Set `admin` as username and set own password
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
-    - Enable `Configure wireless LAN` option, then add network details (SSID & password) so that Raspberry Pi 4 will automatically connect to the network. It is recommended to select specific values for the SSID and password, and set these values as name and password for a Wi-Fi hotspot on a portable device (e.g., smartphone). This way, the Raspberry Pi 4 can be connected to and accessed from anywhere that the portable device's Wi-Fi hotspot is available.
+    - Enable `Configure wireless LAN` option, select then type in specific values for the SSID and password so that Raspberry Pi 4 will automatically connect to the system network. It is recommended to write down the SSID and password as they will be used later in [Set up Network Architecture](#set-up-network-architecture).
     - To save the above advance options for further use, set Image customization options to `to always use`
   - Write to SD-Card
 - [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card
