@@ -29,12 +29,13 @@ Received from Prof.:
 Obtained from own source:
 
 - 1x FRITZ!Box 3272 Router
+- 1x USB-to-USB-C Cable
 
 **Network Architecture**:
 
 ```mermaid
 flowchart TB
-  hotspot[Hotspot]
+  hotspot[Hotspot Device]
   router[Router]
   sensornode[Sensor Node]
   
@@ -197,24 +198,24 @@ flowchart TD
 # Sensor Node
 
 ## Set up Raspberry Pi 4
-- Insert an empty SD-Card into local PC
-- Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC
+- Insert an empty SD-Card into local PC.
+- Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC.
 - In the Raspberry Pi Imager:
-  - For Operating System, select `Raspberry Pi OS Lite (32-bit)`
-  - For Storage, select the inserted SD-Card
+  - For Operating System, select `Raspberry Pi OS Lite (32-bit)`.
+  - For Storage, select the inserted SD-Card.
   - In Advanced options (Cog icon):
-    - Set `pi0` as hostname
-    - Set `admin` as username and set own password
+    - Set `pi0` as hostname.
+    - Set `admin` as username and set own password.
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
     - Enable `Configure wireless LAN` option, type in the SSID and password of the router so that Raspberry Pi 4 will automatically connect to the router network. For more information see [Set up Static IP](#set-up-static-ip).
-    - To save the above advance options for further use, set Image customization options to `to always use`
-  - Write to SD-Card
-- [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card
+    - To save the above advance options for further use, set Image customization options to `to always use`.
+  - Write to SD-Card.
+- [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card.
 - [SSH into Raspberry Pi](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) 4 from local PC with the command `ssh admin@pi0.local`
 - Update system packages with `sudo apt update` then `sudo apt upgrade -y`  
 - SSH only provides *terminal* access to Raspberry Pi 4. To *remotely control the desktop interface* of Raspberry Pi 4, we use VNC (Virtual Network Computing). To enable VNC connection:
   - First, enable VNC Server on Raspberry Pi 4. SSH into Raspberry Pi 4 from local PC, then enter `sudo raspi-config`. Now with the arrows select `Interfacing Options`, navigate to `VNC`, choose `Yes`, and select `Ok`.
-  - Install [Real VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/) on local PC
+  - Install [Real VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/) on local PC.
   - Open local VNC Viewer, enter `pi0.local:0` or `[IP address of Raspberry Pi 4]`. To find the IP address of Raspberry Pi 4, SSH into Raspberry Pi 4 from local PC, then enter `hostname -I`.
   - Enter login credentials that were set while configuring Raspberry Pi Imager.
   - The VNC session should start, and the Raspberry Pi desktop should be available.
@@ -236,9 +237,9 @@ flowchart TD
 
 ## Set up Raspberry Pi 3
 
-- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4)
-- For Operating System, select `Raspberry Pi OS Lite (64-bit)`
-- Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3
+- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4).
+- For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
+- Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3.
 - **DO NOT SSH into each Raspberry Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
 
 ## Set up Static IP
@@ -249,8 +250,9 @@ For a `k3s` Kubernetes cluster to work, the worker nodes must know the IP addres
 
 Thus, it is critical that the master and worker nodes be assigned static (fixed) IP addresses, so that communication between them still holds even when the gateway IP address of the hotspot changes. To assign static IP addresses to the nodes, an additional FRITZ!Box Router is used. Here are the steps to set up static IP addresses:
 
-- Set up all hardware as shown in the Network Architecture in the [Overview](#overview) section, then turn on all hardware and hotspot.
-- Connect local PC with the router WLAN network using its SSID and password.
+- Turn on all hardware shown in the Network Architecture part of the [Overview section](#overview).
+- Share the hotspot device's internet connection with the router through USB-Tethering.
+- Connect local PC and all Raspberry Pi with the router's WLAN network using its SSID and password.
 - On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network, which is `192.168.178.1` for this project.
 - Still on local PC, enter the IP address just found in a browser to open the router (FRITZ!Box) user interface (see below image; `KIEN-LEGION5` and `Google Pixel 5` were the local PC and hotspot device used, respectively).
 
