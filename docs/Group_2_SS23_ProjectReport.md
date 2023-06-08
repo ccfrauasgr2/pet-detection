@@ -33,11 +33,11 @@ Obtained from own source:
 **Network Architecture**:
 
 ```mermaid
-flowchart LR
+flowchart TB
   hotspot[Hotspot]
   router[Router]
   sensornode[Sensor Node]
-  switch[Switch]
+  
 
 
 subgraph cluster[Kubernetes Cluster]
@@ -49,11 +49,8 @@ end
   
   localpc[Local PC]
 
-  hotspot ==USB\nTethering=== router ==LAN=== switch ==LAN=== master
-  switch ==LAN=== worker1
-  switch ==LAN=== worker2
-  switch ==LAN=== worker3
-  router -. WLAN .- localpc & sensornode
+  hotspot ==USB-Tethering=== router
+  router -. WLAN .- localpc & sensornode & master & worker1 & worker2 & worker3
 
 
 ```
@@ -242,12 +239,34 @@ flowchart TD
 - Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4)
 - For Operating System, select `Raspberry Pi OS Lite (64-bit)`
 - Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3
+- **DO NOT SSH into each Raspberry Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
 
 ## Set up Static IP
 
-**Context**: To set up a Kubernetes cluster with `k3s`, the worker nodes must know the IP address of the master node. However, if the master node is directly connected to a hotspot, then whenever the gateway IP of the hotspot changes, the master node will receive a IP address different from the one registered on the worker nodes. Consequently, the Kubernetes won't work, because the master node and the worker nodes cannot communicate with each other (in that case, when entering the command `kubectl get nodes` to the master node, the worker nodes will be shown as `Not Ready`).
+To set up a Kubernetes cluster with `k3s`, the worker nodes must know the IP address of the master node. However, if the master node is directly connected to a hotspot, then whenever the gateway IP of the hotspot changes, the master node will receive a IP address different from the one registered on the worker nodes. Consequently, the Kubernetes won't work, because the master node and the worker nodes cannot communicate with each other (in that case, when entering the command `kubectl get nodes` to the master node, the worker nodes will be shown as `Not Ready`).
 
 Thus, it is critical that the master and worker nodes be assigned static (fixed) IP addresses, so that communication between them still holds even when the gateway IP address of the hotspot changes. To assign static IP addresses to the nodes, an additional FRITZ!Box Router is used. Here are the steps to set up static IP addresses:
+
+- Set up all hardware as shown in the Network Architecture in the [Overview](#overview) section, then turn on all hardware and hotspot.
+- Connect local PC with the router WLAN network using its SSID and password.
+- On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network, which is `192.168.178.1` for this project.
+- Still on local PC, enter the IP address just found in a browser to open the router (FRITZ!Box) user interface (see below image, `KIEN-LEGION5` and `Google Pixel 5` denote local PC and hotspot device, respectively).
+
+  ![](img/staticIP2.png)
+
+- [Assign static IP addresses to all available Raspberry Pi](https://www.giga.de/hardware/avm-fritz-box-fon-wlan-7390/tipps/fritzbox-feste-ip-vergeben-so-geht-s/), then restart all Raspberry Pi.
+
+  | Raspberry Pi | Assigned IP Address (WLAN) |
+  | ------------ | -------------------------- |
+  | ``pi1 ``     | `192.168.178.71`           |
+  | ``pi2``      | `192.168.178.72`           |
+  | ``pi3``      | `192.168.178.73`           |
+  | ``pi4``      | `192.168.178.74`           |
+- To check if the setup works, restart hotspot device, then turn hotspot on again. All Raspberry Pi should still have Internet access and the same static IP addresses assigned to them.
+  
+  
+  ![](img/staticIP1.png)
+
 
 ## Set up Kubernetes Cluster
 
