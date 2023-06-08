@@ -276,10 +276,22 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 
 As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 designated as the master (server) node, and the remaining three Raspberry Pi 3 serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster.](https://docs.k3s.io/datastore/ha-embedded).
 
+To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
+
+- [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then update their system packages with `sudo apt update` and `sudo apt upgrade -y`
+- SSH into `pi1` from local PC, then add the block below to the `/etc/host` file with `sudo nano /etc/hosts`, and finally save changes by `Ctrl` + `X`, hit `Y` then `Enter`. By having these entries in the `/etc/host` file, `pi1` is able to access other Raspberry Pi within local network by hostnames, simplifying network communication and identification.
+
+  ```
+  192.168.178.71 pi1 pi1.local
+
+  192.168.178.72 pi2 pi2.local
+  192.168.178.73 pi3 pi3.local
+  192.168.178.74 pi4 pi4.local
+  ```
+- On `pi1`, use  `sudo apt install ansible` to install [Ansible](https://docs.ansible.com/) - a tool that allows us to define and execute tasks in an automated and repeatable manner, reducing the need for manual intervention and saving time and effort. In other words, Ansible simplifies the management of the Raspberry Pi as well as the Kubernetes cluster. The installation can be verified with `ansible --version`
+- Next, 
+  
 Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3 using ``k3s``:
-
-- If not done yet, [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC then update their system packages with `sudo apt update` and `sudo apt upgrade -y`
-
 
 ## Set up PV & DSS
 
