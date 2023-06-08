@@ -13,6 +13,9 @@ TODO: Table of contents
 **Presentation Slides**: [Link](https://docs.google.com/presentation/d/1wE96Q1euAeaRYBAPP1TrVFQCkrlQES2NmLTt2wVjyIs/edit?usp=sharing)
 
 **Hardware**:
+
+Received from Prof.:
+
 - 1x Raspberry Pi 4 Model B
 - 4x Raspberry Pi 3 Model B+
 - 5x Samsung EVO Plus 32GB MicroSDHC
@@ -22,6 +25,10 @@ TODO: Table of contents
 - 6x LAN Cable
 - 4x CoolReal USB-C-to-USB-C Cable
 - 1x Raspberry Pi Camera Module 2
+
+Obtained from own source:
+
+- 1x FRITZ!Box 3272 Router
 
 **Network Architecture**:
 
@@ -42,7 +49,7 @@ end
   
   localpc[Local PC]
 
-  hotspot -. WLAN .- router ==LAN=== switch ==LAN=== master
+  hotspot ==USB\nTethering=== router ==LAN=== switch ==LAN=== master
   switch ==LAN=== worker1
   switch ==LAN=== worker2
   switch ==LAN=== worker3
@@ -148,7 +155,7 @@ flowchart TD
         
     subgraph Cluster
     id21[Set up\nRaspberry Pi 3]
-    id22[Set up\nNetwork Architecture]
+    id22[Set up\nStatic IP]
     id23[Set up\nKubernetes Cluster]
     id24[Set up\nPV & DSS]
     id25[Develop\nREST API]
@@ -181,13 +188,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                  |
-| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                                       |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3<br/>Set up Kubernetes Cluster<br/>Develop REST API<br/>Implement TNB                                |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Network Architecture<br/>Set up Raspberry 4<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API    |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3<br/>Set up Network Architecture<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                                  |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                       |
+| ------------------- | ------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                            |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3<br/>Set up Kubernetes Cluster<br/>Develop REST API<br/>Implement TNB                     |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                         |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                       |
 
 
 # Sensor Node
@@ -202,7 +209,7 @@ flowchart TD
     - Set `pi0` as hostname
     - Set `admin` as username and set own password
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
-    - Enable `Configure wireless LAN` option, select then type in specific values for the SSID and password so that Raspberry Pi 4 will automatically connect to the system network. It is recommended to write down the SSID and password as they will be used later in [Set up Network Architecture](#set-up-network-architecture).
+    - Enable `Configure wireless LAN` option, type in the SSID and password of the router so that Raspberry Pi 4 will automatically connect to the router network. For more information see [Set up Static IP](#set-up-static-ip).
     - To save the above advance options for further use, set Image customization options to `to always use`
   - Write to SD-Card
 - [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card
@@ -236,7 +243,11 @@ flowchart TD
 - For Operating System, select `Raspberry Pi OS Lite (64-bit)`
 - Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3
 
-## Set up Network Architecture
+## Set up Static IP
+
+**Context**: To set up a Kubernetes cluster with `k3s`, the worker nodes must know the IP address of the master node. However, if the master node is directly connected to a hotspot, then whenever the gateway IP of the hotspot changes, the master node will receive a IP address different from the one registered on the worker nodes. Consequently, the Kubernetes won't work, because the master node and the worker nodes cannot communicate with each other (in that case, when entering the command `kubectl get nodes` to the master node, the worker nodes will be shown as `Not Ready`).
+
+Thus, it is critical that the master and worker nodes be assigned static (fixed) IP addresses, so that communication between them still holds even when the gateway IP address of the hotspot changes. To assign static IP addresses to the nodes, an additional FRITZ!Box Router is used. Here are the steps to set up static IP addresses:
 
 ## Set up Kubernetes Cluster
 
