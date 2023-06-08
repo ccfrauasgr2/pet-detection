@@ -243,7 +243,7 @@ flowchart TD
 
 ## Set up Static IP
 
-Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 will be used as master node, while the other three will be used as worker nodes. For more information about the architecture of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
+Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 will be used as master node, while the other three will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
 
 For a `k3s` Kubernetes cluster to work, the worker nodes must know the IP address of the master node, so that they can communicate with each other. However, if the master node is directly connected to a hotspot, then whenever the gateway IP of the hotspot changes, the master node will receive from the hotspot an IP address different from the one registered on the worker nodes. Consequently, the master node and the worker nodes cannot communicate with each other, i.e., the Kubernetes won't work (in that case, when entering the command `kubectl get nodes` on the master node, the worker nodes will be shown as `Not Ready`).
 
@@ -252,7 +252,7 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 - Set up all hardware as shown in the Network Architecture in the [Overview](#overview) section, then turn on all hardware and hotspot.
 - Connect local PC with the router WLAN network using its SSID and password.
 - On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network, which is `192.168.178.1` for this project.
-- Still on local PC, enter the IP address just found in a browser to open the router (FRITZ!Box) user interface (see below image, `KIEN-LEGION5` and `Google Pixel 5` were used as/denote local PC and hotspot device, respectively).
+- Still on local PC, enter the IP address just found in a browser to open the router (FRITZ!Box) user interface (see below image; `KIEN-LEGION5` and `Google Pixel 5` were the local PC and hotspot device used, respectively).
 
   ![](img/staticIP2.png)
 
@@ -272,8 +272,12 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 
 ## Set up Kubernetes Cluster
 
+As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 designated as the master (server) node, and the remaining three Raspberry Pi 3 serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster.](https://docs.k3s.io/datastore/ha-embedded).
+
+Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3 using ``k3s``:
+
 - If not done yet, [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC then update their system packages with `sudo apt update` and `sudo apt upgrade -y`
-- 
+
 
 ## Set up PV & DSS
 
