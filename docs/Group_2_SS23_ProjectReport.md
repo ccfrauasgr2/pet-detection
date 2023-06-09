@@ -261,12 +261,12 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 
 - [Assign static IP addresses to all available Raspberry Pi](https://www.giga.de/hardware/avm-fritz-box-fon-wlan-7390/tipps/fritzbox-feste-ip-vergeben-so-geht-s/), then restart all Raspberry Pi.
 
-  | Raspberry Pi | Assigned IP Address (WLAN) |
-  | ------------ | -------------------------- |
-  | ``pi1``      | `192.168.178.71`           |
-  | ``pi2``      | `192.168.178.72`           |
-  | ``pi3``      | `192.168.178.73`           |
-  | ``pi4``      | `192.168.178.74`           |
+  | Raspberry Pi | Assigned IP Address | Connection |
+  | ------------ | ------------------- | ---------- |
+  | ``pi1``      | `192.168.178.61`    | LAN        |
+  | ``pi2``      | `192.168.178.62`    | LAN        |
+  | ``pi3``      | `192.168.178.63`    | LAN        |
+  | ``pi4``      | `192.168.178.64`    | LAN        |
 - To check if the setup works, restart hotspot device, then turn hotspot on again. All Raspberry Pi should still have Internet access and the same static IP addresses assigned to them.
   
   
