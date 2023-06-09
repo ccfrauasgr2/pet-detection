@@ -274,7 +274,7 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 
 ## Set up Kubernetes Cluster
 
-As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 designated as the master (server) node, and the remaining three Raspberry Pi 3 serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster.](https://docs.k3s.io/datastore/ha-embedded).
+As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 designated as the master (server) node, and the remaining three Raspberry Pi 3 serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
 
 To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
 
@@ -289,7 +289,7 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   192.168.178.74 pi4 pi4.local
   ```
 - On `pi1`, use  `sudo apt install ansible` to install [Ansible](https://docs.ansible.com/) - a tool that allows us to define and execute tasks in an automated and repeatable manner, reducing the need for manual intervention and saving time and effort. In other words, Ansible simplifies the management of the Raspberry Pi as well as the Kubernetes cluster. The installation can be verified with `ansible --version`
-- Next, create file `/etc/ansible/hosts` in `pi1`, then add the block below to the file with `sudo nano /etc/ansible/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. In essence, here we define hosts (nodes) and 3 groups of hosts that Ansible will try to manage: ``master``, ``workers`` and ``nodes``. This was split so that if we want to execute some actions only on a certain group, we use that group's name. Group `nodes` has children, which basically means that it’s a group of groups, and when we use `nodes` we target every single node from the listed groups. Variable `ansible_connection` of a host tells Ansible how to connect to that host. The primary method is ``ssh``, but ``local`` was specified for ``pi1``, because we run Ansible from this node. This way, `pi1` won’t try to ssh to itself.
+- Next, create file `/etc/ansible/hosts` in `pi1`, then add the block below to the file with `sudo nano /etc/ansible/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. In essence, here we define hosts (nodes) and 3 groups of hosts that Ansible will try to manage: ``master``, ``workers`` and ``nodes``. This was split so that if we want to execute some actions only on a certain group, we use that group's name. Group `nodes` has children, which basically means that it’s a group of groups, and when we use `nodes` we target every single node from the listed groups. Variable `ansible_connection` of a host tells Ansible how to connect to that host. The primary method is ``ssh``, but ``local`` was specified for ``pi1``, because we run Ansible from this node. This way, `pi1` won’t try to SSH to itself.
 
   ```
   [master]
@@ -304,7 +304,34 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   master
   workers
   ```
-  
+- After adding Ansible hosts, run the commands in the block below to enable logging in to other nodes from `pi1` using SSH key, so that there is no need to type the password every time running Ansible.
+
+  ```
+  # Make sure you are user <admin>
+  # Go to <admin>'s home directory
+  cd
+
+  # Create directory ".ssh" in <admin>'s home directory
+  mkdir -p ~/.ssh
+
+  # Change permissions of the ".ssh" directory to "700"
+  # "700" means that the ONLY the owner of the directory (<admin>) has read, write, and execute permissions
+  chmod 700 ~/.ssh
+
+  # Generate SSH key
+  # DO NOT fill anything when asked, just hit Enter
+  ssh-keygen -t rsa
+
+  # Copy keys to each node:
+  ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi2
+  ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi3
+  ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi4
+  ```
+- On `pi1`, run `ansible nodes -m ping` to check if Ansible is working fine and can connect to all nodes. All nodes should show `SUCCESS` status.
+
+
+
+
 Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3 using ``k3s``:
 
 ## Set up PV & DSS
