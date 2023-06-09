@@ -38,6 +38,7 @@ flowchart TB
   hotspot[Hotspot Device]
   router[Router]
   sensornode[Sensor Node]
+  switch[Switch]
   
 
 
@@ -51,8 +52,8 @@ end
   localpc[Local PC]
 
   hotspot ==USB-Tethering=== router
-  router -. WLAN .- localpc & sensornode & master & worker1 & worker2 & worker3
-
+  router -. WLAN .- localpc & sensornode 
+  router ==LAN=== switch ==LAN=== master & worker1 & worker2 & worker3
 
 ```
 
@@ -237,7 +238,7 @@ flowchart TD
 
 ## Set up Raspberry Pi 3
 
-- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4).
+- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4), but disable `Configure wireless LAN` option.
 - For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
 - Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3.
 - **DO NOT SSH into each Raspberry Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
@@ -252,8 +253,8 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 
 - Turn on all hardware shown in the Network Architecture part of the [Overview section](#overview).
 - Share the hotspot device's internet connection with the router through USB-Tethering.
-- Connect local PC and all Raspberry Pi with the router's WLAN network using its SSID and password.
-- On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network, which is `192.168.178.1` for this project.
+- Connect local PC and all Raspberry Pi with the router's local network.
+- On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network, which is `192.168.178.1` for our router.
 - Still on local PC, enter the IP address just found in a browser to open the router (FRITZ!Box) user interface (see below image; `KIEN-LEGION5` and `Google Pixel 5` were the local PC and hotspot device used, respectively).
 
   ![](img/staticIP2.png)
