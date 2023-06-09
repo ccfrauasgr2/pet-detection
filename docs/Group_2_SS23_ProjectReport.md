@@ -244,7 +244,7 @@ flowchart TD
 
 ## Set up Static IP
 
-Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 will be used as master node, while the other three will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
+Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 (`pi1`) will be used as master node, while the other three (`pi2, pi3, pi4`) will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
 
 For a `k3s` Kubernetes cluster to work, the worker nodes must know the IP address of the master node, so that they can communicate with each other. However, if the master node is directly connected to a hotspot, then whenever the gateway IP of the hotspot changes, the master node will receive from the hotspot an IP address different from the one registered on the worker nodes. Consequently, the master node and the worker nodes cannot communicate with each other, i.e., the Kubernetes won't work (in that case, when entering the command `kubectl get nodes` on the master node, the worker nodes will be shown as `Not Ready`).
 
@@ -274,7 +274,7 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
 
 ## Set up Kubernetes Cluster
 
-As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 designated as the master (server) node, and the remaining three Raspberry Pi 3 serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
+As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (`pi1`) designated as the master (server) node, and the remaining three Raspberry Pi 3 (`pi2, pi3, pi4`) serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
 
 To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
 
@@ -289,7 +289,7 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   192.168.178.74 pi4 pi4.local
   ```
 - On `pi1`, use  `sudo apt install ansible` to install [Ansible](https://docs.ansible.com/) - a tool that allows us to define and execute tasks in an automated and repeatable manner, reducing the need for manual intervention and saving time and effort. In other words, Ansible simplifies the management of the Raspberry Pi as well as the Kubernetes cluster. The installation can be verified with `ansible --version`
-- Next, create file `/etc/ansible/hosts` in `pi1`, then add the block below to the file with `sudo nano /etc/ansible/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. In essence, here we define hosts (nodes) and 3 groups of hosts that Ansible will try to manage: ``master``, ``workers`` and ``nodes``. This was split so that if we want to execute some actions only on a certain group, we use that group's name. Group `nodes` has children, which basically means that it’s a group of groups, and when we use `nodes` we target every single node from the listed groups. Variable `ansible_connection` of a host tells Ansible how to connect to that host. The primary method is ``ssh``, but ``local`` was specified for ``pi1``, because we run Ansible from this node. This way, `pi1` won’t try to SSH to itself.
+- Next, create file `/etc/ansible/hosts` in `pi1`, then add the block below to the file with `sudo nano /etc/ansible/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. In essence, here we define hosts (nodes) and 3 groups of hosts that Ansible will try to manage: ``master``, ``workers`` and ``nodes``. This was split so that if we want to execute some actions only on a certain group, we use that group's name. Group `nodes` has children, which basically means that it’s a group of groups, and when we use `nodes` we target every single node from the listed groups. Variable `ansible_connection` of a host tells Ansible how to connect to that host. The primary method is ``ssh``, but ``local`` was specified for ``pi1``, because we run Ansible from this node. This way, `pi1` won’t try to SSH into itself.
 
   ```
   [master]
@@ -315,7 +315,7 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   mkdir -p ~/.ssh
 
   # Change permissions of the ".ssh" directory to "700"
-  # "700" means that the ONLY the owner of the directory (<admin>) has read, write, and execute permissions
+  # "700" means that ONLY the owner of the directory (<admin>) has read, write, and execute permissions
   chmod 700 ~/.ssh
 
   # Generate SSH key
@@ -333,7 +333,13 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
 
 
 
-Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3 using ``k3s``:
+Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3:
+
+- Run `curl -sfL https://get.k3s.io | sh -s - --disable servicelb --token CompNet123 --disable local-storage` to install `k3s server` on `pi1` (the designated master node).
+  - ``--disable servicelb`` - Set this flag to disable the Service LoadBalancer of Kubernetes, since Kubernetes does not offer an implementation of network load balancers (Services of type LoadBalancer) for bare-metal clusters anyway. We will use [MetalLB](https://metallb.universe.tf/) instead.
+  - ``--token`` - The token used by the worker nodes to connect to the master node, necessary for installing `k3s agent` on worker nodes. Here the token is set to `CompNet123`.
+  - ``--disable local-storage`` - Set this flag to disable the k3s local storage. We will set up [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) storage provider instead. For more information see [Set up PV & DSS](#set-up-pv--dss).
+- Still on `pi1`, run `ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://192.168.178.71:6443 K3S_TOKEN=CompNet123 sh -"` to install `k3s agent` on  `pi2, pi3, pi4` (the designated worker nodes).
 
 ## Set up PV & DSS
 
