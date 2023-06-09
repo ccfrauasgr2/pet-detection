@@ -279,7 +279,7 @@ As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 d
 To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
 
 - [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then update their system packages with `sudo apt update` and `sudo apt upgrade -y`
-- SSH into `pi1` from local PC, then add the block below to the `/etc/host` file with `sudo nano /etc/hosts`, and finally save changes by `Ctrl` + `X`, hit `Y` then `Enter`. By having these entries in the `/etc/host` file, `pi1` is able to access other Raspberry Pi within local network by hostnames, simplifying network communication and identification.
+- SSH into `pi1` from local PC, then add the block below to the `/etc/host` file with `sudo nano /etc/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. By having these entries in the `/etc/host` file, `pi1` is able to access other Raspberry Pi within local network by hostnames, simplifying network communication and identification.
 
   ```
   192.168.178.71 pi1 pi1.local
@@ -289,7 +289,21 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   192.168.178.74 pi4 pi4.local
   ```
 - On `pi1`, use  `sudo apt install ansible` to install [Ansible](https://docs.ansible.com/) - a tool that allows us to define and execute tasks in an automated and repeatable manner, reducing the need for manual intervention and saving time and effort. In other words, Ansible simplifies the management of the Raspberry Pi as well as the Kubernetes cluster. The installation can be verified with `ansible --version`
-- Next, 
+- Next, create file `/etc/ansible/hosts` in `pi1`, then add the block below to the file with `sudo nano /etc/ansible/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. In essence, here we define hosts (nodes) and 3 groups of hosts that Ansible will try to manage: ``master``, ``workers`` and ``nodes``. This was split so that if we want to execute some actions only on a certain group, we use that group's name. Group `nodes` has children, which basically means that it’s a group of groups, and when we use `nodes` we target every single node from the listed groups. Variable `ansible_connection` of a host tells Ansible how to connect to that host. The primary method is ``ssh``, but ``local`` was specified for ``pi1``, because we run Ansible from this node. This way, `pi1` won’t try to ssh to itself.
+
+  ```
+  [master]
+  pi1  ansible_connection=local
+
+  [workers]
+  pi2  ansible_connection=ssh
+  pi3  ansible_connection=ssh
+  pi4  ansible_connection=ssh
+
+  [nodes:children]
+  master
+  workers
+  ```
   
 Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3 using ``k3s``:
 
