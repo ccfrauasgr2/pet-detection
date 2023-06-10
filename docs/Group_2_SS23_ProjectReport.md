@@ -298,10 +298,6 @@ After setting up static IP, we will enable passwordless, SSH-key-based login fro
   # Create directory ".ssh" in <admin>'s home directory
   mkdir -p ~/.ssh
 
-  # Change permissions of the ".ssh" directory to "700"
-  # "700" means that ONLY the owner of the directory (<admin>) has read, write, and execute permissions
-  chmod 700 ~/.ssh
-
   # Open new file "~/.ssh/authorized_keys"
   sudo nano ~/.ssh/authorized_keys
   # Paste the contents of the public key "id_rsa.pub" on local PC into this file. 
