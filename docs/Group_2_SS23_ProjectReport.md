@@ -285,7 +285,7 @@ After setting up static IP, we will enable passwordless, SSH-key-based login fro
   ssh-keygen -t rsa -b 2048
   # Public key location: ~/.ssh/id_rsa.pub (Windows)
   ```
-- Finally, copy the generated SSH key to each Pi 3. Also, since we are already in each Pi 3, let's finish setting them up.
+- Finally, copy the generated SSH key to each Pi 3 and finish setting them up.
 
   ```
   # SSH into each Pi 3, make sure you are user <admin>
@@ -308,8 +308,7 @@ After setting up static IP, we will enable passwordless, SSH-key-based login fro
   # Hit "Ctrl" + "X" -> "Y" -> "Enter" to save changes.
 
   # Update system packages
-  sudo apt update
-  sudo apt upgrade -y
+  sudo apt update && sudo apt upgrade -y
 
   # Disable IPv6
   sudo nano /boot/cmdline.txt
