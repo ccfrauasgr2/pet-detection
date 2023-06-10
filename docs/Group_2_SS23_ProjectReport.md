@@ -238,10 +238,9 @@ flowchart TD
 
 ## Set up Raspberry Pi 3
 
-- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4), but disable `Configure wireless LAN` option.
+- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4), but disable `Configure wireless LAN` option, and **DO NOT SSH into each Raspberry Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
 - For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
 - Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3.
-- **DO NOT SSH into each Raspberry Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
 
 ## Set up Static IP
 
@@ -279,33 +278,17 @@ As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (
 
 To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
 
-- [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then run `sudo apt update` and `sudo apt upgrade -y` to update their system packages. Also on each Raspberry Pi 3, run `sudo nano /boot/cmdline.txt` to open the file `/boot/cmdline.txt` and **append** `cgroup_memory=1 cgroup_enable=memory` at the end of the first line. **It is important that there is no line break added.** Hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes.
+- [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then run `sudo apt update` and `sudo apt upgrade -y` to update their system packages. Also on each Raspberry Pi 3, run `sudo nano /boot/cmdline.txt` to open the file `/boot/cmdline.txt` and **append** `ipv6.disable=1 cgroup_memory=1 cgroup_enable=memory` at the end of the first line. **It is important that there is no line break added.** Hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. Run `sudo reboot` to reboot, so that all changes can take place.
 - SSH into `pi1` from local PC, then add the block below to the `/etc/host` file with `sudo nano /etc/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. By having these entries in the `/etc/host` file, `pi1` is able to access other Raspberry Pi within local network by hostnames, simplifying network communication and identification.
 
   ```
-  192.168.178.71 pi1 pi1.local
+  192.168.178.61 pi1 pi1.local
 
-  192.168.178.72 pi2 pi2.local
-  192.168.178.73 pi3 pi3.local
-  192.168.178.74 pi4 pi4.local
+  192.168.178.62 pi2 pi2.local
+  192.168.178.63 pi3 pi3.local
+  192.168.178.64 pi4 pi4.local
   ```
-- On `pi1`, use  `sudo apt install ansible` to install [Ansible](https://docs.ansible.com/) - a tool that allows us to define and execute tasks in an automated and repeatable manner, reducing the need for manual intervention and saving time and effort. In other words, Ansible simplifies the management of the Raspberry Pi as well as the Kubernetes cluster. The installation can be verified with `ansible --version`
-- Next, create file `/etc/ansible/hosts` in `pi1`, then add the block below to the file with `sudo nano /etc/ansible/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. In essence, here we define hosts (nodes) and 3 groups of hosts that Ansible will try to manage: ``master``, ``workers`` and ``nodes``. This was split so that if we want to execute some actions only on a certain group, we use that group's name. Group `nodes` has children, which basically means that it’s a group of groups, and when we use `nodes` we target every single node from the listed groups. Variable `ansible_connection` of a host tells Ansible how to connect to that host. The primary method is ``ssh``, but ``local`` was specified for ``pi1``, because we run Ansible from this node. This way, `pi1` won’t try to SSH into itself.
-
-  ```
-  [master]
-  pi1  ansible_connection=local
-
-  [workers]
-  pi2  ansible_connection=ssh
-  pi3  ansible_connection=ssh
-  pi4  ansible_connection=ssh
-
-  [nodes:children]
-  master
-  workers
-  ```
-- After adding Ansible hosts, run the commands in the block below to enable logging in to other nodes from `pi1` using SSH key, so that there is no need to type the password every time running Ansible.
+- Run the commands below to enable SSH-key-based login from ``pi1`` to other nodes, eliminating the need to type password every time.
 
   ```
   # Make sure you are user <admin>
@@ -328,19 +311,13 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi3
   ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi4
   ```
-- On `pi1`, run `ansible nodes -m ping` to check if Ansible is working fine and can connect to all nodes. All nodes should show `SUCCESS` status. 
-- Run `ansible nodes -b -m shell -a "reboot"` to reboot all nodes, so that all changes thus far can take place.
-
-
-
 
 Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3:
 
-- Run `curl -sfL https://get.k3s.io | sh -s - --disable servicelb --token CompNet123 --disable local-storage` to install `k3s server` on `pi1` (the designated master node).
-  - ``--disable servicelb`` - Set this flag to disable the Service LoadBalancer of Kubernetes, since Kubernetes does not offer an implementation of network load balancers (Services of type LoadBalancer) for bare-metal clusters anyway. We will use [MetalLB](https://metallb.universe.tf/) instead.
-  - ``--token`` - The token used by the worker nodes to connect to the master node, necessary for installing `k3s agent` on worker nodes. Here the token is set to `CompNet123`.
-  - ``--disable local-storage`` - Set this flag to disable the k3s local storage. We will set up [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) storage provider instead. For more information see [Set up PV & DSS](#set-up-pv--dss).
-- Still on `pi1`, run `ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://192.168.178.71:6443 K3S_TOKEN=CompNet123 sh -"` to install `k3s agent` on  `pi2, pi3, pi4` (the designated worker nodes).
+- Run `curl -sfL https://get.k3s.io | sh -` to install `k3s server` on `pi1` (the designated master node).
+- Still on `pi1`, run `sudo cat /var/lib/rancher/k3s/server/node-token` to get the `<k3s-token>` of the master node. 
+- On each `pi2, pi3, pi4` (the designated worker nodes), run `curl -sfL https://get.k3s.io | K3S_URL=https://192.168.178.61:6443 K3S_TOKEN=<k3s-token> sh -` to install `k3s agent`.
+- Run `sudo k3s kubectl get nodes` to check if the set up works. All nodes should be available and have status `READY`.
 
 ## Set up PV & DSS
 
