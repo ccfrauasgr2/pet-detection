@@ -278,7 +278,11 @@ As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (
 
 To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
 
-- [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then run `sudo apt update` and `sudo apt upgrade -y` to update their system packages. Also on each Raspberry Pi 3, run `sudo nano /boot/cmdline.txt` to open the file `/boot/cmdline.txt` and **append** `ipv6.disable=1 cgroup_memory=1 cgroup_enable=memory` at the end of the first line. **It is important that there is no line break added.** Hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. Run `sudo reboot` to reboot, so that all changes can take place.
+- [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then:
+  -  Run `sudo apt update` and `sudo apt upgrade -y` to update system packages. 
+  -  Run `sudo nano /boot/cmdline.txt` to open the file `/boot/cmdline.txt` and **append** `ipv6.disable=1 cgroup_memory=1 cgroup_enable=memory` at the end of the first line. **It is important that there is no line break added.** Hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes.
+  -  Run `sudo apt remove iptables nftables -y` to avoid [high CPU and RAM usage by `k3s server` due to old iptables versions](https://docs.k3s.io/advanced#old-iptables-versions). 
+  -  Run `sudo reboot` to reboot, so that all changes thus far take place.
 - SSH into `pi1` from local PC, then add the block below to the `/etc/host` file with `sudo nano /etc/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. By having these entries in the `/etc/host` file, `pi1` is able to access other Raspberry Pi within local network by hostnames, simplifying network communication and identification.
 
   ```
@@ -320,7 +324,7 @@ Here are the steps to set up a Kubernetes cluster with the four available Raspbe
 - Run `sudo k3s kubectl get nodes` on `pi1` to check if the set up works. All nodes should be available and have status `Ready`.
   
   ![](img/kuber1.png)
-- To ease future deployments on the Kubernetes cluster (applying YAML files from local PC; see sections with "Deploy" in title), it is recommended to configure ``kubectl`` on local PC:
+- To easily applying YAML files from local PC for future deployments on the Kubernetes cluster (see sections with "Deploy" in title), it is recommended to configure ``kubectl`` on local PC:
   - First, [install `kubectl` on local PC](https://kubernetes.io/docs/tasks/tools/).
   - Then, on `pi1`, open the file `/etc/rancher/k3s/k3s.yaml` with `sudo cat /etc/rancher/k3s/k3s.yaml` and copy its content.
   - Paste the copied content in the `config` file normally available at `~/.kube/config` (`~` denotes home directory on local PC; if `.kube/config` is unavailable, create one). Here it is crucial to replace the localhost IP ``127.0.0.1`` with the static IP address of the master node (`192.168.178.61`). Everything else can stay the same. 
@@ -355,7 +359,7 @@ To enable shared storage inside the Kubernetes cluster, all DBMS pods will share
 
 Here are the steps to set up Longhorn on the Kubernetes cluster:
 
-- 1
+- First, install [these prerequisites](https://longhorn.io/docs/1.4.2/deploy/install/#installation-requirements) on each node.
 - 2
 - 3
 
