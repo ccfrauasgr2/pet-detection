@@ -288,7 +288,7 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   192.168.178.63 pi3 pi3.local
   192.168.178.64 pi4 pi4.local
   ```
-- Run the commands below to enable SSH-key-based login from ``pi1`` to other nodes, eliminating the need to type password every time.
+- Run the commands below to enable SSH-key-based login from ``pi1`` to other nodes, eliminating the need to type password every time logging in.
 
   ```
   # Make sure you are user <admin>
@@ -318,6 +318,8 @@ Here are the steps to set up a Kubernetes cluster with the four available Raspbe
 - Still on `pi1`, run `sudo cat /var/lib/rancher/k3s/server/node-token` to get the `<k3s-token>` of the master node. 
 - On each `pi2, pi3, pi4` (the designated worker nodes), run `curl -sfL https://get.k3s.io | K3S_URL=https://192.168.178.61:6443 K3S_TOKEN=<k3s-token> sh -` to install `k3s agent`.
 - Run `sudo k3s kubectl get nodes` on `pi1` to check if the set up works. All nodes should be available and have status `Ready`.
+  
+  ![](img/kuber1.png)
 
 ## Set up PV & DSS
 
