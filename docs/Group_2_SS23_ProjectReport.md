@@ -16,15 +16,16 @@ TODO: Table of contents
 
 Received from Prof.:
 
-- 1x Raspberry Pi 4 Model B
-- 4x Raspberry Pi 3 Model B+
+- 1x Raspberry Pi 4 Model B (Pi 4B)
+- 1x Raspberry Pi 3 Model B+ (Pi 3B+)
+- 3x Raspberry Pi 3 Model B V1.2 (Pi 3B)
 - 5x Samsung EVO Plus 32GB MicroSDHC
 - 1x Apple USB-C-to-USB-C Charger
 - 1x Anker 6-Port PowerPort
 - 2x TP-Link TL-SG105 5-Port Desktop Switch
 - 6x LAN Cable
 - 4x CoolReal USB-C-to-USB-C Cable
-- 1x Raspberry Pi Camera Module 2
+- 1x Raspberry Pi Camera Module 2 (Camera Module)
 
 Obtained from own source:
 
@@ -34,19 +35,19 @@ Obtained from own source:
 **Network Architecture**:
 
 ```mermaid
-flowchart TB
+flowchart LR
   hotspot[Hotspot Device]
   router[Router]
-  sensornode[Sensor Node]
+  sensornode[Sensor Node\nPi 4B]
   switch[Switch]
   
 
 
 subgraph cluster[Kubernetes Cluster]
-  master[Master Node]
-  worker1[Worker Node]
-  worker2[Worker Node]
-  worker3[Worker Node]
+  master[Master Node\nPi 3B+]
+  worker1[Worker Node\nPi 3B]
+  worker2[Worker Node\nPi 3B]
+  worker3[Worker Node\nPi 3B]
 end  
   
   localpc[Local PC]
@@ -140,7 +141,7 @@ Telegram message when detect phase ends:
 flowchart TD
     
     subgraph Sensor Node
-    id11[Set up\nRaspberry Pi 4]
+    id11[Set up\nPi 4B]
     id12[Set up\nCamera]
     id13[Prepare\nTraining Data]
     id14[Train & Validate\nModel]
@@ -153,7 +154,7 @@ flowchart TD
     end
         
     subgraph Cluster
-    id21[Set up\nRaspberry Pi 3]
+    id21[Set up\nPi 3B & 3B+]
     id22[Set up\nStatic IP]
     id23[Set up\nKubernetes Cluster]
     id24[Set up\nPV & DSS]
@@ -190,15 +191,15 @@ flowchart TD
 | Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                       |
 | ------------------- | ------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                            |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Set up Raspberry 3<br/>Set up Kubernetes Cluster<br/>Develop REST API<br/>Implement TNB                     |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Raspberry 4<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                         |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Raspberry 3<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                          |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                               |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                       |
 
 
 # Sensor Node
 
-## Set up Raspberry Pi 4
+## Set up Pi 4B
 - Insert an empty SD-Card into local PC.
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC.
 - In the Raspberry Pi Imager:
@@ -207,23 +208,23 @@ flowchart TD
   - In Advanced options (Cog icon):
     - Set `pi0` as hostname.
     - Set `admin` as username and set own password.
-    - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Raspberry Pi 4 via SSH from local PC. 
-    - Enable `Configure wireless LAN` option, type in the SSID and password of the router so that Raspberry Pi 4 will automatically connect to the router network. For more information see [Set up Static IP](#set-up-static-ip).
+    - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Pi 4B via SSH from local PC. 
+    - Enable `Configure wireless LAN` option, type in the SSID and password of the router so that Pi 4B will automatically connect to the router network. For more information see [Set up Static IP](#set-up-static-ip).
     - To save the above advance options for further use, set Image customization options to `to always use`.
   - Write to SD-Card.
-- [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Raspberry Pi 4 with SD-Card.
-- [SSH into Raspberry Pi](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) 4 from local PC with the command `ssh admin@pi0.local`
+- [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Pi 4B with SD-Card.
+- [SSH into](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) Pi 4B from local PC with the command `ssh admin@pi0.local`
 - Update system packages with `sudo apt update` then `sudo apt upgrade -y`  
-- SSH only provides *terminal* access to Raspberry Pi 4. To *remotely control the desktop interface* of Raspberry Pi 4, we use VNC (Virtual Network Computing). To enable VNC connection:
-  - First, enable VNC Server on Raspberry Pi 4. SSH into Raspberry Pi 4 from local PC, then enter `sudo raspi-config`. Now with the arrows select `Interfacing Options`, navigate to `VNC`, choose `Yes`, and select `Ok`.
+- SSH only provides *terminal* access to Pi 4B. To *remotely control the desktop interface* of Pi 4B, we use VNC (Virtual Network Computing). To enable VNC connection:
+  - First, enable VNC Server on Pi 4B. SSH into Pi 4B from local PC, then enter `sudo raspi-config`. Now with the arrows select `Interfacing Options`, navigate to `VNC`, choose `Yes`, and select `Ok`.
   - Install [Real VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/) on local PC.
-  - Open local VNC Viewer, enter `pi0.local:0` or `[IP address of Raspberry Pi 4]`. To find the IP address of Raspberry Pi 4, SSH into Raspberry Pi 4 from local PC, then enter `hostname -I`.
+  - Open local VNC Viewer, enter `pi0.local:0` or `[IP address of Pi 4B]`. To find the IP address of Pi 4B, SSH into Pi 4B from local PC, then enter `hostname -I`.
   - Enter login credentials that were set while configuring Raspberry Pi Imager.
   - The VNC session should start, and the Raspberry Pi desktop should be available.
 
 ## Set up Camera
 
-- To connect Raspberry Pi Camera Module 2 to Raspberry Pi 4, follow the steps listed in [Connect the Camera Module](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera/2). Make sure the Camera Module faces the USB and Ethernet ports.
+- To connect Camera Module to Pi 4B, follow the steps listed in [Connect the Camera Module](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera/2). Make sure the Camera Module faces the USB and Ethernet ports.
 - To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
@@ -236,29 +237,27 @@ flowchart TD
 
 # Cluster
 
-## Set up Raspberry Pi 3
+## Set up Pi 3B & 3B+
 
-- Follow the steps listed in [Set up Raspberry Pi 4](#set-up-raspberry-pi-4), but disable `Configure wireless LAN` option, and **DO NOT SSH into each Raspberry Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
+- Follow the steps listed in [Set up Pi 4B](#set-up-pi-4b), but disable `Configure wireless LAN` option, and **DO NOT SSH into each Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
 - For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
-- Set `pi[1|2|3|4]` as hostname for each of four available Raspberry Pi 3.
+- Set `pi1` as hostname for Pi 3B+, and `pi2`, `pi3`, `pi4` as hostname for each of three available Pi 3B.
 
 ## Set up Static IP
 
-Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 (`pi1`) will be used as master node, while the other three (`pi2, pi3, pi4`) will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
+For a Kubernetes cluster to work, the worker nodes must know the IP address of the master (controller) node, so that they can communicate with each other. However, if for a reason (e.g., the gateway IP of the hotspot changes) the master node's IP changes, communication between the master node and the worker nodes will become impossible (in that case, the command `kubectl get nodes` will show the worker nodes as `Not Ready`).
 
-For a `k3s` Kubernetes cluster to work, the worker nodes must know the IP address of the master node, so that they can communicate with each other. However, if the master node is directly connected to a hotspot, then whenever the gateway IP of the hotspot changes, the master node will receive from the hotspot an IP address different from the one registered on the worker nodes. Consequently, the master node and the worker nodes cannot communicate with each other, i.e., the Kubernetes won't work (in that case, when entering the command `kubectl get nodes` on the master node, the worker nodes will be shown as `Not Ready`).
-
-Thus, it is critical that the master and worker nodes be assigned static (fixed) IP addresses, so that communication between them still holds even when the gateway IP address of the hotspot changes. To assign static IP addresses to the nodes, an additional FRITZ!Box Router is used. Here are the steps to set up static IP addresses:
+Thus, it is critical that the master and worker nodes be assigned static (fixed) IP addresses. We used an additional FRITZ!Box Router for that. Here are the steps to set up static IP addresses:
 
 - Turn on all hardware shown in the Network Architecture part of the [Overview section](#overview).
 - Share the hotspot device's internet connection with the router through USB-Tethering.
-- Connect local PC and all Raspberry Pi with the router's local network.
-- On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network, which is `192.168.178.1` for our router.
+- Connect local PC and all Pi with the router network.
+- On local PC, enter `ipconfig` on Command Prompt (in Windows) and look for the Default Gateway IP address of the router network (`192.168.178.1` in our case).
 - Still on local PC, enter the IP address just found in a browser to open the router (FRITZ!Box) user interface (see below image; `KIEN-LEGION5` and `Google Pixel 5` were the local PC and hotspot device used, respectively).
 
   ![](img/staticIP2.png)
 
-- [Assign static IP addresses to all available Raspberry Pi](https://www.giga.de/hardware/avm-fritz-box-fon-wlan-7390/tipps/fritzbox-feste-ip-vergeben-so-geht-s/), then restart all Raspberry Pi.
+- [Assign static IP addresses to all available Pi](https://www.giga.de/hardware/avm-fritz-box-fon-wlan-7390/tipps/fritzbox-feste-ip-vergeben-so-geht-s/), then restart all Pi.
 
   | Raspberry Pi | Assigned IP Address | Connection |
   | ------------ | ------------------- | ---------- |
@@ -266,13 +265,15 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
   | ``pi2``      | `192.168.178.62`    | LAN        |
   | ``pi3``      | `192.168.178.63`    | LAN        |
   | ``pi4``      | `192.168.178.64`    | LAN        |
-- To check if the setup works, restart hotspot device, then turn hotspot on again. All Raspberry Pi should still have Internet access and the same static IP addresses assigned to them.
+- To check if the setup works, restart hotspot device, then share its internet connection again. All Pi should still have the same static IP addresses assigned to them.
   
   
   ![](img/staticIP1.png)
 
 
 ## Set up Kubernetes Cluster
+
+Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 (`pi1`) will be used as master node, while the other three (`pi2, pi3, pi4`) will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
 
 As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (`pi1`) designated as the master (server) node, and the remaining three Raspberry Pi 3 (`pi2, pi3, pi4`) serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
 
