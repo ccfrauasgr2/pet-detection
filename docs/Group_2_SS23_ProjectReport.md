@@ -245,9 +245,7 @@ flowchart TD
 
 ## Set up Static IP
 
-For a Kubernetes cluster to work, the worker nodes must know the IP address of the master (controller) node, so that they can communicate with each other. However, if for a reason (e.g., the gateway IP of the hotspot changes) the master node's IP changes, communication between the master node and the worker nodes will become impossible (in that case, the command `kubectl get nodes` will show the worker nodes as `Not Ready`).
-
-Thus, it is critical that the master and worker nodes be assigned static (fixed) IP addresses. We used an additional FRITZ!Box Router for that. Here are the steps to set up static IP addresses:
+For a Kubernetes cluster to work, the worker nodes must know the IP address of the master (controller) node and vice versa, so that they can communicate with each other. If the nodes' IP addresses change during communication, the Kubernetes cluster won't work. It is therefore critical that the master and worker nodes be assigned static (fixed) IP addresses. For that purpose, we use an additional FRITZ!Box Router. Here are the steps to set up static IP addresses:
 
 - Turn on all hardware shown in the Network Architecture part of the [Overview section](#overview).
 - Share the hotspot device's internet connection with the router through USB-Tethering.
@@ -270,34 +268,31 @@ Thus, it is critical that the master and worker nodes be assigned static (fixed)
   
   ![](img/staticIP1.png)
 
+After setting up static IP, we will enable passwordless, SSH-key-based login from local PC to each Pi 3:
 
-## Set up Kubernetes Cluster
-
-Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 (`pi1`) will be used as master node, while the other three (`pi2, pi3, pi4`) will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
-
-As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (`pi1`) designated as the master (server) node, and the remaining three Raspberry Pi 3 (`pi2, pi3, pi4`) serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
-
-To make setting up Kubernetes cluster and later PV & DSS easier, follow these steps first:
-
-- [SSH into each Raspberry Pi 3](https://www.makeuseof.com/how-to-ssh-into-raspberry-pi-remote/#:~:text=SSH%20Into%20Raspberry%20Pi%20From%20Windows&text=In%20the%20PuTTY%20dialog%2C%20select,the%20connection%20details%20in%20PuTTY.) from local PC, then:
-  -  Run `sudo apt update` and `sudo apt upgrade -y` to update system packages. 
-  -  Run `sudo nano /boot/cmdline.txt` to open the file `/boot/cmdline.txt` and **append** `ipv6.disable=1 cgroup_memory=1 cgroup_enable=memory` at the end of the first line. **It is important that there is no line break added.** Hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes.
-  -  Run `sudo apt remove iptables nftables -y` to avoid [high CPU and RAM usage by `k3s server` due to old iptables versions](https://docs.k3s.io/advanced#old-iptables-versions). 
-  -  Run `sudo reboot` to reboot, so that all changes thus far take place.
-- SSH into `pi1` from local PC, then add the block below to the `/etc/host` file with `sudo nano /etc/hosts`, hit `Ctrl` + `X` -> `Y` -> `Enter` to save changes. By having these entries in the `/etc/host` file, `pi1` is able to access other Raspberry Pi within local network by hostnames, simplifying network communication and identification.
+- First, add the block below to the `known_hosts` file located in the `.ssh` folder within home directory of local PC (Windows).
 
   ```
   192.168.178.61 pi1 pi1.local
-
   192.168.178.62 pi2 pi2.local
   192.168.178.63 pi3 pi3.local
   192.168.178.64 pi4 pi4.local
   ```
-- Run the commands below to enable SSH-key-based login from ``pi1`` to other nodes, eliminating the need to type password every time logging in.
+- Next, generate SSH key on local PC with:
 
   ```
-  # Make sure you are user <admin>
-  # Go to <admin>'s home directory
+  # Do not fill anything when asked, just hit "Enter"
+  ssh-keygen -t rsa -b 2048
+  # Public key location: ~/.ssh/id_rsa.pub (Windows)
+  ```
+- Finally, copy the generated SSH key to each Pi 3. Also, since we are already in each Pi 3, let's finish setting them up.
+
+  ```
+  # SSH into each Pi 3, make sure you are user <admin>
+  # E.g., on local PC:
+  ssh admin@pi1
+  
+  # Once logged in, go to <admin>'s home directory
   cd
 
   # Create directory ".ssh" in <admin>'s home directory
@@ -307,15 +302,31 @@ To make setting up Kubernetes cluster and later PV & DSS easier, follow these st
   # "700" means that ONLY the owner of the directory (<admin>) has read, write, and execute permissions
   chmod 700 ~/.ssh
 
-  # Generate SSH key
-  # DO NOT fill anything when asked, just hit Enter
-  ssh-keygen -t rsa
+  # Open new file "~/.ssh/authorized_keys"
+  sudo nano ~/.ssh/authorized_keys
+  # Paste the contents of the public key "id_rsa.pub" on local PC into this file. 
+  # Hit "Ctrl" + "X" -> "Y" -> "Enter" to save changes.
 
-  # Copy keys to each node:
-  ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi2
-  ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi3
-  ssh-copy-id -i ~/.ssh/id_rsa.pub admin@pi4
+  # Update system packages
+  sudo apt update
+  sudo apt upgrade -y
+
+  # Disable IPv6
+  sudo nano /boot/cmdline.txt
+  # Append "ipv6.disable=1" at the end of the first line. 
+  # It is important that there is no line break added.
+  # Hit "Ctrl" + "X" -> "Y" -> "Enter" to save changes.
+
+  # Reboot each node, so that all changes thus far take place.
+  sudo reboot
   ```
+
+## Set up Kubernetes Cluster
+
+Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 (`pi1`) will be used as master node, while the other three (`pi2, pi3, pi4`) will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
+
+As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (`pi1`) designated as the master (server) node, and the remaining three Raspberry Pi 3 (`pi2, pi3, pi4`) serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
+
 
 Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3:
 
