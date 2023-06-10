@@ -320,12 +320,38 @@ Here are the steps to set up a Kubernetes cluster with the four available Raspbe
 - Run `sudo k3s kubectl get nodes` on `pi1` to check if the set up works. All nodes should be available and have status `Ready`.
   
   ![](img/kuber1.png)
+- To ease future deployments on the Kubernetes cluster (applying YAML files from local PC; see sections with "Deploy" in title), it is recommended to configure ``kubectl`` on local PC:
+  - First, [install `kubectl` on local PC](https://kubernetes.io/docs/tasks/tools/).
+  - Then, on `pi1`, open the file `/etc/rancher/k3s/k3s.yaml` with `sudo cat /etc/rancher/k3s/k3s.yaml` and copy its content.
+  - Paste the copied content in the `config` file normally available at `~/.kube/config` (`~` denotes home directory on local PC; if `.kube/config` is unavailable, create one). Here it is crucial to replace the localhost IP ``127.0.0.1`` with the static IP address of the master node (`192.168.178.61`). Everything else can stay the same. 
+
+    ```
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: ...
+        server: https://192.168.178.61:6443
+      name: k3s-cluster
+    contexts:
+    - context:
+        cluster: k3s-cluster
+        user: k3s-admin
+      name: k3s
+    current-context: k3s
+    kind: Config
+    preferences: {}
+    users:
+    - name: k3s-admin
+      user:
+        client-certificate-data: ...
+        client-key-data: ...
+    ```
 
 ## Set up PV & DSS
 
 We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
 
-To enable shared storage inside the Kubernetes cluster, all worker nodes will share a Longhorn volume (a customized Kubernetes Persistent Volume). Longhorn stores replicas of data on all worker nodes' storage resources, ensuring persistent data storage and high data availability.
+To enable shared storage inside the Kubernetes cluster, all DBMS pods will share a Longhorn volume (a customized Kubernetes Persistent Volume). Longhorn stores replicas of data on all worker nodes' storage resources, ensuring persistent data storage and high data availability.
 
 Here are the steps to set up Longhorn on the Kubernetes cluster:
 
