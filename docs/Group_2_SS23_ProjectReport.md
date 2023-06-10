@@ -317,7 +317,7 @@ Here are the steps to set up a Kubernetes cluster with the four available Raspbe
 - Run `curl -sfL https://get.k3s.io | sh -` to install `k3s server` on `pi1` (the designated master node).
 - Still on `pi1`, run `sudo cat /var/lib/rancher/k3s/server/node-token` to get the `<k3s-token>` of the master node. 
 - On each `pi2, pi3, pi4` (the designated worker nodes), run `curl -sfL https://get.k3s.io | K3S_URL=https://192.168.178.61:6443 K3S_TOKEN=<k3s-token> sh -` to install `k3s agent`.
-- Run `sudo k3s kubectl get nodes` to check if the set up works. All nodes should be available and have status `READY`.
+- Run `sudo k3s kubectl get nodes` on `pi1` to check if the set up works. All nodes should be available and have status `Ready`.
 
 ## Set up PV & DSS
 
