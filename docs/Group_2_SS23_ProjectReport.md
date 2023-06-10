@@ -291,14 +291,12 @@ After setting up static IP, we will enable passwordless, SSH-key-based login fro
   # SSH into each Pi 3, make sure you are user <admin>
   # E.g., on local PC:
   ssh admin@pi1
-  
-  # Once logged in, go to <admin>'s home directory
-  cd
 
-  # Create directory ".ssh" in <admin>'s home directory
+  # Once logged in, go to <admin>'s home directory and create directory ".ssh"
+  cd
   mkdir -p ~/.ssh
 
-  # Open new file "~/.ssh/authorized_keys"
+  # Open new file "authorized_keys" in the ".ssh" directory
   sudo nano ~/.ssh/authorized_keys
   # Paste the contents of the public key "id_rsa.pub" on local PC into this file. 
   # Hit "Ctrl" + "X" -> "Y" -> "Enter" to save changes.
