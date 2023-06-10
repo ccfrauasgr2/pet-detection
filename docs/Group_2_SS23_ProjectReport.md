@@ -323,6 +323,16 @@ Here are the steps to set up a Kubernetes cluster with the four available Raspbe
 
 ## Set up PV & DSS
 
+We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
+
+To enable shared storage inside the Kubernetes cluster, all worker nodes will share a Longhorn volume (a customized Kubernetes Persistent Volume). Longhorn stores replicas of data on all worker nodes' storage resources, ensuring persistent data storage and high data availability.
+
+Here are the steps to set up Longhorn on the Kubernetes cluster:
+
+- 1
+- 2
+- 3
+
 ## Develop REST API
 
 ## Configure DBMS
