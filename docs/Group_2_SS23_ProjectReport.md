@@ -209,7 +209,7 @@ flowchart TD
     - Set `pi0` as hostname.
     - Set `admin` as username and set own password.
     - Enable `Enable SSH` and `Use password authentication` options. This allows for remote access and control of Pi 4B via SSH from local PC. 
-    - Enable `Configure wireless LAN` option, type in the SSID and password of the router so that Pi 4B will automatically connect to the router network. For more information see [Set up Static IP](#set-up-static-ip).
+    - Enable `Configure wireless LAN` option, type in the SSID and password of the router so that Pi 4B will automatically connect to the router network.
     - To save the above advance options for further use, set Image customization options to `to always use`.
   - Write to SD-Card.
 - [Connect](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/3) and [Start up](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4) Pi 4B with SD-Card.
@@ -316,10 +316,17 @@ After setting up static IP, we will enable passwordless, SSH-key-based login fro
 
 ## Set up Kubernetes Cluster
 
-Given [the hardware specifications of the four Raspberry Pi 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/), it is best to set them up as a Kubernetes cluster with [`k3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. One Raspberry Pi 3 (`pi1`) will be used as master node, while the other three (`pi2, pi3, pi4`) will be used as worker nodes. For more information about the design of the Kubernetes cluster, see [Set up Kubernetes Cluster](#set-up-kubernetes-cluster).
+There are three possible designs for the Kubernetes cluster:
 
-As previously mentioned, the Kubernetes cluster consists of one Raspberry Pi 3 (`pi1`) designated as the master (server) node, and the remaining three Raspberry Pi 3 (`pi2, pi3, pi4`) serve as worker (agent) nodes. The main drawback of this design is the only master node, which is *the* single point of failure of the whole cluster. Thus, to ensure high availability of the cluster, it was also considered to use two Raspberry Pi 3 as master nodes and the other two as worker nodes. However, this design was discarded, because [performance issues exist on slower disks such as Raspberry Pis running with SD cards, and ``k3s`` requires three or more server nodes to run a multiple-server Kubernetes cluster](https://docs.k3s.io/datastore/ha-embedded).
+| Design                          | Pros                                                                                    | Cons                                                                          | Decision |
+| ------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------- |
+| 1 Master Node & 3 Worker Nodes  | - Simple setup<br>- High fault tolerance for worker plane<br>- High scalability         | - No fault tolerance for control plane                                        | Adopt    |
+| 2 Master Nodes & 2 Worker Nodes | - Moderate fault tolerance for both control and worker planes<br>- Moderate scalability | - Complex setup                                                               | Discard  |
+| 3 Master Nodes & 1 Worker Node  | - High fault tolerance for control plane                                                | - No fault tolerance for worker plane<br>- Complex setup<br>- Low scalability | Discard  |
 
+We prioritize setup complexity over scalability over fault tolerance, which is why we adopt the first design: our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
+
+Given the hardware specifications of all Pi 3, it is best to set them up as a Kubernetes cluster with [`K3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. However, huge CPU and MEM usage (100~300% and >65%, respectively) on fresh install of `k3s-server` makes the master node barely responding to any command. We tried the [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation, nevertheless the problem still persists. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/).
 
 Here are the steps to set up a Kubernetes cluster with the four available Raspberry Pi 3:
 
