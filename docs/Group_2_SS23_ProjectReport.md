@@ -318,13 +318,13 @@ After setting up static IP, we will enable passwordless, SSH-key-based login fro
 
 There are three possible designs for the Kubernetes cluster:
 
-| Design                          | Pros                                                                                    | Cons                                                                          | Decision |
-| ------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------- |
-| 1 Master Node & 3 Worker Nodes  | - Simple setup<br>- High fault tolerance for worker plane<br>- High scalability         | - No fault tolerance for control plane                                        | Adopt    |
-| 2 Master Nodes & 2 Worker Nodes | - Moderate fault tolerance for both control and worker planes<br>- Moderate scalability | - Complex setup                                                               | Discard  |
-| 3 Master Nodes & 1 Worker Node  | - High fault tolerance for control plane                                                | - No fault tolerance for worker plane<br>- Complex setup<br>- Low scalability | Discard  |
+| Design                          | Pros                                                                                                                                      | Cons                                                                                                                                         | Decision |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| 1 Master Node & 3 Worker Nodes  | - Simple setup<br>- Fault tolerance for worker plane<br>- High scalability<br>- Possibly high availability if one worker node is down     | - No fault tolerance for control plane                                                                                                       | Adopt    |
+| 2 Master Nodes & 2 Worker Nodes | - Fault tolerance for both control and worker planes<br>- Moderate scalability<br>- Possibly high availability if one worker node is down | - Complex setup                                                                                                                              | Discard  |
+| 3 Master Nodes & 1 Worker Node  | - Fault tolerance for control plane                                                                                                       | - No fault tolerance for worker plane<br>- Complex setup<br>- Low scalability<br>- Certainly no high availability if one worker node is down | Discard  |
 
-We prioritize setup complexity over scalability over fault tolerance, which is why we adopt the first design: our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
+We prioritize setup complexity over high availability over scalability over fault tolerance, which is the first design is adopted: our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
 
 Given the hardware specifications of all Pi 3, it is best to set them up as a Kubernetes cluster with [`K3s`](https://docs.k3s.io/) - a lightweight Kubernetes distribution suitable for edge computing. However, huge CPU and MEM usage (100~300% and >65%, respectively) on fresh install of `k3s-server` makes the master node barely responding to any command. We tried the [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation, nevertheless the problem still persists. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/).
 
