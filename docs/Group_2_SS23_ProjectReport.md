@@ -296,9 +296,9 @@ After setting up static IP, for convenience we will enable passwordless, SSH-key
   # Update system packages
   sudo apt update && sudo apt upgrade -y
 
-  # Disable IPv6
+  # Disable IPv6 & enable memory cgroup
   sudo nano /boot/cmdline.txt
-  # Append "ipv6.disable=1" at the end of the first line. 
+  # Append "ipv6.disable=1 cgroup_memory=1 cgroup_enable=memory" at the end of the first line. 
   # It is important that there is no line break added.
   # Hit "Ctrl" + "X" -> "Y" -> "Enter" to save changes.
 
@@ -318,14 +318,40 @@ There are three possible designs for the Kubernetes cluster:
 
 We prioritize *setup complexity* ``>`` *high availability & fault tolerance* ``>`` *scalability*, which is why we adopt the first design. Our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
 
-Given the hardware specifications of all Pi 3, it is best to set them up as a [`K3s`](https://docs.k3s.io/) cluster. `K3s` is a lightweight Kubernetes distribution built for edge computing. However, huge CPU and MEM usage (100~300% and >65%, respectively) by `k3s-server` on fresh install  made the master node barely respond to any command. The [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation did not alleviate the problem for us. Hence instead of `K3s`, [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/) was used. `K0s` is another lightweight Kubernetes distribution well suited for bare-metal clusters and edge computing.
+Given the hardware specifications of all Pi 3, it is best to set them up as a [`K3s`](https://docs.k3s.io/) cluster. However, huge CPU and MEM usage (100~300% and >65%, respectively) by `k3s-server` on fresh install  made the master node barely respond to any command. The [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation did not alleviate the problem for us. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/). Here are the steps to set up set up a `K0s` cluster:
 
-We use [`k0sctl`](https://docs.k0sproject.io/v1.27.2+k0s.0/k0sctl-install/) to set up a `K0s` cluster:
+- On `pi1` (the designated master node):
+  - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
+  - Run the following commands to deploy as a master (controller) node:
 
-- Install `k0sctl` tool
-- `k0sctl init > k0sctl.yaml`
-- `k0sctl apply --config k0sctl.yaml`
+    ```
+    # Install, start, and check the k0scontroller service
+    sudo k0s install controller
+    sudo systemctl start k0scontroller.service
+    systemctl status k0scontroller.service
+    ```
+  - Create a token with which new worker nodes can join the `K0s` cluster by `pi1`. Save the join token for subsequent steps.
 
+    ```
+    sudo k0s token create --role worker
+    ```
+- On each `pi2`, `pi3`, and `pi4` (the designated worker nodes):
+  - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
+  - Run the following commands to deploy as a worker node:
+    
+    ```
+    # To join the K0s cluster by pi1, create the join token file for the worker (where $TOKEN_CONTENT is the join token created by pi1):
+    sudo sh -c 'mkdir -p /var/lib/k0s/ && umask 077 && echo "$TOKEN_CONTENT" > /var/lib/k0s/join-token'
+
+    # Install, start, and check the k0sworker service
+    sudo k0s install worker --token-file /var/lib/k0s/join-token
+    sudo systemctl start k0sworker.service
+    systemctl status k0sworker.service
+    sudo k0s status
+    ```
+- Run `sudo k0s kc get nodes` on `pi1` to verify if the whole setup works. [Note that the command does not list the `K0s` controller `pi1`.](https://docs.k0sproject.io/v1.27.2+k0s.0/FAQ/?h=show+controller#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers)
+  
+  ![](img/kube1.png)
 
 To easily applying YAML files from local PC for future deployments on the Kubernetes cluster (see sections with "Deploy" in title), it is recommended to configure ``kubectl`` on local PC:
   - First, [install `kubectl` on local PC](https://kubernetes.io/docs/tasks/tools/).
