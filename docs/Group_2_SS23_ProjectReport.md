@@ -58,7 +58,7 @@ end
 
 ```
 
-**System Architecture**:
+**System Architecture (simplified)**:
 
 ```mermaid
 flowchart LR
@@ -71,41 +71,43 @@ flowchart LR
   subgraph cluster[Kubernetes Cluster]
 
     subgraph masterNode[Master Node]
-      dss[Distributed\nStorage System]
+      
     end
 
     subgraph workerNode[3 Worker Nodes]
       frontendContainer[Frontend\nPod+]
-      
+      dss[Distributed\nStorage System]
       subgraph backendContainer[Backend]
         restapiContainer[REST API\nPod+]
         dbmsContainer[DBMS\nPod+]
       end
-
-      persistentVolume[Persistent\nVolume]
+      persistentVolume[Persistent\nVolume+]
     end 
   end
 
-  
+  localPC[Local PC]
   bot[Telegram\nNotification Bot]
 
-  bot --- restapiContainer
-  masterNode -.controls.-> workerNode
+  restapiContainer --> bot
+  localPC -.commands.-> masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
   camera --> sensornode --> restapiContainer
+  dbmsContainer -.requests\nstorage.-> dss -.dynamically\nprovisions.-> persistentVolume
+  dbmsContainer -.claims.-> persistentVolume
   
 ```
 
-| Component                              | Role                                                                                                                                                                                |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                                 | captures visual data and sends them to the sensor node                                                                                                                              |
-| Detection Model                        | analyzes visual data to detect and classify pet                                                                                                                                     |
-| Persistent Volume (PV)                 | serves as the persistent storage resource in the cluster                                                                                                                            |
-| Distributed Storage System (DSS)       | manages the underlying storage infrastructure of the persistent volume, allows concurrent read and write operations to the shared persistent volume, ensures high data availability |
-| Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                                                                     |
-| REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                                                                                 |
-| Database Management System (DBMS) Pod+ | handles write and read queries for storing and retrieving detection results, scalable                                                                                               |
-| Telegram Notification Bot (TNB)        | notifies user about detection results via Telegram                                                                                                                                  |
+| Component                              | Role                                                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                                 | captures visual data and sends them to the sensor node                                                                          |
+| Detection Model                        | analyzes visual data to detect and classify pet                                                                                 |
+| Persistent Volume (PV)                 | serves as persistent storage resource in the cluster, bases on local storage available on worker nodes, scalable                |
+| Distributed Storage System (DSS)       | dynamically provisions PV & manages their underlying storage infrastructure, synchronizes & replicates data across worker nodes |
+| Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                 |
+| REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                             |
+| Database Management System (DBMS) Pod+ | handles write and read queries for storing and retrieving detection results, scalable                                           |
+| Telegram Notification Bot (TNB)        | notifies user about detection results via Telegram                                                                              |
+| Local PC                               | serves as tool to set up system                                                                                                 |
 
 
 **System Behavior**:
@@ -157,7 +159,7 @@ flowchart TD
     id21[Set up\nPi 3B & 3B+]
     id22[Set up\nStatic IP]
     id23[Set up\nKubernetes Cluster]
-    id24[Set up\nPV & DSS]
+    id24[Set up\nDSS]
     id25[Develop\nREST API]
     id26[Deploy\nBackend]
     id27[Configure\nDBMS]
@@ -188,13 +190,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                       |
-| ------------------- | ------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                            |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                          |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                               |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                       |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                  |
+| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                       |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                     |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                          |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up DSS<br/>Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                  |
 
 
 # Sensor Node
@@ -397,7 +399,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   l2advertisement.metallb.io/default created
   ```
 
-## Set up PV & DSS
+## Set up DSS
 
 We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
 
