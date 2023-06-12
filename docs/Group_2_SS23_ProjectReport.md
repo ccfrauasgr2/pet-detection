@@ -386,7 +386,9 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   helm upgrade --install metallb metallb/metallb --create-namespace --namespace metallb-system --wait
   ```
   Expected installation result:
+
   ![](img/kube3.png)
+
 - Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
@@ -403,36 +405,61 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
 
-Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We configured `OpenEBS` to dynamically provision [Replicated Volumes](https://openebs.io/docs#replicated-volumes). Due to the limitations of our Pi, we could only use [OpenEBS Jiva Operator](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. Here are the configuration steps:
+Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We configured `OpenEBS` to dynamically provision [Jiva (Replicated) Volumes](https://openebs.io/docs#replicated-volumes). Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. The following configuration steps are based on the [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 
-On each worker node
-```
-sudo apt install open-iscsi
-sudo systemctl enable --now iscsid
-modprobe iscsi_tcp
-sudo systemctl status iscsid.service
-```
+- Ensure package `open-iscsi` (`iSCSI`) is installed on each worker node:
+  
+  ```
+  # Commands to install open-iscsi
+  sudo apt install open-iscsi
+  sudo systemctl enable --now iscsid
+  modprobe iscsi_tcp
 
-On local PC
-```
-kubectl apply -f  https://openebs.github.io/charts/hostpath-operator.yaml
-helm repo add openebs-jiva https://openebs.github.io/jiva-operator
-helm repo update
-helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespace
+  # Verify iSCSI Status, should be active (running)
+  sudo systemctl status iscsid.service
+  ```
 
-```
+- Ensure the `K0s` cluster has ``OpenEBS`` localpv-hostpath version ``2.6.0`` or higher:
+  
+  ```
+  # Run this command on local PC
+  kubectl apply -f https://openebs.github.io/charts/hostpath-operator.yaml
+  ```
 
-![](img/dss1.png)
+- Install `OpenEBS Jiva Operator` with `Helm`:
+  ```
+  # Get repo info
+  helm repo add openebs-jiva https://openebs.github.io/jiva-operator
+  helm repo update
 
-Run
-```
-kubectl apply -f jivaVolumePolicy.yaml
-kubectl apply -f jivaStorageClass.yaml
-kubectl apply -f jivaPVC.yaml
-kubectl get pvc
-kubectl get jivavolume <VOLUME> -n openebs
-kubectl get pods -n openebs
-```
+  # Install
+  helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespace
+  ```
+  Expected installation result:
+
+  ![](img/dss1.png)
+
+  ![](img/dss3.png)
+
+- Configure `OpenEBS` to dynamically provision Jira Volume by applying the scripts listed [here](/scripts/jiva/):
+  - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
+
+    ```
+    kubectl apply -f jivaVolumePolicy.yaml
+    ```
+  - The script `jivaStorageClass.yaml` creates a Storage Class that dynamically provisions Jira volumes with the declared policies:
+    
+    ```
+    kubectl apply -f jivaStorageClass.yaml
+    ```
+  - The script `jivaPVC.yaml` creates a Persistent Volume Claim (PVC) whose class is the above Storage Class:
+    
+    ```
+    kubectl apply -f jivaPVC.yaml
+    ```
+  - The next step is to deploy a DBMS application using this PVC. However we will do that in [Configure DBMS](#configure-dbms). For now we will just check the PVC we just created:
+    
+    ![](img/dss2.png)
 
 ## Configure DBMS
 
