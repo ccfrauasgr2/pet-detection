@@ -58,7 +58,7 @@ end
 
 ```
 
-**System Architecture**:
+**System Architecture (simplified)**:
 
 ```mermaid
 flowchart LR
@@ -71,41 +71,43 @@ flowchart LR
   subgraph cluster[Kubernetes Cluster]
 
     subgraph masterNode[Master Node]
-      dss[Distributed\nStorage System]
+      
     end
 
     subgraph workerNode[3 Worker Nodes]
       frontendContainer[Frontend\nPod+]
-      
+      dss[Distributed\nStorage System]
       subgraph backendContainer[Backend]
         restapiContainer[REST API\nPod+]
         dbmsContainer[DBMS\nPod+]
       end
-
-      persistentVolume[Persistent\nVolume]
+      persistentVolume[Persistent\nVolume+]
     end 
   end
 
-  
+  localPC[Local PC]
   bot[Telegram\nNotification Bot]
 
-  bot --- restapiContainer
-  masterNode -.controls.-> workerNode
+  restapiContainer --> bot
+  localPC -.commands.-> masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
   camera --> sensornode --> restapiContainer
+  dbmsContainer -.requests\nstorage.-> dss -.dynamically\nprovisions.-> persistentVolume
+  dbmsContainer -.claims.-> persistentVolume
   
 ```
 
-| Component                              | Role                                                                                                                                                                                |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                                 | captures visual data and sends them to the sensor node                                                                                                                              |
-| Detection Model                        | analyzes visual data to detect and classify pet                                                                                                                                     |
-| Persistent Volume (PV)                 | serves as the shared persistent storage resource in the cluster                                                                                                                     |
-| Distributed Storage System (DSS)       | manages the underlying storage infrastructure of the persistent volume, allows concurrent read and write operations to the shared persistent volume, ensures high data availability |
-| Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                                                                     |
-| REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                                                                                 |
-| Database Management System (DBMS) Pod+ | handles write and read queries for storing and retrieving detection results, scalable                                                                                               |
-| Telegram Notification Bot (TNB)        | notifies user about detection results via Telegram                                                                                                                                  |
+| Component                              | Role                                                                                                                                                      |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                            |
+| Detection Model                        | analyze visual data to detect & classify pet                                                                                                              |
+| Persistent Volume+ (PV)                | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                  |
+| Distributed Storage System (DSS)       | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                  |
+| Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                      |
+| REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                    |
+| Database Management System (DBMS) Pod+ | - handle write & read queries for storing & retrieving detection results in the same database<br>- synchronize & replicate data across pods<br>- scalable |
+| Telegram Notification Bot (TNB)        | notify user about detection results via Telegram                                                                                                          |
+| Local PC                               | serve as tool for setting up system                                                                                                                       |
 
 
 **System Behavior**:
@@ -157,7 +159,7 @@ flowchart TD
     id21[Set up\nPi 3B & 3B+]
     id22[Set up\nStatic IP]
     id23[Set up\nKubernetes Cluster]
-    id24[Set up\nPV & DSS]
+    id24[Set up\nDSS]
     id25[Develop\nREST API]
     id26[Deploy\nBackend]
     id27[Configure\nDBMS]
@@ -188,13 +190,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                       |
-| ------------------- | ------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                            |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                          |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                               |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up PV & DSS<br/>Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                       |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                  |
+| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                       |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                     |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                          |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up DSS<br/>Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                  |
 
 
 # Sensor Node
@@ -310,11 +312,11 @@ After setting up static IP, for convenience we will enable passwordless, SSH-key
 
 There are three possible designs for the Kubernetes cluster:
 
-| Design                          | Pros                                                                                                                         | Cons                                                                                                                | Decision |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------- |
-| 1 Master Node & 3 Worker Nodes  | - Simple setup<br>- Enables fault tolerance & high availability in worker plane<br>- Enables scalability across worker nodes | - No fault tolerance & high availability in control plane                                                           | Adopt    |
-| 2 Master Nodes & 2 Worker Nodes | - Enables fault tolerance & high availability in both control & worker planes<br>- Enables scalability across worker nodes   | - Complex setup                                                                                                     | Discard  |
-| 3 Master Nodes & 1 Worker Node  | - Enables fault tolerance & high availability in control plane                                                               | - No fault tolerance & high availability in worker plane<br>- Complex setup<br>- No scalability across worker nodes | Discard  |
+| Design                | Pros                                                                                                                         | Cons                                                                                                                | Decision |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------- |
+| 1 Master & 3 Workers  | - Simple setup<br>- Enables fault tolerance & high availability in worker plane<br>- Enables scalability across worker nodes | No fault tolerance & high availability in control plane                                                             | Adopt    |
+| 2 Masters & 2 Workers | - Enables fault tolerance & high availability in both control & worker planes<br>- Enables scalability across worker nodes   | Complex setup                                                                                                       | Discard  |
+| 3 Masters & 1 Worker  | Enables fault tolerance & high availability in control plane                                                                 | - No fault tolerance & high availability in worker plane<br>- Complex setup<br>- No scalability across worker nodes | Discard  |
 
 We prioritize *setup complexity* ``>`` *high availability & fault tolerance* ``>`` *scalability*, which is why we adopt the first design. Our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
 
@@ -372,7 +374,7 @@ For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``
     
     ![](img/kube2.png) 
 
-As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using Kubernetes LoadBalancer services in non-cloud environments by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using ``LoadBalancer`` services in our `K0s` cluster by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
 
 - First, install `MetalLB`:
 
@@ -384,12 +386,14 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   helm upgrade --install metallb metallb/metallb --create-namespace --namespace metallb-system --wait
   ```
   Expected installation result:
+
   ![](img/kube3.png)
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type LoadBalancer (from ``192.168.178.200`` to ``192.168.178.220``), allowing them to be accessible from outside the cluster.
+
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
-  kubectl apply -f .\metallb.yaml
+  kubectl apply -f metallb.yaml
   ```
   Expected configuration result:
   ```
@@ -397,17 +401,65 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   l2advertisement.metallb.io/default created
   ```
 
-## Set up PV & DSS
+## Set up DSS
 
-We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
+In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
 
-To enable shared storage inside the Kubernetes cluster, all DBMS pods will share a Longhorn volume (a customized Kubernetes Persistent Volume). Longhorn stores replicas of data on all worker nodes' storage resources, ensuring persistent data storage and high data availability.
+Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We configured `OpenEBS` to dynamically provision [Jiva (Replicated) Volumes](https://openebs.io/docs#replicated-volumes). Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. The following configuration steps are based on the [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 
-Here are the steps to set up Longhorn on the Kubernetes cluster:
+- Ensure package `open-iscsi` (`iSCSI`) is installed on each worker node:
+  
+  ```
+  # Commands to install open-iscsi
+  sudo apt install open-iscsi
+  sudo systemctl enable --now iscsid
+  modprobe iscsi_tcp
 
-- First, install [these prerequisites](https://longhorn.io/docs/1.4.2/deploy/install/#installation-requirements) on each node.
-- 2
-- 3
+  # Verify iSCSI Status, should be active (running)
+  sudo systemctl status iscsid.service
+  ```
+
+- Ensure the `K0s` cluster has ``OpenEBS`` localpv-hostpath version ``2.6.0`` or higher:
+  
+  ```
+  # Run this command on local PC
+  kubectl apply -f https://openebs.github.io/charts/hostpath-operator.yaml
+  ```
+
+- Install `OpenEBS Jiva Operator` with `Helm`:
+  ```
+  # Get repo info
+  helm repo add openebs-jiva https://openebs.github.io/jiva-operator
+  helm repo update
+
+  # Install
+  helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespace
+  ```
+  Expected installation results:
+
+  ![](img/dss1.png)
+
+  ![](img/dss3.png)
+
+- Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](/scripts/jiva/):
+  - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva Volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
+
+    ```
+    kubectl apply -f jivaVolumePolicy.yaml
+    ```
+  - The script `jivaStorageClass.yaml` creates a Storage Class that dynamically provisions Jira Volumes with the declared policies:
+    
+    ```
+    kubectl apply -f jivaStorageClass.yaml
+    ```
+  - The script `jivaPVC.yaml` creates a Persistent Volume Claim (PVC) whose class is the above Storage Class:
+    
+    ```
+    kubectl apply -f jivaPVC.yaml
+    ```
+  - The next step is to deploy a DBMS application using this PVC; however we will do that in [Configure DBMS](#configure-dbms). For now check the PVC we just created:
+    
+    ![](img/dss2.png)
 
 ## Configure DBMS
 

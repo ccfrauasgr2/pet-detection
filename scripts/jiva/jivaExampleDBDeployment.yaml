@@ -14,7 +14,7 @@ spec:
     metadata:
       labels:
         name: fio
-        openebs.io/target-affinity: statefuldb
+        openebs.io/target-affinity: mongodb
     spec:
       containers:
       - name: perfrunner
