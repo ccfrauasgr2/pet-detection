@@ -391,7 +391,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
   ```
   # On local PC, change directory to script location, then
-  kubectl apply -f .\metallb.yaml
+  kubectl apply -f metallb.yaml
   ```
   Expected configuration result:
   ```
@@ -426,9 +426,9 @@ helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespa
 
 Run
 ```
-kubectl apply -f .\jivaVolumePolicy.yaml
-kubectl apply -f .\jivaStorageClass.yaml
-kubectl apply -f .\jivaPVC.yaml
+kubectl apply -f jivaVolumePolicy.yaml
+kubectl apply -f jivaStorageClass.yaml
+kubectl apply -f jivaPVC.yaml
 kubectl get pvc
 kubectl get jivavolume <VOLUME> -n openebs
 kubectl get pods -n openebs
