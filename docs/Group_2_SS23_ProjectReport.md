@@ -401,15 +401,12 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 ## Set up DSS
 
-We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
+In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation `Longhorn` pods were in constant `CrashLoopBackOff` state. That coupled with the complex setup and usage make us decide to abandon `Longhorn`. Instead, we use `OpenEBS`.
 
-To enable shared storage inside the Kubernetes cluster, all DBMS pods will share a Longhorn volume (a customized Kubernetes Persistent Volume). Longhorn stores replicas of data on all worker nodes' storage resources, ensuring persistent data storage and high data availability.
 
-Here are the steps to set up Longhorn on the Kubernetes cluster:
 
-- First, install [these prerequisites](https://longhorn.io/docs/1.4.2/deploy/install/#installation-requirements) on each node.
-- 2
-- 3
+
+
 
 ## Configure DBMS
 
