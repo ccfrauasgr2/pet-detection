@@ -322,7 +322,7 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
 
 - On `pi1` (the designated master node):
   - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
-  - Run the following commands to deploy as a master (controller) node:
+  - Run the following commands to deploy as master (controller) node:
 
     ```
     # Install, start, and check the k0scontroller service
@@ -337,10 +337,11 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
     ```
 - On each `pi2`, `pi3`, and `pi4` (the designated worker nodes):
   - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
-  - Run the following commands to deploy as a worker node:
+  - Run the following commands to deploy as worker node:
     
     ```
-    # To join the K0s cluster by pi1, create the join token file for the worker (where $TOKEN_CONTENT is the join token created by pi1):
+    # To join the K0s cluster by pi1, create the join token file for the worker
+    # $TOKEN_CONTENT is the join token created by pi1:
     sudo sh -c 'mkdir -p /var/lib/k0s/ && umask 077 && echo "$TOKEN_CONTENT" > /var/lib/k0s/join-token'
 
     # Install, start, and check the k0sworker service
@@ -349,7 +350,7 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
     systemctl status k0sworker.service
     sudo k0s status
     ```
-- Run `sudo k0s kc get nodes` on `pi1` to verify if the whole setup works. [Note that the command does not list the `K0s` controller `pi1`.](https://docs.k0sproject.io/v1.27.2+k0s.0/FAQ/?h=show+controller#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers)
+- Run `sudo k0s kc get nodes` on `pi1` to verify if the whole setup works. [Note that `pi1` is not shown, because by default `K0s` only lists nodes with workloads, i.e., worker nodes.](https://docs.k0sproject.io/v1.27.2+k0s.0/FAQ/?h=show+controller#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers)
   
   ![](img/kube1.png)
 
