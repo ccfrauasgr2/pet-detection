@@ -424,7 +424,15 @@ helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespa
 
 ![](img/dss1.png)
 
-
+Run
+```
+kubectl apply -f .\jivaVolumePolicy.yaml
+kubectl apply -f .\jivaStorageClass.yaml
+kubectl apply -f .\jivaPVC.yaml
+kubectl get pvc
+kubectl get jivavolume <VOLUME> -n openebs
+kubectl get pods -n openebs
+```
 
 ## Configure DBMS
 
