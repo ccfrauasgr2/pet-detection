@@ -97,17 +97,17 @@ flowchart LR
   
 ```
 
-| Component                              | Role                                                                                                                            |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                                 | captures visual data and sends them to the sensor node                                                                          |
-| Detection Model                        | analyzes visual data to detect and classify pet                                                                                 |
-| Persistent Volume (PV)                 | serves as persistent storage resource in the cluster, bases on local storage available on worker nodes, scalable                |
-| Distributed Storage System (DSS)       | dynamically provisions PV & manages their underlying storage infrastructure, synchronizes & replicates data across worker nodes |
-| Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                 |
-| REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                             |
-| Database Management System (DBMS) Pod+ | handles write and read queries for storing and retrieving detection results, scalable                                           |
-| Telegram Notification Bot (TNB)        | notifies user about detection results via Telegram                                                                              |
-| Local PC                               | serves as tool to set up system                                                                                                 |
+| Component                              | Role                                                                                                                                                      |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                            |
+| Detection Model                        | analyze visual data to detect & classify pet                                                                                                              |
+| Persistent Volume+ (PV)                | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                  |
+| Distributed Storage System (DSS)       | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                  |
+| Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                      |
+| REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                    |
+| Database Management System (DBMS) Pod+ | - handle write & read queries for storing & retrieving detection results in the same database<br>- synchronize & replicate data across pods<br>- scalable |
+| Telegram Notification Bot (TNB)        | notify user about detection results via Telegram                                                                                                          |
+| Local PC                               | serve as tool for setting up system                                                                                                                       |
 
 
 **System Behavior**:
@@ -312,11 +312,11 @@ After setting up static IP, for convenience we will enable passwordless, SSH-key
 
 There are three possible designs for the Kubernetes cluster:
 
-| Design                          | Pros                                                                                                                         | Cons                                                                                                                | Decision |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------- |
-| 1 Master Node & 3 Worker Nodes  | - Simple setup<br>- Enables fault tolerance & high availability in worker plane<br>- Enables scalability across worker nodes | - No fault tolerance & high availability in control plane                                                           | Adopt    |
-| 2 Master Nodes & 2 Worker Nodes | - Enables fault tolerance & high availability in both control & worker planes<br>- Enables scalability across worker nodes   | - Complex setup                                                                                                     | Discard  |
-| 3 Master Nodes & 1 Worker Node  | - Enables fault tolerance & high availability in control plane                                                               | - No fault tolerance & high availability in worker plane<br>- Complex setup<br>- No scalability across worker nodes | Discard  |
+| Design                | Pros                                                                                                                         | Cons                                                                                                                | Decision |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------- |
+| 1 Master & 3 Workers  | - Simple setup<br>- Enables fault tolerance & high availability in worker plane<br>- Enables scalability across worker nodes | No fault tolerance & high availability in control plane                                                             | Adopt    |
+| 2 Masters & 2 Workers | - Enables fault tolerance & high availability in both control & worker planes<br>- Enables scalability across worker nodes   | Complex setup                                                                                                       | Discard  |
+| 3 Masters & 1 Worker  | Enables fault tolerance & high availability in control plane                                                                 | - No fault tolerance & high availability in worker plane<br>- Complex setup<br>- No scalability across worker nodes | Discard  |
 
 We prioritize *setup complexity* ``>`` *high availability & fault tolerance* ``>`` *scalability*, which is why we adopt the first design. Our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
 
@@ -435,19 +435,19 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
   # Install
   helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespace
   ```
-  Expected installation result:
+  Expected installation results:
 
   ![](img/dss1.png)
 
   ![](img/dss3.png)
 
-- Configure `OpenEBS` to dynamically provision Jira Volume by applying the scripts listed [here](/scripts/jiva/):
-  - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
+- Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](/scripts/jiva/):
+  - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva Volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
 
     ```
     kubectl apply -f jivaVolumePolicy.yaml
     ```
-  - The script `jivaStorageClass.yaml` creates a Storage Class that dynamically provisions Jira volumes with the declared policies:
+  - The script `jivaStorageClass.yaml` creates a Storage Class that dynamically provisions Jira Volumes with the declared policies:
     
     ```
     kubectl apply -f jivaStorageClass.yaml
@@ -457,7 +457,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
     ```
     kubectl apply -f jivaPVC.yaml
     ```
-  - The next step is to deploy a DBMS application using this PVC. However we will do that in [Configure DBMS](#configure-dbms). For now we will just check the PVC we just created:
+  - The next step is to deploy a DBMS application using this PVC; however we will do that in [Configure DBMS](#configure-dbms). For now check the PVC we just created:
     
     ![](img/dss2.png)
 
