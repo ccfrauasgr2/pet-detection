@@ -1,0 +1,42 @@
+ apiVersion: openebs.io/v1alpha1
+ kind: JivaVolumePolicy
+ metadata:
+   name: default-jivavolumepolicy
+   namespace: openebs
+ spec:
+   replicaSC: openebs-hostpath
+   target:
+     monitor: false
+     replicationFactor: 3
+      affinity:
+      podAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: openebs.io/target-affinity
+              operator: In
+              values:
+              - statefuldb                              
+          topologyKey: kubernetes.io/hostname
+          namespaces: ["default"]                     
+   replica:
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              openebs.io/replica-anti-affinity: mongo-sts
+          topologyKey: kubernetes.io/hostname  
+     # disableMonitor: false
+     # auxResources:
+     # tolerations:
+     # resources:
+     # affinity:
+     # nodeSelector:
+     # priorityClassName:
+   # replica:
+     # tolerations:
+     # resources:
+     # affinity:
+     # nodeSelector:
+     # priorityClassName:
