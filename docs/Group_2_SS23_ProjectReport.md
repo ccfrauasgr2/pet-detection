@@ -372,6 +372,31 @@ For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``
     
     ![](img/kube2.png) 
 
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using Kubernetes LoadBalancer services in non-cloud environments by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
+
+- First, install `MetalLB`:
+
+  ```
+  # Add metallb repository to helm
+  helm repo add metallb https://metallb.github.io/metallb
+
+  # Install metallb
+  helm upgrade --install metallb metallb/metallb --create-namespace --namespace metallb-system --wait
+  ```
+  Expected installation result:
+  ![](img/kube3.png)
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type LoadBalancer (from ``192.168.178.200`` to ``192.168.178.220``), allowing them to be accessible from outside the cluster.
+
+  ```
+  # On local PC, change directory to script location, then
+  kubectl apply -f .\metallb.yaml
+  ```
+  Expected configuration result:
+  ```
+  ipaddresspool.metallb.io/default-pool created
+  l2advertisement.metallb.io/default created
+  ```
+
 ## Set up PV & DSS
 
 We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
@@ -384,9 +409,9 @@ Here are the steps to set up Longhorn on the Kubernetes cluster:
 - 2
 - 3
 
-## Develop REST API
-
 ## Configure DBMS
+
+## Develop REST API
 
 ## Deploy Backend
 
