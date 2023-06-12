@@ -322,7 +322,7 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
 
 - On `pi1` (the designated master node):
   - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
-  - Run the following commands to deploy as a master (controller) node:
+  - Run the following commands to deploy as master (controller) node:
 
     ```
     # Install, start, and check the k0scontroller service
@@ -337,10 +337,11 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
     ```
 - On each `pi2`, `pi3`, and `pi4` (the designated worker nodes):
   - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
-  - Run the following commands to deploy as a worker node:
+  - Run the following commands to deploy as worker node:
     
     ```
-    # To join the K0s cluster by pi1, create the join token file for the worker (where $TOKEN_CONTENT is the join token created by pi1):
+    # To join the K0s cluster by pi1, create the join token file for the worker
+    # $TOKEN_CONTENT is the join token created by pi1:
     sudo sh -c 'mkdir -p /var/lib/k0s/ && umask 077 && echo "$TOKEN_CONTENT" > /var/lib/k0s/join-token'
 
     # Install, start, and check the k0sworker service
@@ -349,13 +350,14 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
     systemctl status k0sworker.service
     sudo k0s status
     ```
-- Run `sudo k0s kc get nodes` on `pi1` to verify if the whole setup works. [Note that the command does not list the `K0s` controller `pi1`.](https://docs.k0sproject.io/v1.27.2+k0s.0/FAQ/?h=show+controller#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers)
+- Run `sudo k0s kc get nodes` on `pi1` to verify if the whole setup works. [Note that `pi1` is not shown, because by default `K0s` only lists nodes with workloads, i.e., worker nodes.](https://docs.k0sproject.io/v1.27.2+k0s.0/FAQ/?h=show+controller#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers)
   
   ![](img/kube1.png)
 
-For convenience it is recommended to configure ``kubectl`` on local PC:
-  - First, [install `kubectl` on local PC](https://kubernetes.io/docs/tasks/tools/).
-  - Then, on `pi1`, open the file `/var/lib/k0s/pki/admin.conf` with `sudo cat /var/lib/k0s/pki/admin.conf` and copy its content.
+For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``Helm`` is the package manager for Kubernetes, and `kubectl` is the Kubernetes command-line tool that allows us to run commands against Kubernetes clusters.
+  - [This guide](https://helm.sh/docs/intro/install/#from-the-binary-releases) shows how to install `Helm` on local PC.
+  - [This guide](https://kubernetes.io/docs/tasks/tools/) shows how to install `kubectl` on local PC.
+  - To configure `kubectl` on local PC, open the file `/var/lib/k0s/pki/admin.conf` on `pi1` with `sudo cat /var/lib/k0s/pki/admin.conf` and copy its content.
   - Paste the copied content in the `config` file normally available at `~/.kube/config` (`~` denotes home directory on local PC; if `.kube/config` is unavailable, create one). Here it is crucial to replace ``localhost`` in `clusters:cluster:server` with the static IP address of the master node (`192.168.178.61`). Everything else can stay the same. 
 
     ```
@@ -370,6 +372,31 @@ For convenience it is recommended to configure ``kubectl`` on local PC:
     
     ![](img/kube2.png) 
 
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using Kubernetes LoadBalancer services in non-cloud environments by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
+
+- First, install `MetalLB`:
+
+  ```
+  # Add metallb repository to helm
+  helm repo add metallb https://metallb.github.io/metallb
+
+  # Install metallb
+  helm upgrade --install metallb metallb/metallb --create-namespace --namespace metallb-system --wait
+  ```
+  Expected installation result:
+  ![](img/kube3.png)
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type LoadBalancer (from ``192.168.178.200`` to ``192.168.178.220``), allowing them to be accessible from outside the cluster.
+
+  ```
+  # On local PC, change directory to script location, then
+  kubectl apply -f .\metallb.yaml
+  ```
+  Expected configuration result:
+  ```
+  ipaddresspool.metallb.io/default-pool created
+  l2advertisement.metallb.io/default created
+  ```
+
 ## Set up PV & DSS
 
 We decided to use [Longhorn](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between Longhorn and other available options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, Longhorn excels in its ease of setup, lightweight nature, and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance.
@@ -382,9 +409,9 @@ Here are the steps to set up Longhorn on the Kubernetes cluster:
 - 2
 - 3
 
-## Develop REST API
-
 ## Configure DBMS
+
+## Develop REST API
 
 ## Deploy Backend
 
