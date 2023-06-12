@@ -100,7 +100,7 @@ flowchart LR
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Camera                                 | captures visual data and sends them to the sensor node                                                                                                                              |
 | Detection Model                        | analyzes visual data to detect and classify pet                                                                                                                                     |
-| Persistent Volume (PV)                 | serves as the shared persistent storage resource in the cluster                                                                                                                     |
+| Persistent Volume (PV)                 | serves as the persistent storage resource in the cluster                                                                                                                            |
 | Distributed Storage System (DSS)       | manages the underlying storage infrastructure of the persistent volume, allows concurrent read and write operations to the shared persistent volume, ensures high data availability |
 | Frontend Pod+                          | provides user interface and handles user interactions, scalable                                                                                                                     |
 | REST API Pod+                          | exposes endpoints to facilitate communication and data exchange between system components, scalable                                                                                 |
@@ -372,7 +372,7 @@ For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``
     
     ![](img/kube2.png) 
 
-As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using Kubernetes LoadBalancer services in non-cloud environments by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using ``LoadBalancer`` services in our `K0s` cluster by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
 
 - First, install `MetalLB`:
 
@@ -385,7 +385,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   ```
   Expected installation result:
   ![](img/kube3.png)
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type LoadBalancer (from ``192.168.178.200`` to ``192.168.178.220``), allowing them to be accessible from outside the cluster.
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
