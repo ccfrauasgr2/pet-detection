@@ -76,12 +76,12 @@ flowchart LR
 
     subgraph workerNode[3 Worker Nodes]
       frontendContainer[Frontend\nPod+]
-      dss[Distributed\nStorage System]
+      dss[DSS]
       subgraph backendContainer[Backend]
         restapiContainer[REST API\nPod+]
         dbmsContainer[DBMS\nPod+]
       end
-      persistentVolume[Persistent\nVolume+]
+      persistentVolume[PV+]
     end 
   end
 
@@ -97,17 +97,17 @@ flowchart LR
   
 ```
 
-| Component                              | Role                                                                                                                                                      |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                            |
-| Detection Model                        | analyze visual data to detect & classify pet                                                                                                              |
-| Persistent Volume+ (PV)                | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                  |
-| Distributed Storage System (DSS)       | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                  |
-| Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                      |
-| REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                    |
-| Database Management System (DBMS) Pod+ | - handle write & read queries for storing & retrieving detection results in the same database<br>- synchronize & replicate data across pods<br>- scalable |
-| Telegram Notification Bot (TNB)        | notify user about detection results via Telegram                                                                                                          |
-| Local PC                               | serve as tool for setting up system                                                                                                                       |
+| Component                              | Role                                                                                                                                                                                                           |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                                                                                 |
+| Detection Model                        | analyze visual data to detect & classify pet                                                                                                                                                                   |
+| Persistent Volume+ (PV+)               | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                                                                       |
+| Distributed Storage System (DSS)       | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                                                                       |
+| Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                                                                           |
+| REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                                                                         |
+| Database Management System (DBMS) Pod+ | - handle write & read queries for storing & retrieving detection results in the same database<br>- synchronize & replicate data across pods (DBMS pods are deployed with Kubernetes StatefulSet)<br>- scalable |
+| Telegram Notification Bot (TNB)        | notify user about detection results via Telegram                                                                                                                                                               |
+| Local PC                               | serve as tool for setting up system                                                                                                                                                                            |
 
 
 **System Behavior**:
