@@ -354,9 +354,10 @@ Given the hardware specifications of all Pi 3, it is best to set them up as a [`
   
   ![](img/kube1.png)
 
-For convenience it is recommended to configure ``kubectl`` on local PC:
-  - First, [install `kubectl` on local PC](https://kubernetes.io/docs/tasks/tools/).
-  - Then, on `pi1`, open the file `/var/lib/k0s/pki/admin.conf` with `sudo cat /var/lib/k0s/pki/admin.conf` and copy its content.
+For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``Helm`` is the package manager for Kubernetes, and `kubectl` is the Kubernetes command-line tool that allows us to run commands against Kubernetes clusters.
+  - [This guide](https://helm.sh/docs/intro/install/#from-the-binary-releases) shows how to install `Helm` on local PC.
+  - [This guide](https://kubernetes.io/docs/tasks/tools/) shows how to install `kubectl` on local PC.
+  - To configure `kubectl` on local PC, open the file `/var/lib/k0s/pki/admin.conf` on `pi1` with `sudo cat /var/lib/k0s/pki/admin.conf` and copy its content.
   - Paste the copied content in the `config` file normally available at `~/.kube/config` (`~` denotes home directory on local PC; if `.kube/config` is unavailable, create one). Here it is crucial to replace ``localhost`` in `clusters:cluster:server` with the static IP address of the master node (`192.168.178.61`). Everything else can stay the same. 
 
     ```
