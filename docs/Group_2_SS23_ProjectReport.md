@@ -403,7 +403,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
 
-We turn to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We will configure `OpenEBS` to dynamically provision [Replicated Volumes](https://openebs.io/docs#replicated-volumes). Due to the limitations of our Pi, we can only use [OpenEBS Jiva Operator](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. Here are the configuration steps:
+We turned to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We configured `OpenEBS` to dynamically provision [Replicated Volumes](https://openebs.io/docs#replicated-volumes). Due to the limitations of our Pi, we could only use [OpenEBS Jiva Operator](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. Here are the configuration steps:
 
 
 
