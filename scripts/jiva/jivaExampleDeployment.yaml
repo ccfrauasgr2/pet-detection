@@ -14,7 +14,7 @@ spec:
     metadata:
       labels:
         name: fio
-        openebs.io/target-affinity: mongodb
+        openebs.io/target-affinity: couchdb
     spec:
       containers:
       - name: perfrunner

@@ -15,7 +15,7 @@
              - key: openebs.io/target-affinity
                operator: In
                values:
-               - mongodb                              
+               - couchdb                              
            topologyKey: kubernetes.io/hostname
            namespaces: ["default"]                     
    replica:
@@ -24,5 +24,5 @@
         requiredDuringSchedulingIgnoredDuringExecution:
         - labelSelector:
             matchLabels:
-              openebs.io/replica-anti-affinity: mongo-sts
+              openebs.io/replica-anti-affinity: couchdb-sts
           topologyKey: kubernetes.io/hostname
