@@ -92,8 +92,7 @@ flowchart LR
   localPC -.commands.-> masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
   camera --> sensornode --> restapiContainer
-  dbmsContainer -.requests\nstorage.-> dss -.dynamically\nprovisions.-> persistentVolume
-  dbmsContainer -.claims.-> persistentVolume
+  dss -.dynamically\nprovisions.-> persistentVolume
   
 ```
 
