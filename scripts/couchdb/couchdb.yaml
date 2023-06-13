@@ -23,12 +23,12 @@ spec:
         ports:
         - containerPort: 5984
         env:
-        - name: couch_INITDB_ROOT_USERNAME
+        - name: COUCHDB_USER
           valueFrom:
             secretKeyRef:
               name: couchdb-secret
               key: couchdb-user
-        - name: couch_INITDB_ROOT_PASSWORD
+        - name: COUCHDB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: couchdb-secret
