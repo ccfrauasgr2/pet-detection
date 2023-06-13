@@ -389,7 +389,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
   ![](img/kube3.png)
 
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](https://github.com/ccfrauasgr2/pet-detection/blob/main/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
@@ -441,7 +441,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
 
   ![](img/dss3.png)
 
-- Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](/scripts/jiva/):
+- Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/scripts/jiva):
   - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva Volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
 
     ```

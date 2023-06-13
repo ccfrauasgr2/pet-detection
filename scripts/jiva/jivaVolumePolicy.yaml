@@ -15,7 +15,7 @@
              - key: openebs.io/target-affinity
                operator: In
                values:
-               - couchdb                              
+               - couchdb-sts                              
            topologyKey: kubernetes.io/hostname
            namespaces: ["default"]                     
    replica:

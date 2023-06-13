@@ -1,54 +1,54 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongodb-sts
+  name: couchdb-statefulset
 spec:
   selector:
     matchLabels: # has to match .spec.template.metadata.labels
-      app: mongodb 
-      openebs.io/target-affinity: mongodb
-      openebs.io/replica-anti-affinity: mongo-sts
-  serviceName: "mongodb"
+      app: couchdb 
+      openebs.io/target-affinity: couchdb-sts
+      openebs.io/replica-anti-affinity: couch-sts
+  serviceName: "couchdb"
   replicas: 3
   template:
     metadata:
       labels: # has to match .spec.selector.matchLabels
-        app: mongodb 
-        openebs.io/target-affinity: mongodb
-        openebs.io/replica-anti-affinity: mongo-sts
+        app: couchdb 
+        openebs.io/target-affinity: couchdb-sts
+        openebs.io/replica-anti-affinity: couch-sts
     spec:
       containers:
-      - name: mongodb
-        image: mongo:5.0
+      - name: couchdb
+        image: couchdb:3.3.2
         ports:
-        - containerPort: 27017
+        - containerPort: 5984
         env:
-        - name: MONGO_INITDB_ROOT_USERNAME
+        - name: couch_INITDB_ROOT_USERNAME
           valueFrom:
             secretKeyRef:
-              name: mongodb-secret
-              key: mongo-user
-        - name: MONGO_INITDB_ROOT_PASSWORD
+              name: couchdb-secret
+              key: couchdb-user
+        - name: couch_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mongodb-secret
-              key: mongo-password  
+              name: couchdb-secret
+              key: couchdb-password  
         volumeMounts:
-        - name: mongo-vol
-          mountPath: /datadir
+        - name: couchdb-volume
+          mountPath: /data/couchdb
       volumes:
-      - name: mongo-vol
+      - name: couchdb-volume
         persistentVolumeClaim:
           claimName: default-jiva-csi-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb-svc
+  name: couchdb-service
 spec:
   selector:
-    app: mongodb
+    app: couchdb
   ports:
     - protocol: TCP
-      port: 27017
-      targetPort: 27017
+      port: 5984
+      targetPort: 5984
