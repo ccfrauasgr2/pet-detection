@@ -404,7 +404,16 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
 
-Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We configured `OpenEBS` to dynamically provision [Jiva (Replicated) Volumes](https://openebs.io/docs#replicated-volumes). Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. The following configuration steps are based on the [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
+Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs#what-is-openebs) for DSS instead. ``OpenEBS`` manages the storage available on Kubernetes worker nodes, and it can use that storage to provide Stateful(Set) workloads with [Distributed (aka Replicated) Persistent Volumes](https://openebs.io/docs/#what-does-openebs-do), which ensure high availability and fault tolerance for data on our `K0s` cluster. Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for the provision.
+
+How does the ``Jiva Operator`` provide Stateful workloads with Replicated Volumes? Here is the typical workflow:
+
+1. We create a Persistent Volume Claim (PVC) and specify in it requirements about storage class, storage capacity, and access mode.
+2. The `Jiva Operator` automatically provisions a new *Jiva Volume* or selects an already provisioned one that matches the PVC's requirements. Jiva Volumes are what the `Jiva Operator` call its Replicated Volumes.
+3. Once the `Jiva Operator` identifies a suitable Jiva Volume, the PVC is bound to that volume. At this point, the PVC status changes to "Bound," indicating a successful association between the PVC and the Jiva Volume.
+4. The bound PVC can be used in Kubernetes pod configurations to provide persistent storage, and any data written to the PVC will be stored on the associated Jiva volume.
+
+Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisions Jiva Volumes (Persistent Volumes) for Stateful workloads (DBMS Pods). The following configuration steps are based on [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 
 - Ensure package `open-iscsi` (`iSCSI`) is installed on each worker node:
   
@@ -440,8 +449,8 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
 
   ![](img/dss3.png)
 
-- Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/scripts/jiva):
-  - The script `jivaVolumePolicy.yaml` creates a Jiva Volume Policy in which various policies for creating Jiva Volumes are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
+- Apply the scripts listed [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/scripts/jiva):
+  - The script `jivaVolumePolicy.yaml` creates a Jiva Volume Policy in which various policies for provisioning Jiva Volumes are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
 
     ```
     kubectl apply -f jivaVolumePolicy.yaml
@@ -451,7 +460,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
     ```
     kubectl apply -f jivaStorageClass.yaml
     ```
-  - The script `jivaPVC.yaml` creates a Persistent Volume Claim (PVC) whose storage class is the above Storage Class:
+  - The script `jivaPVC.yaml` creates a PVC that requires/uses the above Storage Class:
     
     ```
     kubectl apply -f jivaPVC.yaml
