@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-sts
+spec:
+  selector:
+    matchLabels: # has to match .spec.template.metadata.labels
+      app: mongodb 
+      openebs.io/target-affinity: mongodb
+      openebs.io/replica-anti-affinity: mongo-sts
+  serviceName: "mongodb"
+  replicas: 3
+  template:
+    metadata:
+      labels: # has to match .spec.selector.matchLabels
+        app: mongodb 
+        openebs.io/target-affinity: mongodb
+        openebs.io/replica-anti-affinity: mongo-sts
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-password  
+        volumeMounts:
+        - name: mongo-vol
+          mountPath: /datadir
+      volumes:
+      - name: mongo-vol
+        persistentVolumeClaim:
+          claimName: default-jiva-csi-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-svc
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
