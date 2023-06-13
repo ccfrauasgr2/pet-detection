@@ -48,6 +48,7 @@ metadata:
 spec:
   selector:
     app: couchdb
+  clusterIP: None  
   ports:
     - protocol: TCP
       port: 5984

@@ -442,7 +442,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
   ![](img/dss3.png)
 
 - Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/scripts/jiva):
-  - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva Volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
+  - The script `jivaVolumePolicy.yaml` creates a Jiva Volume Policy in which various policies for creating Jiva Volumes are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
 
     ```
     kubectl apply -f jivaVolumePolicy.yaml
@@ -452,7 +452,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
     ```
     kubectl apply -f jivaStorageClass.yaml
     ```
-  - The script `jivaPVC.yaml` creates a Persistent Volume Claim (PVC) whose class is the above Storage Class:
+  - The script `jivaPVC.yaml` creates a Persistent Volume Claim (PVC) whose storage class is the above Storage Class:
     
     ```
     kubectl apply -f jivaPVC.yaml
@@ -462,6 +462,13 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
     ![](img/dss2.png)
 
 ## Configure DBMS
+
+
+```
+kubectl apply -f couchdbSecret.yaml
+kubectl apply -f couchdbConfig.yaml
+kubectl apply -f couchdb.yaml
+```
 
 ## Develop REST API
 
