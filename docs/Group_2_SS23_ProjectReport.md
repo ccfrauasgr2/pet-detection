@@ -205,7 +205,7 @@ flowchart TD
 - Insert an empty SD-Card into local PC.
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC.
 - In the Raspberry Pi Imager:
-  - For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
+  - For Operating System, select `Raspberry Pi OS (64-bit)`.
   - For Storage, select the inserted SD-Card.
   - In Advanced options (Cog icon):
     - Set `pi0` as hostname.
@@ -242,6 +242,7 @@ flowchart TD
 ## Set up Pi 3B & 3B+
 
 - Follow the steps listed in [Set up Pi 4B](#set-up-pi-4b), but disable `Configure wireless LAN` option, and **DO NOT SSH into each Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
+- For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
 - Set `pi1` as hostname for Pi 3B+, and `pi2`, `pi3`, `pi4` as hostname for each of three available Pi 3B.
 
 ## Set up Static IP
