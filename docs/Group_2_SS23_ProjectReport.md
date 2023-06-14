@@ -161,7 +161,7 @@ flowchart TD
     id24[Set up\nStorage Service]
     id25[Develop\nREST API]
     id26[Deploy\nBackend]
-    id27[Configure\nDBS]
+    id27[Set up\nDBS]
     
 
     id21 --> id22 --> id23 --> id24
@@ -189,13 +189,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                              |
-| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                                   |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                                 |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                                      |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up Storage Service<br/>Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                              |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                             |
+| ------------------- | ------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                                                  |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Set up DBS<br/>Implement TNB                                                                                 |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                                                     |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up Storage Service<br/>Set up DBS<br/>Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                                             |
 
 
 # Sensor Node
@@ -469,7 +469,7 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
     
     ![](img/dss2.png)
 
-## Configure DBS
+## Set up DBS
 
 
 ```
