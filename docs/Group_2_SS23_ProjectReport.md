@@ -76,12 +76,12 @@ flowchart LR
 
     subgraph workerNode[3 Worker Nodes]
       frontendContainer[Frontend\nPod+]
-      dss[DSS]
+      dss[Storage\nService]
       subgraph backendContainer[Backend]
         restapiContainer[REST API\nPod+]
         dbmsContainer[DBMS\nPod+]
       end
-      persistentVolume[PV+]
+      persistentVolume[Persistent\nVolume+]
     end 
   end
 
@@ -100,8 +100,8 @@ flowchart LR
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                                                                                 |
 | Detection Model                        | analyze visual data to detect & classify pet                                                                                                                                                                   |
-| Persistent Volume+ (PV+)               | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                                                                       |
-| Distributed Storage System (DSS)       | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                                                                       |
+| Persistent Volume+ (PV)                | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                                                                       |
+| Storage Service                        | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                                                                       |
 | Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                                                                           |
 | REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                                                                         |
 | Database Management System (DBMS) Pod+ | - handle read & write queries for retrieving & storing detection results in the same database<br>- synchronize & replicate data across pods (DBMS pods are deployed with Kubernetes StatefulSet)<br>- scalable |
@@ -158,7 +158,7 @@ flowchart TD
     id21[Set up\nPi 3B & 3B+]
     id22[Set up\nStatic IP]
     id23[Set up\nKubernetes Cluster]
-    id24[Set up\nDSS]
+    id24[Set up\nStorage Service]
     id25[Develop\nREST API]
     id26[Deploy\nBackend]
     id27[Configure\nDBMS]
@@ -189,13 +189,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                  |
-| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                       |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                     |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                          |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up DSS<br/>Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                  |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                              |
+| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                                   |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                                 |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                                      |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up Storage Service<br/>Implement TNB |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                              |
 
 
 # Sensor Node
@@ -400,11 +400,11 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   l2advertisement.metallb.io/default created
   ```
 
-## Set up DSS
+## Set up Storage Service
 
-In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
+In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) as Storage Service. A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
 
-Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs#what-is-openebs) for DSS instead. ``OpenEBS`` manages the storage available on Kubernetes worker nodes, and it can use that storage to provide Stateful(Set) workloads with [Distributed (aka Replicated) Persistent Volumes](https://openebs.io/docs/#what-does-openebs-do), which ensure high availability and fault tolerance for data on our `K0s` cluster. Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for the provision.
+Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs#what-is-openebs) for Storage Service instead. ``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Distributed (aka Replicated) Persistent Volumes](https://openebs.io/docs/#what-does-openebs-do), which ensure high availability and fault tolerance for data on our `K0s` cluster. Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for the provision.
 
 How does the ``Jiva Operator`` provide Stateful workloads with Replicated Volumes? Here is the typical workflow:
 
@@ -465,7 +465,7 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
     ```
     kubectl apply -f jivaPVC.yaml
     ```
-  - The next step is to deploy a DBMS application using this PVC; however we will do that in [Configure DBMS](#configure-dbms). For now check the PVC we just created:
+  - The next step is to deploy a DBMS application using this PVC; we will do that in the next section. For now check the PVC we just created:
     
     ![](img/dss2.png)
 
