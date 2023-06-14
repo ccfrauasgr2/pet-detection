@@ -79,7 +79,7 @@ flowchart LR
       dss[Storage\nService]
       subgraph backendContainer[Backend]
         restapiContainer[REST API\nPod+]
-        dbmsContainer[DBMS\nPod+]
+        dbmsContainer[Database System\nPod+]
       end
       persistentVolume[Persistent\nVolume+]
     end 
@@ -96,17 +96,17 @@ flowchart LR
   
 ```
 
-| Component                              | Role                                                                                                                                                                                                           |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                                                                                 |
-| Detection Model                        | analyze visual data to detect & classify pet                                                                                                                                                                   |
-| Persistent Volume+ (PV)                | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                                                                       |
-| Storage Service                        | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                                                                       |
-| Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                                                                           |
-| REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                                                                         |
-| Database Management System (DBMS) Pod+ | - handle read & write queries for retrieving & storing detection results in the same database<br>- synchronize & replicate data across pods (DBMS pods are deployed with Kubernetes StatefulSet)<br>- scalable |
-| Telegram Notification Bot (TNB)        | notify user about detection results via Telegram                                                                                                                                                               |
-| Local PC                               | serve as tool for setting up system                                                                                                                                                                            |
+| Component                       | Role                                                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                                                                                |
+| Detection Model                 | analyze visual data to detect & classify pet                                                                                                                                                                  |
+| Persistent Volume+ (PV)         | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                                                                      |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                                                                      |
+| Frontend Pod+                   | - provide user interface<br>- handle user interactions<br>- scalable                                                                                                                                          |
+| REST API Pod+                   | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                                                                        |
+| Database System (DBS) Pod+      | - handle read & write queries for retrieving & storing detection results in the same database<br>- synchronize & replicate data across pods (DBS pods are deployed with Kubernetes StatefulSet)<br>- scalable |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                                                              |
+| Local PC                        | serve as tool for setting up system                                                                                                                                                                           |
 
 
 **System Behavior**:
@@ -161,7 +161,7 @@ flowchart TD
     id24[Set up\nStorage Service]
     id25[Develop\nREST API]
     id26[Deploy\nBackend]
-    id27[Configure\nDBMS]
+    id27[Configure\nDBS]
     
 
     id21 --> id22 --> id23 --> id24
@@ -413,7 +413,7 @@ How does the ``Jiva Operator`` provide Stateful workloads with Replicated Volume
 3. Once the `Jiva Operator` identifies a suitable Jiva Volume, the PVC is bound to that volume. At this point, the PVC status changes to "Bound," indicating a successful association between the PVC and the Jiva Volume.
 4. The bound PVC can be used in Kubernetes pod configurations to provide persistent storage, and any data written to the PVC will be stored on the associated Jiva volume.
 
-Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisions Jiva Volumes (Persistent Volumes) for Stateful workloads (DBMS Pods). The following configuration steps are based on [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
+Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisions Jiva Volumes (Persistent Volumes) for Stateful workloads (DBS Pods). The following configuration steps are based on [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 
 - Ensure package `open-iscsi` (`iSCSI`) is installed on each worker node:
   
@@ -465,11 +465,11 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
     ```
     kubectl apply -f jivaPVC.yaml
     ```
-  - The next step is to deploy a DBMS application using this PVC; we will do that in the next section. For now check the PVC we just created:
+  - The next step is to deploy a DBS application using this PVC; we will do that in the next section. For now check the PVC we just created:
     
     ![](img/dss2.png)
 
-## Configure DBMS
+## Configure DBS
 
 
 ```
