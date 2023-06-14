@@ -410,7 +410,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
 How does the ``Jiva Operator`` provide Stateful workloads with Replicated Volumes? Here is the typical workflow:
 
 1. We create a Persistent Volume Claim (PVC) and specify in it requirements about storage class, storage capacity, and access mode.
-2. The `Jiva Operator` automatically provisions a new *Jiva Volume* or selects an already provisioned one that matches the PVC's requirements. Jiva Volumes are Replicated Volumes that operate at block level.
+2. The `Jiva Operator` automatically provisions a new *Jiva Volume* or selects an already provisioned one that matches the PVC's requirements. Jiva Volumes are what the ``Jiva Operator`` call its Replicated Volumes that operate at block level.
 3. Once the `Jiva Operator` identifies a suitable Jiva Volume, the PVC is bound to that volume. At this point, the PVC status changes to "Bound," indicating a successful association between the PVC and the Jiva Volume.
 4. The bound PVC can be used in Kubernetes pod configurations to provide persistent storage, and any data written to the PVC will be stored on the associated Jiva volume.
 
