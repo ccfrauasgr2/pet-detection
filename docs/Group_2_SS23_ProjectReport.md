@@ -140,7 +140,7 @@ Telegram message when detect phase ends:
 
 **Project Plan**:
 ```mermaid
-flowchart TD
+flowchart LR
     
     subgraph Sensor Node
     id11[Set up\nPi 4B]
@@ -148,11 +148,10 @@ flowchart TD
     id13[Prepare\nTraining Data]
     id14[Train & Validate\nModel]
     id15[Deploy\nTrained Model]
-    id16[Test\nSensor Node]
     
-    id11 --> id12
+    id11 --> id12 --> id15
     id13 --> id14 --> id15
-    id12 & id15 --> id16
+    
     end
         
     subgraph Cluster
@@ -165,23 +164,21 @@ flowchart TD
     id27[Set up\nDBS]
     
 
-    id21 --> id22 --> id23 --> id24
-    id25 & id27 --> id26
+    id21 --> id22 --> id23 --> id24 --> id27
+    id25 & id27 & id33 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
     id33[Implement\nTNB]
 
-    id31 --> id32
-
-    id41[Test\nCluster]
+    id26 & id31 --> id32
     end
 
     
     id51[Test\nSystem]
 
-    id24  & id26 & id32 & id33 --> id41
-    id41 & id16 --> id51
+    id32 & id15 --> id51
+    
     
 
    
