@@ -59,7 +59,7 @@ end
 
 ```
 
-**System Architecture (simplified)**:
+**System Architecture**:
 
 ```mermaid
 flowchart LR
@@ -137,6 +137,9 @@ Telegram message when detect phase ends:
 
 `In <DURATION> seconds from <START_TIME> to <END_TIME> on <DATE>: <ANIMAL_TYPEs> were detected, X pictures were taken, and the highest confidence value is <HIGHEST_CONF_VALUE> `
 
+**Kubernetes Architecture:**
+
+TODO
 
 **Project Plan**:
 ```mermaid
