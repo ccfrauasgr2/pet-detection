@@ -148,7 +148,7 @@ flowchart TD
     id13[Prepare\nTraining Data]
     id14[Train & Validate\nModel]
     id15[Deploy\nTrained Model]
-    id16[Wrap\nSensor Node]
+    id16[Test\nSensor Node]
     
     id11 --> id12
     id13 --> id14 --> id15
@@ -174,11 +174,11 @@ flowchart TD
 
     id31 --> id32
 
-    id41[Wrap\nCluster]
+    id41[Test\nCluster]
     end
 
     
-    id51[Wrap\nSystem]
+    id51[Test\nSystem]
 
     id24  & id26 & id32 & id33 --> id41
     id41 & id16 --> id51
@@ -235,7 +235,7 @@ flowchart TD
 
 ## Deploy Trained Model
 
-## Wrap Sensor Node
+## Test Sensor Node
 
 # Cluster
 
@@ -489,7 +489,7 @@ kubectl apply -f couchdb.yaml
 
 ## Implement TNB
 
-## Wrap Cluster
+## Test Cluster
 
 
 
