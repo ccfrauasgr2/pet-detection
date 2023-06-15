@@ -31,7 +31,7 @@ Obtained from own source:
 
 - 1x FRITZ!Box 3272 Router
 - 1x USB-to-USB-C Cable
-- 1x ISY ICR-120 Micro-SDHC Reader
+- 1x ISY ICR-120 8-in-1 Card Reader
 
 **Network Architecture**:
 
