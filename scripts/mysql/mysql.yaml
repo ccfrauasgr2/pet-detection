@@ -19,20 +19,16 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:latest
+        image: mysql:8.0
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3306
         env:
-        - name: mysql_USER
+        - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mysql-secret
-              key: mysql-user
-        - name: mysql_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: mysql-password  
+              key: mysql-root-password
         volumeMounts:
         - name: mysql-volume
           mountPath: /data/mysql
@@ -48,11 +44,11 @@ metadata:
 spec:
   selector:
     app: mysql
-  clusterIP: None  
   ports:
     - protocol: TCP
       port: 3306
       targetPort: 3306
+  clusterIP: None  # Headless
 ---
 apiVersion: v1
 kind: Service
@@ -65,3 +61,4 @@ spec:
     - protocol: TCP
       port: 3306
       targetPort: 3306
+  type: LoadBalancer # External with MetalLB
