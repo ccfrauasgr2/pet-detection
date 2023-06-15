@@ -104,7 +104,7 @@ flowchart LR
 | Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes                               |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                   |
-| REST API Pods                   | - expose endpoints to facilitate communication & data exchange between system components                                                 |
+| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                   |
 | Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods                   |
 | Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                         |
 | Local PC                        | serve as tool for setting up system                                                                                                      |
