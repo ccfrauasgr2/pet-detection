@@ -235,8 +235,6 @@ flowchart LR
 
 ## Deploy Trained Model
 
-## Test Sensor Node
-
 # Cluster
 
 ## Set up Pi 3B & 3B+
@@ -481,15 +479,15 @@ kubectl apply -f couchdb.yaml
 
 ## Develop REST API
 
+## Implement TNB
+
 ## Deploy Backend
 
 ## Develop Frontend
 
 ## Deploy Frontend
 
-## Implement TNB
-
-## Test Cluster
+# Test System
 
 
 
