@@ -46,8 +46,7 @@ spec:
     app: mysql
   ports:
     - protocol: TCP
-      port: 3306
-      targetPort: 3306
+      port: 3306 # implies that targetPort is also 3306
   clusterIP: None  # Headless
 ---
 apiVersion: v1
@@ -60,5 +59,4 @@ spec:
   ports:
     - protocol: TCP
       port: 3306
-      targetPort: 3306
   type: LoadBalancer # External with MetalLB
