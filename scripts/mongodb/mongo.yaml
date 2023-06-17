@@ -8,7 +8,7 @@ spec:
       app: mongo 
       openebs.io/target-affinity: mongo-sts
       openebs.io/replica-anti-affinity: mongo-sts
-  serviceName: "mongo-headless-service"
+  serviceName: "mongo-headless-svc"
   replicas: 3
   template:
     metadata:
@@ -45,7 +45,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-headless-service
+  name: mongo-headless-svc
 spec:
   selector:
     app: mongo
@@ -57,11 +57,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-read-service
+  name: mongo-read-svc
 spec:
   selector:
     app: mongo 
   ports:
     - protocol: TCP
       port: 27017 # implies that targetPort is also 27017
-  type: LoadBalancer # provides endpoint for external access with MetalLB
+  type: LoadBalancer # MetalLB provides endpoint for external access to mongo database
