@@ -447,10 +447,34 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
 
 
 ```
-kubectl apply -f couchdbSecret.yaml
-kubectl apply -f couchdbConfig.yaml
-kubectl apply -f couchdb.yaml
+kubectl apply -f mongoSecret.yaml
+kubectl apply -f mongoConfig.yaml
+kubectl apply -f mongo.yaml
+kubectl get pods -w
+kubectl get pvc
+kubectl get svc
 ```
+
+```
+kubectl exec -it mongo-sts-0 -- mongo
+rs.initiate(
+   {
+      _id: "myReplSet",
+      version: 1,
+      members: [
+         { _id: 0, host : "mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017" },
+         { _id: 1, host : "mongo-sts-1.mongo-headless-svc.default.svc.cluster.local:27017" },
+         { _id: 2, host : "mongo-sts-2.mongo-headless-svc.default.svc.cluster.local:27017" }
+      ]
+   }
+)
+exit
+kubectl exec -it mongo-sts-0 -- mongo
+rs.status()
+kubectl exec -it mongo-sts-1 -- mongo
+rs.secondaryOk()
+```
+
 
 ## Develop REST API
 
