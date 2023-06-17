@@ -97,17 +97,17 @@ flowchart LR
   
 ```
 
-| Component                       | Role                                                                                                                                     |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                           |
-| Detection Model                 | analyze visual data to detect & classify pet                                                                                             |
-| Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes                               |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes |
-| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                   |
-| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                   |
-| Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods                   |
-| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                         |
-| Local PC                        | serve as tool for setting up system                                                                                                      |
+| Component                       | Role                                                                                                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                           |
+| Detection Model                 | analyze visual data to detect & classify pet                                                                                                             |
+| Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes                                               |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                 |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                   |
+| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                   |
+| Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods (Master-slave replication in DBS) |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                         |
+| Local PC                        | serve as tool for setting up system                                                                                                                      |
 
 
 **System Behavior**:
@@ -385,7 +385,7 @@ How does the ``Jiva Operator`` provide Stateful workloads with Replicated Volume
 1. We create a Persistent Volume Claim (PVC) and specify in it requirements about storage class, storage capacity, and access mode.
 2. The `Jiva Operator` automatically provisions a new *Jiva Volume* or selects an already provisioned one that matches the PVC's requirements. Jiva Volumes are what the ``Jiva Operator`` call its Replicated Volumes that operate at block level.
 3. Once the `Jiva Operator` identifies a suitable Jiva Volume, the PVC is bound to that volume. At this point, the PVC status changes to "Bound," indicating a successful association between the PVC and the Jiva Volume.
-4. The bound PVC can be used in Kubernetes pod configurations to provide persistent storage, and any data written to the PVC will be stored on the associated Jiva volume.
+4. The bound PVC can be used in Kubernetes pod configurations to provide persistent storage, and any data written to the PVC will be stored on the associated Jiva Volume.
 
 Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisions Jiva Volumes (Persistent Volumes) for Stateful workloads (DBS Pods). The following configuration steps are based on [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 

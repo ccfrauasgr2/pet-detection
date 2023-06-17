@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-config
+data:
+  mongo-read-url: mongo-read-service
+  mongo-write-url: "mongo-sts-0.mongo-headless-service.default.svc.cluster.local:27017" # hard-coded, not elegant but simple, follows this pattern: "$(FIRST_POD_NAME).$(HEADLESS_SERVICE_NAME).$(NAMESPACE).svc.cluster.local:$(CONTAINER_PORT)"
+  

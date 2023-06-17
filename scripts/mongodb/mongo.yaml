@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo-sts
+spec:
+  selector:
+    matchLabels: # has to match .spec.template.metadata.labels
+      app: mongo 
+      openebs.io/target-affinity: mongo-sts
+      openebs.io/replica-anti-affinity: mongo-sts
+  serviceName: "mongo-headless-service"
+  replicas: 3
+  template:
+    metadata:
+      labels: # has to match .spec.selector.matchLabels
+        app: mongo 
+        openebs.io/target-affinity: mongo-sts
+        openebs.io/replica-anti-affinity: mongo-sts
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:4.4
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password  
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data/db # By default, MongoDB writes its data files inside the container at the /data/db directory. When the MongoDB container starts, the PVC is mounted at the /data/db directory inside the container, effectively replacing the default empty directory with the persistent storage provided by the PVC. From that point onwards, any data written by MongoDB to the /data/db directory within the container will be stored on the PVC, ensuring the persistence of the data even if the container is restarted, rescheduled, or terminated.
+      volumes:
+      - name: mongo-volume
+        persistentVolumeClaim:
+          claimName: default-jiva-csi-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-headless-service
+spec:
+  selector:
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 27017 # implies that targetPort is also 27017
+  clusterIP: None  # declares this service is headless
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-read-service
+spec:
+  selector:
+    app: mongo 
+  ports:
+    - protocol: TCP
+      port: 27017 # implies that targetPort is also 27017
+  type: LoadBalancer # provides endpoint for external access with MetalLB

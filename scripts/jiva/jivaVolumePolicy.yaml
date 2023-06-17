@@ -15,7 +15,7 @@
              - key: openebs.io/target-affinity
                operator: In
                values:
-               - mysql-sts  # for policy to work, "openebs.io/target-affinity: mysql-sts" must be specified in mysql StatefulSet manifest file, under spec.template.metadata.labels                      
+               - mongo-sts  # for policy to work, "openebs.io/target-affinity: mongo-sts" must be specified in mongo StatefulSet manifest file, under spec.template.metadata.labels                      
            topologyKey: kubernetes.io/hostname
            namespaces: ["default"]                     
    replica:
@@ -24,5 +24,5 @@
         requiredDuringSchedulingIgnoredDuringExecution:
         - labelSelector:
             matchLabels:
-              openebs.io/replica-anti-affinity: mysql-sts # for policy to work, "openebs.io/replica-anti-affinity: mysql-sts" must be specified in mysql StatefulSet manifest file, under spec.template.metadata.labels                      
+              openebs.io/replica-anti-affinity: mongo-sts # for policy to work, "openebs.io/replica-anti-affinity: mongo-sts" must be specified in mongo StatefulSet manifest file, under spec.template.metadata.labels                      
           topologyKey: kubernetes.io/hostname
