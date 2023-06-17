@@ -475,6 +475,11 @@ kubectl exec -it mongo-sts-1 -- mongo
 rs.secondaryOk()
 ```
 
+Mongo Compass
+```
+mongodb://YWRtaW4=:Q29tcE5ldDEyMw==@${Static IP}
+mongodb://YWRtaW4=:Q29tcE5ldDEyMw==@mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017
+```
 
 ## Develop REST API
 
