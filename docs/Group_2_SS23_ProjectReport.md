@@ -382,7 +382,7 @@ In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.
 
 ``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Local or Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), the latter of which would ensure high availability and fault tolerance for data on our `K0s` cluster. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only suitable storage engine due to hardware limitation) for the provision of Replicated Volumes, our pods were also in constant `CrashLoopBackOff` status. This observation made us conclude that the given hardwares are not suitable for replicating PV across worker nodes. 
 
-Hence, we decided to employ `OpenEBS` as a storage service that only dynamically provisions PV and manages their underlying storage infrastructure. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). To use these resources, we only need to install `OpenEBS` with `Helm` as follows:
+Hence, we decided to employ `OpenEBS` as a storage service that only serves to dynamically provision PV and manage their underlying storage infrastructure. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). To use these resources, we only need to install `OpenEBS` with `Helm` as follows:
 
 ```
 # Get repo info
