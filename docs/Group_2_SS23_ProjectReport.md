@@ -19,7 +19,7 @@ Received from Prof.:
 - 1x Raspberry Pi 4 Model B (Pi 4B)
 - 1x Raspberry Pi 3 Model B+ (Pi 3B+)
 - 3x Raspberry Pi 3 Model B V1.2 (Pi 3B)
-- 5x Samsung EVO Plus 32GB MicroSDHC
+- 5x Samsung 32GB MicroSDHC
 - 1x Apple USB-C-to-USB-C Charger
 - 1x Anker 6-Port PowerPort
 - 2x TP-Link TL-SG105 5-Port Desktop Switch
