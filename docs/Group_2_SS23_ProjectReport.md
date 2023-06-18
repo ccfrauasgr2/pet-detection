@@ -415,13 +415,11 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
   helm repo update
 
   # Install
-  helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespace
+  helm install openebs-jiva openebs-jiva/jiva --namespace default --set-string csiNode.kubeletDir="/var/lib/k0s/kubelet/"
   ```
-  Expected installation results:
+  Expected installation result:
 
   ![](img/dss1.png)
-
-  ![](img/dss3.png)
 
 - Apply the scripts listed [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/scripts/jiva):
   - The script `jivaVolumePolicy.yaml` creates a Jiva Volume Policy in which various policies for provisioning Jiva Volumes are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).

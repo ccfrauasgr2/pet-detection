@@ -2,7 +2,6 @@
  kind: JivaVolumePolicy
  metadata:
    name: default-jivavolumepolicy
-   namespace: openebs
  spec:
    replicaSC: openebs-hostpath
    target:
