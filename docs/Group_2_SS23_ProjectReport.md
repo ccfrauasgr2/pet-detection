@@ -102,7 +102,7 @@ flowchart LR
 | Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                           |
 | Detection Model                 | analyze visual data to detect & classify pet                                                                                                             |
 | Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes                                               |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                 |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                       |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                   |
 | REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                   |
 | Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods (Master-slave replication in DBS) |
@@ -378,14 +378,24 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 ## Set up Storage Service
 
-In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) as Storage Service. A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for replicating data across multiple nodes. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn` and use [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
+In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) as Storage Service. A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for replicating PV across worker nodes. However, after installation of `Longhorn` our pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn` and use [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
 
-``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Local or Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do); the latter ensures high availability and fault tolerance for data on our `K0s` cluster. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only usable OpenEBS Operator due to hardware limitation) for the provision of Replicated Volumes, our pods were also in constant `CrashLoopBackOff` status. This observation made us conclude that the given hardware are not suitable for replicating persistent volumes across nodes. 
+``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Local or Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), the latter of which would ensure high availability and fault tolerance for data on our `K0s` cluster. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only suitable storage engine due to hardware limitation) for the provision of Replicated Volumes, our pods were also in constant `CrashLoopBackOff` status. This observation made us conclude that the given hardwares are not suitable for replicating PV across worker nodes. 
 
-Due to , we could only use  The ``Jiva Operator`` (`OpenEBS`) can be configured to dynamically provision *Jiva Volumes* (Replicated Volumes) for Stateful workloads (DBS Pods). The following configuration steps are based on [this quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
+Hence, we decided to employ `OpenEBS` as a storage service that only dynamically provisions PV and manages their underlying storage infrastructure. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). To use these resources, we only need to install `OpenEBS` with `Helm` as follows:
 
+```
+# Get repo info
+helm repo add openebs https://openebs.github.io/charts
+helm repo update
 
+# Install
+helm install openebs openebs/openebs --namespace default
+```
     
+Expected installation result:
+
+![](img/dss1.png)
 
 ## Set up DBS
 
