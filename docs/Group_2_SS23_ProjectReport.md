@@ -389,11 +389,11 @@ How does the ``Jiva Operator`` provide Stateful workloads with Replicated Volume
 
 Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisions Jiva Volumes (Persistent Volumes) for Stateful workloads (DBS Pods). The following configuration steps are based on [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 
-- Ensure package `open-iscsi` (`iSCSI`) is installed on each worker node:
+- Ensure package `open-iscsi` (`iSCSI`) is installed on each node:
   
   ```
   # Commands to install open-iscsi
-  sudo apt install open-iscsi
+  sudo apt install -y open-iscsi
   sudo systemctl enable --now iscsid
   modprobe iscsi_tcp
 
