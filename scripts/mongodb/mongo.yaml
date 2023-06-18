@@ -31,6 +31,7 @@ spec:
     matchLabels: # has to match .spec.template.metadata.labels
       app: mongo 
       openebs.io/target-affinity: mongo-sts
+      openebs.io/replica-anti-affinity: mongo-sts
   serviceName: "mongo-headless-svc"
   replicas: 3
   template:
@@ -38,6 +39,7 @@ spec:
       labels: # has to match .spec.selector.matchLabels
         app: mongo 
         openebs.io/target-affinity: mongo-sts
+        openebs.io/replica-anti-affinity: mongo-sts
     spec:
       containers:
       - name: mongo

@@ -17,3 +17,11 @@
                - mongo-sts  # for policy to work, "openebs.io/target-affinity: mongo-sts" must be specified in mongo StatefulSet manifest file, under spec.template.metadata.labels                      
            topologyKey: kubernetes.io/hostname
            namespaces: ["default"]
+   replica:
+     affinity:
+       podAntiAffinity:
+         preferredDuringSchedulingIgnoredDuringExecution:
+         - labelSelector:
+             matchLabels:
+               openebs.io/replica-anti-affinity: mongo-sts # for policy to work, "openebs.io/replica-anti-affinity: mongo-sts" must be specified in mongo StatefulSet manifest file, under spec.template.metadata.labels                      
+           topologyKey: kubernetes.io/hostname
