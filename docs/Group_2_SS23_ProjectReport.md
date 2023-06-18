@@ -437,9 +437,13 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
     ```
     kubectl apply -f jivaPVC.yaml
     ```
-  - The next step is to deploy a DBS application using this PVC; we will do that in the next section. For now check the PVC we just created:
+  - Check the created PVC with:
+
+    ```
+    kubectl describe pvc default-jiva-csi-pvc
+    ```
     
-    ![](img/dss2.png)
+    
 
 ## Set up DBS
 
