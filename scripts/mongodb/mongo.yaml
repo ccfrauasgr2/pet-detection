@@ -37,6 +37,16 @@ spec:
       labels: # has to match .spec.selector.matchLabels
         app: mongo-sts
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - mongo-sts
+            topologyKey: kubernetes.io/hostname
       containers:
       - name: mongo
         image: mongo:4.4
@@ -70,4 +80,4 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 3Gi
+            storage: 5Gi
