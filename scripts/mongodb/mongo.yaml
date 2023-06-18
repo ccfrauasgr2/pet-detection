@@ -31,7 +31,7 @@ spec:
     matchLabels: # has to match .spec.template.metadata.labels
       app: mongo-sts 
   serviceName: "mongo-headless-svc"
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels: # has to match .spec.selector.matchLabels

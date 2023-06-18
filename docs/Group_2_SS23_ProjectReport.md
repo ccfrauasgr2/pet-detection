@@ -378,53 +378,13 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 ## Set up Storage Service
 
-In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) as Storage Service. A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of high data availability and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn` and use [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
+In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) as Storage Service. A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for replicating data across multiple nodes. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn` and use [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
 
-``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), which ensure high availability and fault tolerance for data on our `K0s` cluster. Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for the provision. The ``Jiva Operator`` (`OpenEBS`) can be configured to dynamically provision *Jiva Volumes* (Replicated Volumes) for Stateful workloads (DBS Pods). The following configuration steps are based on [this quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
+``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Local or Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do); the latter ensures high availability and fault tolerance for data on our `K0s` cluster. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only usable OpenEBS Operator due to hardware limitation) for the provision of Replicated Volumes, our pods were also in constant `CrashLoopBackOff` status. This observation made us conclude that the given hardware are not suitable for replicating persistent volumes across nodes. 
 
-- Ensure package `open-iscsi` (`iSCSI`) is installed on each node:
-  
-  ```
-  # Commands to install open-iscsi
-  sudo apt install -y open-iscsi
-  sudo systemctl enable --now iscsid
-  modprobe iscsi_tcp
+Due to , we could only use  The ``Jiva Operator`` (`OpenEBS`) can be configured to dynamically provision *Jiva Volumes* (Replicated Volumes) for Stateful workloads (DBS Pods). The following configuration steps are based on [this quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
 
-  # Verify iSCSI Status, should be active (running)
-  sudo systemctl status iscsid.service
-  ```
 
-- Ensure the `K0s` cluster has ``OpenEBS`` localpv-hostpath version ``2.6.0`` or higher:
-  
-  ```
-  # Run this command on local PC
-  kubectl apply -f https://openebs.github.io/charts/hostpath-operator.yaml
-  ```
-
-- Install `OpenEBS Jiva Operator` with `Helm`:
-  ```
-  # Get repo info
-  helm repo add openebs-jiva https://openebs.github.io/jiva-operator
-  helm repo update
-
-  # Install
-  helm install openebs-jiva openebs-jiva/jiva --namespace default --set-string csiNode.kubeletDir="/var/lib/k0s/kubelet/"
-  ```
-  Expected installation result:
-
-  ![](img/dss1.png)
-
-- Apply the scripts listed [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/scripts/jiva):
-  - The script `jivaVolumePolicy.yaml` creates a Jiva Volume Policy in which various policies for provisioning Jiva Volumes are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
-
-    ```
-    kubectl apply -f jivaVolumePolicy.yaml
-    ```
-  - The script `jivaStorageClass.yaml` creates a Storage Class that dynamically provisions Jira Volumes with the declared policies:
-    
-    ```
-    kubectl apply -f jivaStorageClass.yaml
-    ```   
     
 
 ## Set up DBS
