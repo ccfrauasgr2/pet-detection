@@ -76,7 +76,7 @@ spec:
     - metadata:
         name: mongo-volume
       spec:
-        storageClassName: openebs-jiva-csi-sc
+        storageClassName: openebs-hostpath
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
