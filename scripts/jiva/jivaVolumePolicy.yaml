@@ -11,17 +11,22 @@
          requiredDuringSchedulingIgnoredDuringExecution:
          - labelSelector:
              matchExpressions:
-             - key: openebs.io/target-affinity
+             - key: app
                operator: In
                values:
-               - mongo-sts  # for policy to work, "openebs.io/target-affinity: mongo-sts" must be specified in mongo StatefulSet manifest file, under spec.template.metadata.labels                      
+               - mongo-sts
            topologyKey: kubernetes.io/hostname
            namespaces: ["default"]
    replica:
      affinity:
        podAntiAffinity:
          preferredDuringSchedulingIgnoredDuringExecution:
-         - labelSelector:
-             matchLabels:
-               openebs.io/replica-anti-affinity: mongo-sts # for policy to work, "openebs.io/replica-anti-affinity: mongo-sts" must be specified in mongo StatefulSet manifest file, under spec.template.metadata.labels                      
-           topologyKey: kubernetes.io/hostname
+         - weight: 100
+           podAffinityTerm:
+             labelSelector:
+               matchExpressions:
+               - key: app
+                 operator: In
+                 values:
+                 - mongo-sts
+             topologyKey: kubernetes.io/hostname
