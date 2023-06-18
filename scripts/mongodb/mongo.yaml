@@ -62,7 +62,12 @@ spec:
         volumeMounts:
         - name: mongo-volume
           mountPath: /data/db # By default, MongoDB writes its data files inside the container at the /data/db directory. When the MongoDB container starts, the PVC is mounted at the /data/db directory inside the container, effectively replacing the default empty directory with the persistent storage provided by the PVC. From that point onwards, any data written by MongoDB to the /data/db directory within the container will be stored on the PVC, ensuring the persistence of the data even if the container is restarted, rescheduled, or terminated.
-      volumes:
-      - name: mongo-volume
-        persistentVolumeClaim:
-          claimName: default-jiva-csi-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-volume
+      spec:
+        storageClassName: openebs-jiva-csi-sc
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 3Gi

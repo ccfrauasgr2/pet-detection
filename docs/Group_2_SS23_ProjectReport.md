@@ -431,18 +431,7 @@ Now, we will configure the ``Jiva Operator`` (`OpenEBS`) to dynamically provisio
     
     ```
     kubectl apply -f jivaStorageClass.yaml
-    ```
-  - The script `jivaPVC.yaml` creates a PVC that requires/uses the above Storage Class:
-    
-    ```
-    kubectl apply -f jivaPVC.yaml
-    ```
-  - Check the created PVC with:
-
-    ```
-    kubectl describe pvc default-jiva-csi-pvc
-    ```
-    
+    ```   
     
 
 ## Set up DBS
