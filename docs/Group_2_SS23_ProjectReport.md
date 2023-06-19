@@ -101,7 +101,7 @@ flowchart LR
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                           |
 | Detection Model                 | analyze visual data to detect & classify pet                                                                                                             |
-| Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes                                               |
+| Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                   |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                       |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                   |
 | REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                   |
@@ -295,7 +295,7 @@ There are three possible designs for the Kubernetes cluster:
 
 We prioritize *setup complexity* ``>`` *high availability & fault tolerance* ``>`` *scalability*, which is why we adopt the first design. Our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
 
-Given the hardware specifications of all Pi 3, it is best to set them up as a [`K3s`](https://docs.k3s.io/) cluster. However, huge CPU and MEM usage (100~300% and >65%, respectively) by `k3s-server` on fresh install  made the master node barely respond to any command. The [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation did not alleviate the problem for us. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/). Here are the steps to set up set up a `K0s` cluster:
+We first tried to set up the four given Pi 3 as a [`K3s`](https://docs.k3s.io/) cluster. However, huge CPU and MEM usage (100~300% and >65%, respectively) by `k3s-server` on fresh install  made the master node barely respond to any command. The [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation could not alleviate the problem for us. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/). Here are the steps to set up set up a `K0s` cluster:
 
 - On `pi1` (the designated master node):
   - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
@@ -349,7 +349,7 @@ For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``
     
     ![](img/kube2.png) 
 
-As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using ``LoadBalancer`` services in our `K0s` cluster by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/), which exposes Kubernetes ``LoadBalancer`` services from our `K0s` cluster to applications/services outside the cluster.
 
 - First, install `MetalLB`:
 
