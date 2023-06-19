@@ -382,7 +382,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
   ![](img/kube3.png)
 
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](https://github.com/ccfrauasgr2/pet-detection/blob/main/scripts/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying the `metallb.yaml`-script in the project repository. In the script we specify the IP address pool that `MetalLB` can assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
@@ -398,7 +398,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 Initially, we wanted to use a storage service that can replicate data on PV across worker nodes, as this replication would provide high availability and fault tolerance for data on our `K0s` cluster. We tried using the lightweight [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for that purpose (A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/)). However, after installation of `Longhorn`, our pods were repeatedly in `CrashLoopBackOff` status. Since we could not determine the exact error cause and did not want to go over the complex prerequisites of ``Longhorn`` again for debugging, we abandoned `Longhorn` and tried the easier-to-set-up [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
 
-``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), which is what we wanted initially. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only storage engine compatible with our hardware) for the provision of Replicated Volumes, our pods were also repeatedly in `CrashLoopBackOff` status. Since this error occurred with `Longhorn` as well, we believe that using a storage service to replicate PV data across worker nodes is not recommendable for our `K0s` cluster, as such data service would add overhead on the cluster capacity and performance (one of the common causes for `CrashLoopBackOff` is out-of-memory or -resource).
+``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), which is what we wanted initially. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only storage engine compatible with our hardware) for the provision of Replicated Volumes, our pods were also repeatedly in `CrashLoopBackOff` status. Since this error occurred with `Longhorn` as well, it may mean that using a storage service to replicate PV data is not recommendable for our `K0s` cluster, as such data service would add overhead on the cluster capacity and performance (one of the common causes for `CrashLoopBackOff` is out-of-memory or -resource).
 
 We therefore delegate the replication of PV data across worker nodes to the multiple DBS Pods running in our `K0s` cluster, as these pods (each running on a worker node) would have to synchronize their PV data to ensure data consistency anyway. We employ `OpenEBS` as a storage service that only serves to dynamically provision local PV for the DBS Pods. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). So that these resources can be used later, install `OpenEBS` with `Helm` as follows:
 
@@ -417,6 +417,7 @@ Expected installation result:
 
 ## Set up DBS
 
+Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. Additionally, 
 
 ```
 kubectl apply -f mongoSecret.yaml
@@ -448,10 +449,10 @@ rs.secondaryOk()
 ```
 
 Mongo Compass
-```
-mongodb://YWRtaW4=:Q29tcE5ldDEyMw==@${Static IP}
-mongodb://YWRtaW4=:Q29tcE5ldDEyMw==@mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017
-```
+
+![](img/dbs1.png)
+
+![](img/dbs2.png)
 
 ## Develop REST API
 
