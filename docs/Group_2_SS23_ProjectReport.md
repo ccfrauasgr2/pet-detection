@@ -349,7 +349,7 @@ For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``
     
     ![](img/kube2.png) 
 
-As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/), which exposes Kubernetes ``LoadBalancer`` services from our `K0s` cluster to applications/services outside the cluster.
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/), which exposes Kubernetes ``LoadBalancer`` services from our `K0s` cluster to applications/services outside of it.
 
 - First, install `MetalLB`:
 
