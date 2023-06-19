@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: restapi-svc
+spec:
+  selector:
+    app: restapi
+  ports:
+    - protocol: TCP
+      port: #TODO
+      targetPort: #TODO
+---  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restapi-deployment
+spec:
+  selector:
+    matchLabels:
+      app: restapi 
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: restapi
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - restapi
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: restapi
+        image: #TODO
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: #TODO
+        env:
+        - name: #TODO
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-config
+              key: mongo-read-url
