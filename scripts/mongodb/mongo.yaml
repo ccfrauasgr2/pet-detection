@@ -4,7 +4,7 @@ metadata:
   name: mongo-headless-svc
 spec:
   selector:
-    app: mongo
+    app: mongo-sts
   ports:
     - protocol: TCP
       port: 27017 # implies that targetPort is also 27017
@@ -16,7 +16,7 @@ metadata:
   name: mongo-read-svc
 spec:
   selector:
-    app: mongo 
+    app: mongo-sts
   ports:
     - protocol: TCP
       port: 27017 # implies that targetPort is also 27017
