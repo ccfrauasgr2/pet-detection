@@ -364,7 +364,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
   ![](img/kube3.png)
 
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](https://github.com/ccfrauasgr2/pet-detection/blob/main/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](https://github.com/ccfrauasgr2/pet-detection/blob/main/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
