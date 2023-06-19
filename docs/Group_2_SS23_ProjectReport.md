@@ -116,7 +116,25 @@ See [Test System](#test-system) section.
 
 **Kubernetes Architecture:**
 
-TODO
+```mermaid
+flowchart LR
+  
+  mongo-sts[StatefulSet\nmongo-sts]
+  mongo-read-svc[LoadBalancer Service\nmongo-read-svc]
+  mongo-headless-svc[Service\nmongo-headless-svc]
+  mongo-secret[Secret\nmongo-secret]
+  mongo-config[ConfigMap\nmongo-config]
+  frontend-svc[LoadBalancer Service\nfrontend-svc]
+  frontend-deployment[Deployment\nfrontend-deployment]
+  restapi-config[ConfigMap\nrestapi-config]
+  restapi-svc[ClusterIP Service\nrestapi-svc]
+  restapi-deployment[Deployment\nrestapi-deployment]
+
+
+  mongo-sts --- mongo-read-svc --- mongo-config --- restapi-deployment --- restapi-svc --- restapi-config --- frontend-deployment --- frontend-svc
+  mongo-sts -.- mongo-secret & mongo-headless-svc -.- restapi-deployment
+
+```
 
 **Project Plan**:
 ```mermaid
