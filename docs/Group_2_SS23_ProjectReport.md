@@ -97,17 +97,17 @@ flowchart LR
   
 ```
 
-| Component                       | Role                                                                                                                                                     |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                           |
-| Detection Model                 | analyze visual data to detect & classify pet                                                                                                             |
-| Persistent Volume (PV)          | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                   |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                       |
-| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                   |
-| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                   |
-| Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods (Master-slave replication in DBS) |
-| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                         |
-| Local PC                        | serve as tool for setting up system                                                                                                                      |
+| Component                       | Role                                                                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                                        |
+| Detection Model                 | analyze visual data to detect & classify pet                                                                                                                          |
+| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                    |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                |
+| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                                |
+| Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                      |
+| Local PC                        | serve as tool for setting up system                                                                                                                                   |
 
 
 **System Behavior**:
@@ -378,15 +378,11 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
 ## Set up Storage Service
 
-In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) as Storage Service. A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for replicating PV across worker nodes. However, after installation of `Longhorn` our pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn` and use [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
+Initially, we wanted to use a storage service that can replicate data on PV across worker nodes, as this replication would provide high availability and fault tolerance for data on our `K0s` cluster. We tried using the lightweight [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for that purpose (A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/)). However, after installation of `Longhorn`, our pods were repeatedly in `CrashLoopBackOff` status. Since we could not determine the exact error cause and did not want to go over the complex prerequisites of ``Longhorn`` again for debugging, we abandoned `Longhorn` and tried the easier-to-set-up [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
 
-``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Local or Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), the latter of which would ensure high availability and fault tolerance for data on our `K0s` cluster. 
+``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), which is what we wanted initially. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only storage engine compatible with our hardware) for the provision of Replicated Volumes, our pods were also repeatedly in `CrashLoopBackOff` status. Since this error occurred with `Longhorn` as well, we believe that using a storage service to replicate PV data across worker nodes is not recommendable for our `K0s` cluster, as such data service would add overhead on the cluster capacity and performance (one of the common causes for `CrashLoopBackOff` is out-of-memory or -resource).
 
-
-TODO Fix this: edge and
-However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only suitable storage engine due to hardware limitation) for the provision of Replicated Volumes, our pods were also in constant `CrashLoopBackOff` status. This observation made us conclude that the given hardwares are not suitable for replicating PV across worker nodes. 
-
-Hence, we decided to employ `OpenEBS` as a storage service that only serves to dynamically provision PV and manage their underlying storage infrastructure. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). To use these resources, we only need to install `OpenEBS` with `Helm` as follows:
+We therefore delegate the replication of PV data across worker nodes to the multiple DBS Pods running in our `K0s` cluster, as these pods (each running on a worker node) would have to synchronize their PV data to ensure data consistency anyway. We employed `OpenEBS` as a storage service that only serves to dynamically provision PV and manage their underlying storage infrastructure. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). So that these resources can be used later, install `OpenEBS` with `Helm` as follows:
 
 ```
 # Get repo info
