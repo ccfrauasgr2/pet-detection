@@ -69,7 +69,7 @@ flowchart LR
     model[Detection\nModel]
   end
 
-  subgraph cluster[Kubernetes Cluster]
+  subgraph cluster[Cluster]
 
     subgraph masterNode[Master Node]
       
@@ -118,21 +118,33 @@ See [Test System](#test-system) section.
 
 ```mermaid
 flowchart LR
+    subgraph Kubernetes Cluster
   
-  mongo-sts[StatefulSet\nmongo-sts]
-  mongo-read-svc[LoadBalancer Service\nmongo-read-svc]
-  mongo-headless-svc[Service\nmongo-headless-svc]
-  mongo-secret[Secret\nmongo-secret]
-  mongo-config[ConfigMap\nmongo-config]
-  frontend-svc[LoadBalancer Service\nfrontend-svc]
-  frontend-deployment[Deployment\nfrontend-deployment]
-  restapi-config[ConfigMap\nrestapi-config]
-  restapi-svc[ClusterIP Service\nrestapi-svc]
-  restapi-deployment[Deployment\nrestapi-deployment]
+    mongo-sts[StatefulSet\nmongo-sts]
+    mongo-read-svc[LoadBalancer Service\nmongo-read-svc]
+    mongo-headless-svc[Service\nmongo-headless-svc]
+    mongo-secret[Secret\nmongo-secret]
+    mongo-config[ConfigMap\nmongo-config]
+    frontend-svc[LoadBalancer Service\nfrontend-svc]
+    frontend-deployment[Deployment\nfrontend-deployment]
+    restapi-config[ConfigMap\nrestapi-config]
+    restapi-svc[ClusterIP Service\nrestapi-svc]
+    restapi-deployment[Deployment\nrestapi-deployment]
 
 
-  mongo-sts --- mongo-read-svc --- mongo-config --- restapi-deployment --- restapi-svc --- restapi-config --- frontend-deployment --- frontend-svc
-  mongo-sts -.- mongo-secret & mongo-headless-svc -.- restapi-deployment
+    mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
+    mongo-sts -.- mongo-headless-svc -.- restapi-deployment
+    mongo-secret --> mongo-sts & restapi-deployment
+    mongo-config --> restapi-deployment 
+    restapi-config --> frontend-deployment
+
+    end
+
+    compass[MongoDB\nCompass]
+    user[User PC]
+
+    mongo-read-svc --- compass
+    frontend-svc --- user
 
 ```
 
@@ -185,13 +197,13 @@ flowchart LR
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                                                                    |
-| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model<br/>Test System                                                                                                         |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Develop Frontend<br/>Implement TNB<br/>Deploy Backend                                                                                               |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Deploy Trained Model<br/>Develop REST API                                                                   |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up Storage Service<br/>Set up DBS<br/>Implement TNB<br/>Deploy Backend<br/>Deploy Frontend |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop REST API<br/>Develop Frontend<br/>Deploy Frontend                                                                                                                |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                                                                                    |
+| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                                                                   |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Develop Frontend<br/>- Implement TNB<br/>- Deploy Backend                                                                                                       |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API                                                                         |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop REST API<br/>- Develop Frontend<br/>- Deploy Frontend                                                                                                                          |
 
 
 # Sensor Node
@@ -417,7 +429,7 @@ Expected installation result:
 
 ## Set up DBS
 
-Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. Additionally, 
+Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. Additionally, that DBS must support `arm64/v8` architecture on our Pi 3.
 
 ```
 kubectl apply -f mongoSecret.yaml
