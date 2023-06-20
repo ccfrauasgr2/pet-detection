@@ -132,7 +132,7 @@ flowchart LR
     restapi-config[ConfigMap\nrestapi-config]
     restapi-svc[LoadBalancer Service\nrestapi-svc]
     restapi-deployment[Deployment\nrestapi-deployment]
-
+    
 
     mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
     mongo-sts -.- mongo-headless-svc -.- restapi-deployment
@@ -145,7 +145,9 @@ flowchart LR
     compass[MongoDB\nCompass/GUI]
     user[User PC]
     courier[Courier]
+    tnb[TNB]
 
+    restapi-deployment --> tnb
     compass --- mongo-read-svc
     courier --> restapi-svc
     user --- frontend-svc
