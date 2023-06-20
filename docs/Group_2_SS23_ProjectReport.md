@@ -342,7 +342,7 @@ The letter "B" in `metrics/recall(B)` and `metrics/mAP50-95(B)` specifies, that 
 
 ### Testing
 
-To estimate the model performance, there were some further tests done on it. For this we use the test dataset with images the model was neither trained or validated with. This dataset contains 3.589 more images of both cats (1.740) and dogs (1.848). The model was used to identify the pet on these images and return the pet and the bounding box for every image. With the python script `top1_mAP.py` [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node\model_training) the Top-1-Accuracy (Top-1-Acc) and the mean average Precision (mAP) are calculated. For the mAP calculation we used the python package `sklearn` function `average_precision_score`. The results are Top-1-Acc = 87.68% and mAP = 96.983%.
+To estimate the model performance, there were some further tests done on it. For this we use the test dataset with images the model was neither trained or validated with. This dataset contains 3.589 more images of both cats (1.740) and dogs (1.848). The model was used to identify the pet on these images and return the pet and the bounding box for every image. With the python script `top1_mAP.py` [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node\model_training) the Top-1-Accuracy (Top-1-Acc) and the mean average Precision (mAP) are calculated. For the mAP calculation we used the function `average_precision_score` from the python package `sklearn`. The results are Top-1-Acc = 87.68% and mAP = 96.983%.
 
 
 ## Deploy Trained Model
@@ -383,23 +383,3 @@ The following questions have to be answered:
 ## Implement TNB
 
 ## Wrap Cluster
-
-## Testing of Kubernetes
-
-### Scalability
-Run commands:
-```bash
-kubectl get nodes
-kubectl get deployments
-kubectl scale deployment <deployment-name> --replicas=5 (scale_factor)
-kubectl ...
-```
-Perform further tests on deployment to ensure everything is working
-
-### Robustness
-Run commands:
-```bash
-kubectl get nodes
-kubectl get pods --all-namespaces
-```
-Now power off Raspberry Pi node and run commands from above again. The powered off node should be displayed as "NotReady" or "Unknown". The pods that were previously deployed on that node now should be moved to another node. The overall functionalty of the cluster shouldn't be affected.
