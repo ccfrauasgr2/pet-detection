@@ -67,6 +67,7 @@ flowchart LR
 
   subgraph sensornode[Sensor Node]
     model[Detection\nModel]
+    courier[Courier]
   end
 
   subgraph cluster[Cluster]
@@ -80,7 +81,7 @@ flowchart LR
       dss[Storage\nService]
       subgraph backendContainer[Backend]
         restapiContainer[REST API\nPods]
-        dbmsContainer[Database System\nPods]
+        dbmsContainer[Database\nPods]
       end
       persistentVolume[Persistent\nVolumes]
     end 
@@ -92,20 +93,21 @@ flowchart LR
   restapiContainer --> bot
   localPC -.commands.-> masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
-  camera --> sensornode --> restapiContainer
+  camera --> model --> courier --> restapiContainer
   dss -.dynamically\nprovisions.-> persistentVolume
   
 ```
 
 | Component                       | Role                                                                                                                                                                  |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                                        |
+| Camera                          | capture and send visual data to the sensor node                                                                                                                       |
 | Detection Model                 | analyze visual data to detect & classify pet                                                                                                                          |
+| Courier                         | send visual data and detection results to the cluster                                                                                                                 |
 | Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                    |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                |
 | REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                                |
-| Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
+| Database (DBS) Pods             | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
 | Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                      |
 | Local PC                        | serve as tool for setting up system                                                                                                                                   |
 
@@ -128,7 +130,7 @@ flowchart LR
     frontend-svc[LoadBalancer Service\nfrontend-svc]
     frontend-deployment[Deployment\nfrontend-deployment]
     restapi-config[ConfigMap\nrestapi-config]
-    restapi-svc[ClusterIP Service\nrestapi-svc]
+    restapi-svc[LoadBalancer Service\nrestapi-svc]
     restapi-deployment[Deployment\nrestapi-deployment]
 
 
@@ -142,9 +144,12 @@ flowchart LR
 
     compass[MongoDB\nCompass/GUI]
     user[User PC]
+    courier[Courier]
 
-    mongo-read-svc --- compass
-    frontend-svc --- user
+    compass --- mongo-read-svc
+    courier --> restapi-svc
+    user --- frontend-svc
+    
 
 ```
 
@@ -158,9 +163,12 @@ flowchart LR
     id13[Prepare\nTraining Data]
     id14[Train & Validate\nModel]
     id15[Deploy\nTrained Model]
+    id16[Develop\nCourier]
+    id17[Deploy\nCourier]
     
     id11 --> id12 --> id15
     id13 --> id14 --> id15
+    id15 & id16 & id11 --> id17
     
     end
         
@@ -187,7 +195,7 @@ flowchart LR
     
     id51[Test\nSystem]
 
-    id32 & id15 --> id51
+    id32 & id17 --> id51
     
     
 
@@ -200,8 +208,8 @@ flowchart LR
 | Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                                                                                    |
 | ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                                                                   |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Develop Frontend<br/>- Implement TNB<br/>- Deploy Backend                                                                                                       |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API                                                                         |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Develop Frontend<br/>- Implement TNB<br/>- Deploy Backend<br/>- Develop Courier                                                                                 |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API<br/>- Develop Courier<br/>- Deploy Courier                              |
 | Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop REST API<br/>- Develop Frontend<br/>- Deploy Frontend                                                                                                                          |
 
@@ -241,6 +249,10 @@ flowchart LR
 ## Train & Validate Model
 
 ## Deploy Trained Model
+
+## Develop Courier
+
+## Deploy Courier
 
 # Cluster
 
