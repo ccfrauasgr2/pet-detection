@@ -19,7 +19,7 @@ Received from Prof.:
 - 1x Raspberry Pi 4 Model B (Pi 4B)
 - 1x Raspberry Pi 3 Model B+ (Pi 3B+)
 - 3x Raspberry Pi 3 Model B V1.2 (Pi 3B)
-- 5x Samsung EVO Plus 32GB MicroSDHC
+- 5x Samsung 32GB MicroSDHC
 - 1x Apple USB-C-to-USB-C Charger
 - 1x Anker 6-Port PowerPort
 - 2x TP-Link TL-SG105 5-Port Desktop Switch
@@ -31,6 +31,7 @@ Obtained from own source:
 
 - 1x FRITZ!Box 3272 Router
 - 1x USB-to-USB-C Cable
+- 1x ISY ICR-120 8-in-1 Card Reader
 
 **Network Architecture**:
 
@@ -43,7 +44,7 @@ flowchart LR
   
 
 
-subgraph cluster[Kubernetes Cluster]
+subgraph cluster[Cluster]
   master[Master Node\nPi 3B+]
   worker1[Worker Node\nPi 3B]
   worker2[Worker Node\nPi 3B]
@@ -58,7 +59,7 @@ end
 
 ```
 
-**System Architecture (simplified)**:
+**System Architecture**:
 
 ```mermaid
 flowchart LR
@@ -68,20 +69,20 @@ flowchart LR
     model[Detection\nModel]
   end
 
-  subgraph cluster[Kubernetes Cluster]
+  subgraph cluster[Cluster]
 
     subgraph masterNode[Master Node]
       
     end
 
     subgraph workerNode[3 Worker Nodes]
-      frontendContainer[Frontend\nPod+]
-      dss[Distributed\nStorage System]
+      frontendContainer[Frontend\nPods]
+      dss[Storage\nService]
       subgraph backendContainer[Backend]
-        restapiContainer[REST API\nPod+]
-        dbmsContainer[DBMS\nPod+]
+        restapiContainer[REST API\nPods]
+        dbmsContainer[Database System\nPods]
       end
-      persistentVolume[Persistent\nVolume+]
+      persistentVolume[Persistent\nVolumes]
     end 
   end
 
@@ -92,55 +93,64 @@ flowchart LR
   localPC -.commands.-> masterNode -.controls.-> workerNode
   frontendContainer --- restapiContainer --- dbmsContainer --- persistentVolume
   camera --> sensornode --> restapiContainer
-  dbmsContainer -.requests\nstorage.-> dss -.dynamically\nprovisions.-> persistentVolume
-  dbmsContainer -.claims.-> persistentVolume
+  dss -.dynamically\nprovisions.-> persistentVolume
   
 ```
 
-| Component                              | Role                                                                                                                                                      |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                                 | - capture visual data<br>- send visual data to the sensor node                                                                                            |
-| Detection Model                        | analyze visual data to detect & classify pet                                                                                                              |
-| Persistent Volume+ (PV)                | - serve as persistent storage resource in the cluster<br>- base on local storage available on worker nodes<br>- scalable                                  |
-| Distributed Storage System (DSS)       | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV<br>- synchronize & replicate data across worker nodes                  |
-| Frontend Pod+                          | - provide user interface<br>- handle user interactions<br>- scalable                                                                                      |
-| REST API Pod+                          | - expose endpoints to facilitate communication & data exchange between system components<br>- scalable                                                    |
-| Database Management System (DBMS) Pod+ | - handle write & read queries for storing & retrieving detection results in the same database<br>- synchronize & replicate data across pods<br>- scalable |
-| Telegram Notification Bot (TNB)        | notify user about detection results via Telegram                                                                                                          |
-| Local PC                               | serve as tool for setting up system                                                                                                                       |
+| Component                       | Role                                                                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | - capture visual data<br>- send visual data to the sensor node                                                                                                        |
+| Detection Model                 | analyze visual data to detect & classify pet                                                                                                                          |
+| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                    |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                |
+| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                                |
+| Database System (DBS) Pods      | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                      |
+| Local PC                        | serve as tool for setting up system                                                                                                                                   |
 
 
 **System Behavior**:
 
-TODO: Text description
-> **_IDEA:_**
-> - Live detection
-> - Detect phase starts when the model detects pet for the first time (since the beginning of live detection OR after the previous detect phase ends).
-> - Detect phase ends when the model no longer detects pet.
-> - Telegram notifications are sent at the beginning and at the end of each detect phase.
-> - The first detection result (successful pet detection) is sent right away to the cluster for Telegram notification.
-> - Beside the first detection result, only subsequent detection results at 2- or 3-second intervals until the detect phase ends are sent to the cluster.
-> - These detection results should be sent in batches to reduce overhead and improve efficiency. 
-> - This process can be realized by using the REST API and a buffer in the sensor node: If the buffer reaches a certain size or timer, the detection results are sent to the REST API in the sensor node in batches. When the detect phase ends, any remaining results in the buffer are also sent to the REST API in the sensor node in batches.
-> - The REST API containers in the cluster receive the detection results and store them in the persistent volume.
-> - The frontend containers on the worker nodes periodically query the REST API containers for any new detected pets and display them.
+See [Test System](#test-system) section.
 
-Telegram message when detect phase starts:
+**Kubernetes Architecture:**
 
-`A wild Pikachu appeared!` (LOL - Just kidding)
+```mermaid
+flowchart LR
+    subgraph Kubernetes Cluster
+  
+    mongo-sts[StatefulSet\nmongo-sts]
+    mongo-read-svc[LoadBalancer Service\nmongo-read-svc]
+    mongo-headless-svc[Service\nmongo-headless-svc]
+    mongo-secret[Secret\nmongo-secret]
+    mongo-config[ConfigMap\nmongo-config]
+    frontend-svc[LoadBalancer Service\nfrontend-svc]
+    frontend-deployment[Deployment\nfrontend-deployment]
+    restapi-config[ConfigMap\nrestapi-config]
+    restapi-svc[ClusterIP Service\nrestapi-svc]
+    restapi-deployment[Deployment\nrestapi-deployment]
 
-`<ANIMAL_TYPES> detected at <START_TIME> on <DATE>`
 
-`<PHOTO_WITH_BOUNDING_BOXES_&_ANIMAL_TYPES_&_CONF_VALUE>`
+    mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
+    mongo-sts -.- mongo-headless-svc -.- restapi-deployment
+    mongo-secret --> mongo-sts & restapi-deployment
+    mongo-config --> restapi-deployment 
+    restapi-config --> frontend-deployment
 
-Telegram message when detect phase ends: 
+    end
 
-`In <DURATION> seconds from <START_TIME> to <END_TIME> on <DATE>: <ANIMAL_TYPEs> were detected, X pictures were taken, and the highest confidence value is <HIGHEST_CONF_VALUE> `
+    compass[MongoDB\nCompass/GUI]
+    user[User PC]
 
+    mongo-read-svc --- compass
+    frontend-svc --- user
+
+```
 
 **Project Plan**:
 ```mermaid
-flowchart TD
+flowchart LR
     
     subgraph Sensor Node
     id11[Set up\nPi 4B]
@@ -148,40 +158,37 @@ flowchart TD
     id13[Prepare\nTraining Data]
     id14[Train & Validate\nModel]
     id15[Deploy\nTrained Model]
-    id16[Wrap\nSensor Node]
     
-    id11 --> id12
+    id11 --> id12 --> id15
     id13 --> id14 --> id15
-    id12 & id15 --> id16
+    
     end
         
     subgraph Cluster
     id21[Set up\nPi 3B & 3B+]
     id22[Set up\nStatic IP]
     id23[Set up\nKubernetes Cluster]
-    id24[Set up\nDSS]
+    id24[Set up\nStorage Service]
     id25[Develop\nREST API]
     id26[Deploy\nBackend]
-    id27[Configure\nDBMS]
+    id27[Set up\nDBS]
     
 
-    id21 --> id22 --> id23 --> id24
-    id25 & id27 --> id26
+    id21 --> id22 --> id23 --> id24 --> id27
+    id25 & id27 & id33 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
     id33[Implement\nTNB]
 
-    id31 --> id32
-
-    id41[Wrap\nCluster]
+    id26 & id31 --> id32
     end
 
     
-    id51[Wrap\nSystem]
+    id51[Test\nSystem]
 
-    id24  & id26 & id32 & id33 --> id41
-    id41 & id16 --> id51
+    id32 & id15 --> id51
+    
     
 
    
@@ -190,13 +197,13 @@ flowchart TD
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                  |
-| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | Prepare Training Data<br/>Train & Validate Model                                                       |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | Develop REST API<br/>Implement TNB                                                                     |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | Set up Pi 4B<br/>Set up Camera<br/>Prepare Training Data<br/>Develop REST API                          |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | Set up Pi 3B & 3B+<br/>Set up Static IP<br/>Set up Kubernetes Cluster<br/>Set up DSS<br/>Implement TNB |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>Develop REST API                                                                  |
+| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                                                                                    |
+| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                                                                   |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Develop Frontend<br/>- Implement TNB<br/>- Deploy Backend                                                                                                       |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API                                                                         |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop REST API<br/>- Develop Frontend<br/>- Deploy Frontend                                                                                                                          |
 
 
 # Sensor Node
@@ -205,7 +212,7 @@ flowchart TD
 - Insert an empty SD-Card into local PC.
 - Install then run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on local PC.
 - In the Raspberry Pi Imager:
-  - For Operating System, select `Raspberry Pi OS Lite (32-bit)`.
+  - For Operating System, select `Raspberry Pi OS (64-bit)`.
   - For Storage, select the inserted SD-Card.
   - In Advanced options (Cog icon):
     - Set `pi0` as hostname.
@@ -235,13 +242,11 @@ flowchart TD
 
 ## Deploy Trained Model
 
-## Wrap Sensor Node
-
 # Cluster
 
 ## Set up Pi 3B & 3B+
 
-- Follow the steps listed in [Set up Pi 4B](#set-up-pi-4b), but disable `Configure wireless LAN` option, and **DO NOT SSH into each Pi 3 yet!** Do that after [Set up Static IP](#set-up-static-ip) is done.
+- Follow the steps listed in [Set up Pi 4B](#set-up-pi-4b), but disable `Configure wireless LAN` option, and **DO NOT SSH into each Pi 3 yet!**
 - For Operating System, select `Raspberry Pi OS Lite (64-bit)`.
 - Set `pi1` as hostname for Pi 3B+, and `pi2`, `pi3`, `pi4` as hostname for each of three available Pi 3B.
 
@@ -320,7 +325,7 @@ There are three possible designs for the Kubernetes cluster:
 
 We prioritize *setup complexity* ``>`` *high availability & fault tolerance* ``>`` *scalability*, which is why we adopt the first design. Our Kubenetes cluster now consists of `pi1` as master node and `pi2, pi3, pi4` as worker nodes. 
 
-Given the hardware specifications of all Pi 3, it is best to set them up as a [`K3s`](https://docs.k3s.io/) cluster. However, huge CPU and MEM usage (100~300% and >65%, respectively) by `k3s-server` on fresh install  made the master node barely respond to any command. The [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation did not alleviate the problem for us. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/). Here are the steps to set up set up a `K0s` cluster:
+We first tried to set up the four given Pi 3 as a [`K3s`](https://docs.k3s.io/) cluster. However, huge CPU and MEM usage (100~300% and >65%, respectively) by `k3s-server` on fresh install  made the master node barely respond to any command. The [workarounds](https://docs.k3s.io/advanced#old-iptables-versions) suggested in `K3s` documentation could not alleviate the problem for us. Hence, instead of `K3s`, we used [`K0s`](https://docs.k0sproject.io/v1.27.2+k0s.0/). Here are the steps to set up set up a `K0s` cluster:
 
 - On `pi1` (the designated master node):
   - Run `curl -sSLf https://get.k0s.sh | sudo sh` to download the latest stable `K0s`.
@@ -374,7 +379,7 @@ For convenience we will install `Helm` and configure ``kubectl`` on local PC. ``
     
     ![](img/kube2.png) 
 
-As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/) on our `K0s` cluster. ``MetalLB`` simplifies the process of using ``LoadBalancer`` services in our `K0s` cluster by providing IP address allocation and load balancing capabilities, making it easier to expose Kubernetes services externally.
+As preparation for future tasks we will install and configure [``MetalLB``](https://metallb.universe.tf/), which exposes Kubernetes ``LoadBalancer`` services from our `K0s` cluster to applications/services outside of it.
 
 - First, install `MetalLB`:
 
@@ -389,7 +394,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
   ![](img/kube3.png)
 
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying this [`metallb.yaml`-script](/scripts/metallb/metallb.yaml). In the script we specify the IP address pool that `MetalLB` can use to assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying the `metallb.yaml`-script in the project source code. In the script we specify the IP address pool that `MetalLB` can assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
@@ -401,69 +406,97 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
   l2advertisement.metallb.io/default created
   ```
 
-## Set up DSS
+## Set up Storage Service
 
-In the beginning, we decided to use [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for DSS. A comparison between ``Longhorn`` and several other options for DSS can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/). In summary, ``Longhorn`` excels in its lightweight nature and suitability for meeting the project's needs in terms of scalability, high availability, and high I/O performance. However, after installation our `Longhorn` pods were in constant `CrashLoopBackOff` status. That, coupled with the complex setup and usage, made us abandon `Longhorn`. 
+Initially, we wanted to use a storage service that can replicate data on PV across worker nodes, as this replication would provide high availability and fault tolerance for data on our `K0s` cluster. We tried using the lightweight [``Longhorn``](https://longhorn.io/docs/1.4.2/what-is-longhorn/) for that purpose (A comparison between ``Longhorn`` and several other storage services can be found [here](https://rpi4cluster.com/k3s/k3s-storage-setting/)). However, after installation of `Longhorn`, our pods were repeatedly in `CrashLoopBackOff` status. Since we could not determine the exact error cause, and did not want to go over the complex prerequisites of ``Longhorn`` again for debugging, we abandoned `Longhorn` and tried the easier-to-set-up [`OpenEBS`](https://openebs.io/docs#what-is-openebs) instead.
 
-Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openebs.io/docs/#what-does-openebs-do) for DSS instead. We configured `OpenEBS` to dynamically provision [Jiva (Replicated) Volumes](https://openebs.io/docs#replicated-volumes). Due to hardware limitation, we could only use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) for dynamic provisioning. The following configuration steps are based on the [`OpenEBS Jiva Operator`'s quickstart guide](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/quickstart.md):
+``OpenEBS`` uses the storage available on Kubernetes worker nodes to provide Stateful(Set) workloads with [Replicated Volumes](https://openebs.io/docs/#what-does-openebs-do), which is what we wanted initially. However, when we tried to use [`OpenEBS Jiva Operator`](https://github.com/openebs/jiva-operator#jiva-operator) (the only storage engine compatible with our hardware) for the provision of Replicated Volumes, our pods were also repeatedly in `CrashLoopBackOff` status. The same case happening with both `Longhorn` and `OpenEBS Jiva` made us conclude that using a storage service on our `K0s` cluster to replicate PV data is not recommendable. One possible reason is such data service would add overhead on the cluster capacity and performance, eventually leading to out-of-memory or -resource, which is one of the common causes for `CrashLoopBackOff`.
 
-- Ensure package `open-iscsi` (`iSCSI`) is installed on each worker node:
+We therefore delegate the replication of PV data across worker nodes to the multiple DBS Pods running in our `K0s` cluster, as these pods (each running on a worker node) would have to synchronize their PV data to ensure data consistency anyway. We employ `OpenEBS` as a storage service that only serves to dynamically provision local PV for the DBS Pods. For that purpose, `OpenEBS` provides [OpenEBS Dynamic Local PV Provisioner and OpenEBS Local PV Hostpath](https://openebs.io/docs/user-guides/localpv-hostpath). So that these resources can be used later, install `OpenEBS` with `Helm` as follows:
+
+```
+# Get repo info
+helm repo add openebs https://openebs.github.io/charts
+helm repo update
+
+# Install
+helm install openebs openebs/openebs --namespace default
+```
+    
+Expected installation result:
+
+![](img/dss1.png)
+
+## Set up DBS
+
+Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. That DBS must also support `arm64/v8` architecture on our Pi 3. Another important factor to consider is which type of DBS (relational or NoSQL) to be used for storing images and detection results, as these data will be queried later by users. Hence for each DBS type to consider, we pick a representative DBS that satisfies the above necessary conditions, then compare their characteristics:
+
+| [``MySQL``](https://www.mysql.com/) (Relational DBS)                                        | [``MongoDB``](https://www.mongodb.com/) (NoSQL Document DBS)                                |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| *Complex* replication setup with Kubernetes StatefulSet                                     | *Simple* replication setup with Kubernetes StatefulSet                                      |
+| Image data stored as BLOB, requiring *less* storage space                                   | Image data store as base64-encoded string, requiring *more* storage space                   |
+| Detection data stored in tables, producing *possibly quicker* query results                 | Detection data stored as JSON documents, producing *possibly slower* query results          |
+| *More* work needed in REST API Pods to produce queries for storing detection results in DBS | *Less* work needed in REST API Pods to produce queries for storing detection results in DBS |
+
+Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our choice for DBS. Here are the steps to set up `MongoDB` in our `K0s` cluster:
+
+- Apply the following scripts in the project source code. After applying ensure that all corresponding pods are ``Running`` and all correspoding PV as well as Persistent Volume Claims (PVC) are `Bound`. For more information, read the scripts.
+
+  ```
+  # On local PC, change to script directory, then apply scripts as follows
+  kubectl apply -f mongoSecret.yaml
+  kubectl apply -f mongoConfig.yaml
+  kubectl apply -f mongo.yaml
+
+  # Check if all corresponding pods are Running
+  kubectl get pods
+
+  # Check if all corresponding PV and PVC are Bound
+  kubectl get pvc
+  kubectl get svc
+  ```
+- Set up [replication in `MongoDB`](https://www.mongodb.com/docs/v4.4/replication/). The following commands are based on [this tutorial](https://youtu.be/eUa-IDPGL-Q):
+
+  ```
+  # On local PC, go into the first MongoDB server/pod "mongo-sts-0"
+  kubectl exec -it mongo-sts-0 -- mongo
+
+  # Initiate a replica set with the available MongoDB servers/pods "mongo-sts-0", "mongo-sts-1", & "mongo-sts-2"
+  # "mongo-sts-0" will be set as the primary node, while the other will be set as secondary nodes
+  rs.initiate(
+     {
+        _id: "rs0",
+        version: 1,
+        members: [
+           { _id: 0, host : "mongo-sts-0.mongo-headless-svc.default.svc.  cluster.local:27017" },
+           { _id: 1, host : "mongo-sts-1.mongo-headless-svc.default.svc.  cluster.local:27017" },
+           { _id: 2, host : "mongo-sts-2.mongo-headless-svc.default.svc.  cluster.local:27017" }
+        ]
+     }
+  )
+
+  # Exit from "mongo-sts-0"
+  exit
   
-  ```
-  # Commands to install open-iscsi
-  sudo apt install open-iscsi
-  sudo systemctl enable --now iscsid
-  modprobe iscsi_tcp
+  # Go into "mongo-sts-0" again to check the initiated primary and secondary nodes
+  kubectl exec -it mongo-sts-0 -- mongo
+  rs.status()
 
-  # Verify iSCSI Status, should be active (running)
-  sudo systemctl status iscsid.service
+  # Enable replication from primary to secondary nodes
+  rs.secondaryOk()
   ```
 
-- Ensure the `K0s` cluster has ``OpenEBS`` localpv-hostpath version ``2.6.0`` or higher:
-  
-  ```
-  # Run this command on local PC
-  kubectl apply -f https://openebs.github.io/charts/hostpath-operator.yaml
-  ```
+For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-read-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access it and thus the MongoDB database from outside the cluster. 
 
-- Install `OpenEBS Jiva Operator` with `Helm`:
-  ```
-  # Get repo info
-  helm repo add openebs-jiva https://openebs.github.io/jiva-operator
-  helm repo update
+![](img/dbs1.png)
 
-  # Install
-  helm install openebs-jiva openebs-jiva/jiva --namespace openebs --create-namespace
-  ```
-  Expected installation results:
+In ``MongoDB Compass/GUI``, configure the connection string as follows to enable connection:
 
-  ![](img/dss1.png)
-
-  ![](img/dss3.png)
-
-- Configure `OpenEBS` to dynamically provision Jira Volumes by applying the scripts listed [here](/scripts/jiva/):
-  - The script `jivaVolumePolicy.yaml` creates a Jiva volume policy in which various policies for creating a Jiva Volume are declared. The policies declared in this script are [Replica STS Pod Anti-Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#replica-sts-pod-anti-affinity) and [Target Pod Affinity](https://github.com/openebs/jiva-operator/blob/0b3ead63dffddd36c80a4ba8de5a24a470cd6feb/docs/tutorials/policies.md#target-pod-affinity).
-
-    ```
-    kubectl apply -f jivaVolumePolicy.yaml
-    ```
-  - The script `jivaStorageClass.yaml` creates a Storage Class that dynamically provisions Jira Volumes with the declared policies:
-    
-    ```
-    kubectl apply -f jivaStorageClass.yaml
-    ```
-  - The script `jivaPVC.yaml` creates a Persistent Volume Claim (PVC) whose class is the above Storage Class:
-    
-    ```
-    kubectl apply -f jivaPVC.yaml
-    ```
-  - The next step is to deploy a DBMS application using this PVC; however we will do that in [Configure DBMS](#configure-dbms). For now check the PVC we just created:
-    
-    ![](img/dss2.png)
-
-## Configure DBMS
+![](img/dbs2.png)
 
 ## Develop REST API
+
+## Implement TNB
 
 ## Deploy Backend
 
@@ -471,9 +504,7 @@ Now with ease of setup as high priority, we turned to [`OpenEBS`](https://openeb
 
 ## Deploy Frontend
 
-## Implement TNB
-
-## Wrap Cluster
+# Test System
 
 
 
