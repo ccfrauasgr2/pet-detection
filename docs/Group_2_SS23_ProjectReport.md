@@ -44,7 +44,7 @@ flowchart LR
   
 
 
-subgraph cluster[Kubernetes Cluster]
+subgraph cluster[Cluster]
   master[Master Node\nPi 3B+]
   worker1[Worker Node\nPi 3B]
   worker2[Worker Node\nPi 3B]
@@ -140,7 +140,7 @@ flowchart LR
 
     end
 
-    compass[MongoDB\nCompass]
+    compass[MongoDB\nCompass/GUI]
     user[User PC]
 
     mongo-read-svc --- compass
@@ -394,7 +394,7 @@ As preparation for future tasks we will install and configure [``MetalLB``](http
 
   ![](img/kube3.png)
 
-- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying the `metallb.yaml`-script in the project repository. In the script we specify the IP address pool that `MetalLB` can assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
+- Then, [configure](https://metallb.universe.tf/configuration/) `MetalLB` by applying the `metallb.yaml`-script in the project source code. In the script we specify the IP address pool that `MetalLB` can assign to Kubernetes services of type ``LoadBalancer`` (from ``192.168.178.200`` to ``192.168.178.220``), allowing these service to be accessible from outside the cluster.
 
   ```
   # On local PC, change directory to script location, then
@@ -429,40 +429,68 @@ Expected installation result:
 
 ## Set up DBS
 
-Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. Additionally, that DBS must support `arm64/v8` architecture on our Pi 3.
+Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. That DBS must also support `arm64/v8` architecture on our Pi 3. Another important factor to consider is which type of DBS (relational or NoSQL) to be used for storing images and detection results, as these data will be queried later by users. Hence for each DBS type to consider, we pick a representative DBS that satisfies the above necessary conditions, then compare their characteristics:
 
-```
-kubectl apply -f mongoSecret.yaml
-kubectl apply -f mongoConfig.yaml
-kubectl apply -f mongo.yaml
-kubectl get pods -w
-kubectl get pvc
-kubectl get svc
-```
+| [``MySQL``](https://www.mysql.com/) (Relational DBS)                                        | [``MongoDB``](https://www.mongodb.com/) (NoSQL Document DBS)                                |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| *Complex* replication setup with Kubernetes StatefulSet                                     | *Simple* replication setup with Kubernetes StatefulSet                                      |
+| Image data stored as BLOB, requiring *less* storage space                                   | Image data store as base64-encoded string, requiring *more* storage space                   |
+| Detection data stored in tables, producing *possibly quicker* query results                 | Detection data stored as JSON documents, producing *possibly slower* query results          |
+| *More* work needed in REST API Pods to produce queries for storing detection results in DBS | *Less* work needed in REST API Pods to produce queries for storing detection results in DBS |
 
-```
-kubectl exec -it mongo-sts-0 -- mongo
-rs.initiate(
-   {
-      _id: "rs0",
-      version: 1,
-      members: [
-         { _id: 0, host : "mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017" },
-         { _id: 1, host : "mongo-sts-1.mongo-headless-svc.default.svc.cluster.local:27017" },
-         { _id: 2, host : "mongo-sts-2.mongo-headless-svc.default.svc.cluster.local:27017" }
-      ]
-   }
-)
-exit
-kubectl exec -it mongo-sts-0 -- mongo
-rs.status()
-kubectl exec -it mongo-sts-1 -- mongo
-rs.secondaryOk()
-```
+Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our choice for DBS. Here are the steps to set up `MongoDB` in our `K0s` cluster:
 
-Mongo Compass
+- Apply the following scripts in the project source code. After applying ensure that all corresponding pods are ``Running`` and all correspoding PV as well as Persistent Volume Claims (PVC) are `Bound`. For more information, read the scripts.
+
+  ```
+  # On local PC, change to script directory, then apply scripts as follows
+  kubectl apply -f mongoSecret.yaml
+  kubectl apply -f mongoConfig.yaml
+  kubectl apply -f mongo.yaml
+
+  # Check if all corresponding pods are Running
+  kubectl get pods
+
+  # Check if all corresponding PV and PVC are Bound
+  kubectl get pvc
+  kubectl get svc
+  ```
+- Set up [replication in `MongoDB`](https://www.mongodb.com/docs/v4.4/replication/). The following commands are based on [this tutorial](https://youtu.be/eUa-IDPGL-Q):
+
+  ```
+  # On local PC, go into the first MongoDB server/pod "mongo-sts-0"
+  kubectl exec -it mongo-sts-0 -- mongo
+
+  # Initiate a replica set with the available MongoDB servers/pods "mongo-sts-0", "mongo-sts-1", & "mongo-sts-2"
+  # "mongo-sts-0" will be set as the primary node, while the other will be set as secondary nodes
+  rs.initiate(
+     {
+        _id: "rs0",
+        version: 1,
+        members: [
+           { _id: 0, host : "mongo-sts-0.mongo-headless-svc.default.svc.  cluster.local:27017" },
+           { _id: 1, host : "mongo-sts-1.mongo-headless-svc.default.svc.  cluster.local:27017" },
+           { _id: 2, host : "mongo-sts-2.mongo-headless-svc.default.svc.  cluster.local:27017" }
+        ]
+     }
+  )
+
+  # Exit from "mongo-sts-0"
+  exit
+  
+  # Go into "mongo-sts-0" again to check the initiated primary and secondary nodes
+  kubectl exec -it mongo-sts-0 -- mongo
+  rs.status()
+
+  # Enable replication from primary to secondary nodes
+  rs.secondaryOk()
+  ```
+
+For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-read-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access it and thus the MongoDB database from outside the cluster. 
 
 ![](img/dbs1.png)
+
+In ``MongoDB Compass/GUI``, configure the connection string as follows to enable connection:
 
 ![](img/dbs2.png)
 
