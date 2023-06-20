@@ -431,12 +431,12 @@ Expected installation result:
 
 Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. That DBS must also support `arm64/v8` architecture on our Pi 3. Another important factor to consider is which type of DBS (relational or NoSQL) to be used for storing images and detection results, as these data will be queried later by users. Hence for each DBS type to consider, we pick a representative DBS that satisfies the above necessary conditions, then compare their characteristics:
 
-| [``MySQL``](https://www.mysql.com/) (Relational DBS)                                        | [``MongoDB``](https://www.mongodb.com/) (NoSQL Document DBS)                                |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| *Complex* replication setup with Kubernetes StatefulSet                                     | *Simple* replication setup with Kubernetes StatefulSet                                      |
-| Image data stored as BLOB, requiring *less* storage space                                   | Image data store as base64-encoded string, requiring *more* storage space                   |
-| Detection data stored in tables, producing *possibly quicker* query results                 | Detection data stored as JSON documents, producing *possibly slower* query results          |
-| *More* work needed in REST API Pods to produce queries for storing detection results in DBS | *Less* work needed in REST API Pods to produce queries for storing detection results in DBS |
+| [``MySQL``](https://www.mysql.com/) (Relational DBS)                            | [``MongoDB``](https://www.mongodb.com/) (NoSQL Document DBS)                           |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| ***Complex*** replication setup                                                 | ***Simple*** replication setup                                                         |
+| Image data stored as BLOB, requiring ***less*** storage space                   | Image data stored as base64-encoded string, requiring ***more*** storage space         |
+| Detection data stored in tables, producing ***possibly quicker*** query results | Detection data stored in JSON documents, producing ***possibly slower*** query results |
+| ***More*** work needed in REST API Pods to produce write-queries                | ***Less*** work needed in REST API Pods to produce write-queries                       |
 
 Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our choice for DBS. Here are the steps to set up `MongoDB` in our `K0s` cluster:
 
