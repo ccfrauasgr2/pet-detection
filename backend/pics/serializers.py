@@ -4,9 +4,9 @@ from .models import Pic, Pet
 class PicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pic
-        fields = ['id', 'type', 'accuracy', 'date', 'time']
+        fields = ['id', 'picture', 'date', 'time']
 
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pet
-        fields = ['id', 'image', 'date', 'time', 'type', 'accuracy', 'bid']
+        fields = ['id', 'type', 'accuracy', 'bid', 'foreignKey']
