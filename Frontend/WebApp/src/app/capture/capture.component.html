@@ -10,17 +10,17 @@
         <table align="center">
             <thead>
                 <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Accurace</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Accurace</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let o of this.entry?.objects | keyvalue">
-                    <td>{{o.key}}</td>  
-                    <td>{{o.value[0]}}</td> 
-                    <td>{{o.value[1]}}%</td> 
-                </tr>  
+                    <td>{{o.key}}</td>
+                    <td>{{o.value[0]}}</td>
+                    <td>{{o.value[1]}}%</td>
+                </tr>
             </tbody>
         </table>
     </mat-card-content>

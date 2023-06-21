@@ -1,4 +1,4 @@
-<div class="main-div" fxLayout="column"  fxLayoutGap="5%">
+<div class="main-div" fxLayout="column" fxLayoutGap="5%">
     <mat-expansion-panel>
         <mat-expansion-panel-header>
             <mat-panel-title>
@@ -8,13 +8,13 @@
         </mat-expansion-panel-header>
         <!--Filter-->
         <div fxLayout="column" fxLayoutGap="5%">
-            <div fxLayout="row" fxLayoutAlign="space-around center" >
+            <div fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="5%">
                 <mat-form-field appearance="fill">
                     <mat-label>type</mat-label>
                     <mat-select [(value)]="type">
-                      <mat-option value="all">all</mat-option>
-                      <mat-option value="cat">cat</mat-option>
-                      <mat-option value="dog">dog</mat-option>
+                        <mat-option value="all">all</mat-option>
+                        <mat-option value="cat">cat</mat-option>
+                        <mat-option value="dog">dog</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="fill">
@@ -24,22 +24,40 @@
                     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
+                <mat-form-field appearance="fill">
+                    <mat-label>Accuracy</mat-label>
+                    <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="3%">
+
+                        <input matInput type="number" min="0" max="100" [(ngModel)]="accuracy" (blur)="onBlur()"
+                            fxFlex="40%">
+                        <span matSuffix>%</span>
+                    </div>
+
+                </mat-form-field>
             </div>
             <div fxLayout="row" fxLayoutAlign="center center">
                 <button mat-raised-button color="basic" (click)="apply_filter()">Apply</button>
             </div>
         </div>
     </mat-expansion-panel>
-    <div fxLayout="column" fxLayoutAlign="center center" *ngIf="this.new_captures">
+    <!--<div fxLayout="column" fxLayoutAlign="center center" *ngIf="this.new_captures">
         <span>{{this.new_captures}} new {{this.new_captures == 1 ? "capture" : "captures"}}</span>
         <button mat-icon-button color="accent" (click)="this.update_images()"><mat-icon>refresh</mat-icon></button>
-    </div>
-    <div fxLayout="column"  fxLayoutGap="10%">
+    </div>-->
+    <!--To delete-->
+    <!--<div>
+        <span>Filter: Id: {{this.filter.id}} Type: {{this.filter.type}}, Date: {{this.filter.date}}, accuracy:
+            {{this.filter.accuracy}}</span>
+    </div>-->
+    <!--End to delete-->
+    <div fxLayout="column" fxLayoutGap="10%">
         <app-capture *ngFor="let e of this.loaded_images" [entry]="e"></app-capture>
     </div>
-    <div fxLayout="row" fxLayoutAlign="center center" style="padding-bottom: 5%;">
-        <button mat-fab color="accent" (click)="load_images()">
+    <span *ngIf="this.show_error" style="color: red;" fxLayoutAlign="center center">Could not load captures.</span>
+    <span *ngIf="this.show_no_more_images" style="color: red;" fxLayoutAlign="center center">No more captures.</span>
+    <div *ngIf="!this.show_error" fxLayout="row" fxLayoutAlign="center center" style="padding-bottom: 10%;">
+        <button mat-fab color="accent" (click)="load_more()">
             <mat-icon>add</mat-icon>
-        </button>    
+        </button>
     </div>
 </div>
