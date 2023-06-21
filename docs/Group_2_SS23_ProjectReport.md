@@ -247,14 +247,17 @@ flowchart LR
 - To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
-1. Download unannotated cat and dog images from [kaggle](https://www.kaggle.com/)
-2. Annotate images using MegaDetector from which we recieve a .json annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans` and `Vehicles` the downloaded cat and dog images are kept seperated. Therefore we have 2 .json files with the MegaDetector annotation, one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total this leaves ~35.000 images in the dataset which is sufficient for training.
-3. Convert the annotation format to the YOLOv8 format using the `convert_to_yolov8_annotation.py` [script](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node/model_training). The annotations are extracted from the 2 .json files and are written into multiple .txt files. The YOLOv8 annotation format requires one .txt annotation file for every image. Furthermore the annotation for the bounding box itself changes from Megadetector:<br>
-`<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`<br>
-to YOLOv8<br>
-`<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`<br>
-More on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).<br>
-The following representation shows the difference between the MegaDetector and the YOLOv8 annotation in more detail.
+- Download unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).
+- Annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has ~35.000 images, which should be sufficient for training.
+- Convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py). The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from Megadetector 
+  
+  `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
+
+  to YOLOv8
+
+  `<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`
+
+  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767). The following representation shows the difference between the MegaDetector and the YOLOv8 annotation in more detail.
 
 <table border="0", class="fixed">
 <col width="35px">
@@ -328,18 +331,18 @@ dataset/
 </tr>
 </table>
 
-4. Split the dataset into training, validation and test images. The number of images and the split we used:
+- Split the dataset into training, validation and test images. The number of images and the split we used are:
 
-| Pet | Training | Validation | Test |
-| ---- | ---- | ---- | ---- |
-| Cat | 13.875 | 1.816 | 1.740 |
-| Dog | 14.782 | 1.871 | 1.848 |
-| Sum | 28.657 | 3.687 | 3.588 |
+  | Pet | Training | Validation | Test  |
+  | --- | -------- | ---------- | ----- |
+  | Cat | 13.875   | 1.816      | 1.740 |
+  | Dog | 14.782   | 1.871      | 1.848 |
+  | Sum | 28.657   | 3.687      | 3.588 |
 
-So we have the following training-validation-test split: 79.75%, 10.27%, 9.98%
+  Percentage of ``training/validation/test`` split: ``79.75% / 10.27% / 9.98%``
 
 ## Train & Validate Model
-We chose the YOLOv8 model, since it is the best choice for object detection, comparison with other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ultralytics, this project was done with version 8.0.105.
+We chose the YOLOv8 model, since it is the best choice for object detection. A comparison between YOLOv8 and other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ``ultralytics``, this project was done with version 8.0.105.
 ```python
 !pip install ultralytics
 import ultralytics
@@ -349,13 +352,13 @@ In addition, it is necessary to establish a connection with Google Drive to conv
 from google.colab import drive
 drive.mount('/content/drive')
 ```
-When dealing with a large number of files in Google Colab, it is advisable to compress the datasets into .zip files before uploading. It is also recommended to make three distinct .zip files for the training, validation, and test datasets. After uploading them to Google Drive, the .zip files can then be easily extracted using the `!unzip` command within the Google Colab notebook.<br>
+When dealing with a large number of files in Google Colab, it is advisable to compress the datasets into ZIP files before uploading. It is also recommended to make three distinct ZIP files for the training, validation, and test datasets. After uploading them to Google Drive, the ZIP files can then be easily extracted using the `!unzip` command within the Google Colab notebook.<br>
 ```python
 !unzip '/content/drive/pathToZipFile/train.zip'
 !unzip '/content/drive/pathToZipFile/validate.zip'
 !unzip '/content/drive/pathToZipFile/test.zip'
 ```
-After this there should be 3 folders in the direct environment of the Google Colab Notebook. Now we can start training, for better performance choose a GPU runtime in Google Colab (Runtime -> Change runtime type). In this project we used a Nvidia V100 GPU as runtime type. We need to create a .yaml file to provide the paths to the datasets. In this project it looks like that:
+After this there should be 3 folders in the direct environment of the Google Colab Notebook. Now we can start training, for better performance choose a GPU runtime in Google Colab (Runtime -> Change runtime type). In this project we used a Nvidia V100 GPU as runtime type. We need to create a YAML file to provide the paths to the datasets. In this project it looks like that:
 ```yaml
 train: yolov8/data/train
 val: yolov8/data/train
@@ -369,8 +372,10 @@ To start training run the following command, all possible parameters are listed 
 ```bash
 !yolo task=detect mode=train model=yolov8s.pt data=path/to/dataset.yaml epochs=20 batch=-1 project=path/to/result_storage name=pets
 ```
-We chose the yolov8s model as our base because it offers a balance between training speed and accuracy, which suits our needs effectively. Using a Nvidia V100 GPU the traing of the model took ~5min/epoch for a total of ~1h40min. The results from the training, including the model, can be found in the `project` directory, which is specified in the command before.<br>
-A comprehensive overview of training with YOLOv8 can be found [here](https://towardsdatascience.com/trian-yolov8-instance-segmentation-on-your-data-6ffa04b2debd). The summary of our training results can be found [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/docs/img) as images in `training_results.png` and `training_confusion_matrix.png` or as a table [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training) in the `results.csv` file.<br>
+We chose the ``yolov8s`` model as our base because it offers a balance between training speed and accuracy, which suits our needs effectively. Using a Nvidia V100 GPU the traing of the model took ~5min/epoch for a total of ~1h40min. The results from the training, including the model, can be found in the `project` directory, which is specified in the command before.
+
+A comprehensive overview of training with YOLOv8 can be found [here](https://towardsdatascience.com/trian-yolov8-instance-segmentation-on-your-data-6ffa04b2debd). The summary of our training results can be found [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/docs/img) as images in `training_results.png` and `training_confusion_matrix.png` or as a table [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training) in the `results.csv` file.
+
 Here is an explanaition for the different metrics from the results:
 
 - `train/box_loss` and `val/box_loss`: These metrics measure the discrepancy between predicted bounding box coordinates and the ground truth bounding box coordinates during training and validation, respectively.
