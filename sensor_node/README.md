@@ -14,4 +14,4 @@ We used the versions of the following python packages:
 
 ## Results
 
-The results of the training are the model itself `best.pt` ([here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node/model_training)) and the evaluation of the results either as a table `results.csv` ([here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node/model_training)) or as plots `results.png` ([here](https://github.com/ccfrauasgr2/pet-detection/tree/main/docs/img)).
+The results of the training are the model itself `best.pt` ([here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node/model_training)) and the evaluation of the results either as a table `results.csv` ([here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node/model_training)) or as plots `training_results.png` and `training_confusion_matrix.png` ([here](https://github.com/ccfrauasgr2/pet-detection/tree/main/docs/img)).
