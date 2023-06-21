@@ -1,4 +1,4 @@
-<font size="6"> Table of Contents</font>
+<font size="7"> Table of Contents</font>
 
 - [Overview](#overview)
 - [Sensor Node](#sensor-node)
@@ -21,7 +21,6 @@
   - [Develop Frontend](#develop-frontend)
   - [Deploy Frontend](#deploy-frontend)
 - [Test System](#test-system)
-
 
 # Overview
 
