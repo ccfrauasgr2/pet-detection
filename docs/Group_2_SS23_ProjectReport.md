@@ -154,6 +154,7 @@ flowchart LR
     restapi-config[ConfigMap\nrestapi-config]
     restapi-svc[LoadBalancer Service\nrestapi-svc]
     restapi-deployment[Deployment\nrestapi-deployment]
+    restapi-secret[Secret\nrestapi-secret]
     
 
     mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
@@ -161,6 +162,7 @@ flowchart LR
     mongo-secret --> mongo-sts & restapi-deployment
     mongo-config --> restapi-deployment 
     restapi-config --> frontend-deployment
+    restapi-secret --> restapi-deployment
 
     end
 

@@ -51,7 +51,17 @@ spec:
           valueFrom:
             secretKeyRef:
               name: mongo-secret
-              key: mongo-password 
+              key: mongo-password
+        - name: TELEGRAM_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: restapi-secret
+              key: telegram-bot-token
+        - name: TELEGRAM_CHAT_ID
+          valueFrom:
+            secretKeyRef:
+              name: restapi-secret
+              key: telegram-group-chat-id
         - name: #TODO
           valueFrom:
             configMapKeyRef:
