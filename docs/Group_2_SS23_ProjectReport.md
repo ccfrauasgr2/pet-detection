@@ -482,9 +482,9 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
         _id: "rs0",
         version: 1,
         members: [
-           { _id: 0, host : "mongo-sts-0.mongo-headless-svc.default.svc.  cluster.local:27017" },
-           { _id: 1, host : "mongo-sts-1.mongo-headless-svc.default.svc.  cluster.local:27017" },
-           { _id: 2, host : "mongo-sts-2.mongo-headless-svc.default.svc.  cluster.local:27017" }
+           { _id: 0, host : "mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017" },
+           { _id: 1, host : "mongo-sts-1.mongo-headless-svc.default.svc.cluster.local:27017" },
+           { _id: 2, host : "mongo-sts-2.mongo-headless-svc.default.svc.cluster.local:27017" }
         ]
      }
   )
