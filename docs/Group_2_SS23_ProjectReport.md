@@ -1,4 +1,4 @@
-<font size="7"> Table of Contents</font>
+**Table of Contents**
 
 - [Overview](#overview)
 - [Sensor Node](#sensor-node)
