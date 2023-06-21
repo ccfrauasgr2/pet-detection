@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import requests
+import base64
 
 # TODO: Define a method for sending notifications and run this method inside any PUT or POST request
 
@@ -12,8 +13,8 @@ def send_telegram_notification(detection_results):
     load_dotenv()
 
     # Retrieve the bot token and chat ID from environment variables
-    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    group_chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    bot_token = base64.b64decode(os.getenv('TELEGRAM_BOT_TOKEN')).decode("utf-8")
+    group_chat_id = base64.b64decode(os.getenv('TELEGRAM_CHAT_ID')).decode("utf-8")
 
     caption = detection_results
     img = open("img/sample_img.png", 'rb')
