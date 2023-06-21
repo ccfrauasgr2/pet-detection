@@ -24,7 +24,10 @@ urlpatterns = [
     path('pics/', views.pic_list),
     path('pics/<int:id>', views.pic_detail),
     path('pets/post', views.pet_camera_post),
-    path('pets/get_all', views.pet_get_all),
+    path('pets/get_all', views.pets_get_all),
+    path('pics/get_all', views.pics_get_all),
+    path('pics/get_all_until_id', views.pics_get_all_until_id)
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
