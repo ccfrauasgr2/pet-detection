@@ -98,18 +98,18 @@ flowchart LR
   
 ```
 
-| Component                       | Role                                                                                                                                                                  |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                          | capture and send visual data to the sensor node                                                                                                                       |
-| Detection Model                 | analyze visual data to detect & classify pet                                                                                                                          |
-| Courier                         | send visual data and detection results to the cluster                                                                                                                 |
-| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                    |
-| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                |
-| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                                |
-| Database (DBS) Pods             | - handle read & write queries for retrieving & storing detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
-| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                      |
-| Local PC                        | serve as tool for setting up system                                                                                                                                   |
+| Component                       | Role                                                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | capture and send visual data to the sensor node                                                                                                                |
+| Detection Model                 | analyze visual data to detect & classify pet                                                                                                                   |
+| Courier                         | send detection results to the cluster                                                                                                                          |
+| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
+| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                         |
+| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                               |
+| Local PC                        | serve as tool for setting up system                                                                                                                            |
 
 
 **System Behavior**:
