@@ -259,33 +259,30 @@ flowchart LR
 
   More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767). The following representation shows the difference between the MegaDetector and the YOLOv8 annotation in more detail.
 
-<table border="0", class="fixed">
-<col width="35px">
-<col width="250px">
-<col width="250px">
- <tr>
-    <td><b style="font-size:20px"></b></td>
-    <td><b style="font-size:20px">MegaDetector</b></td>
-    <td><b style="font-size:20px">YOLOv8</b></td>
- </tr>
-<tr>
-<td></td>
-<td>
+  <table border="0", class="fixed">
+  <col width="250px">
+  <col width="250px">
+   <tr>
+      <td><b style="font-size:20px">MegaDetector</b></td>
+      <td><b style="font-size:20px">YOLOv8</b></td>
+   </tr>
+  <tr>
+  <td>
 
-```
-dataset/
-├── cats
-│   ├── megaDetector.json
-│   ├── cat_0.png
-│   ├── cat_1.png
-│   ├── cat_2.png
-│   ├── ...
-├── dogs
-│   ├── megaDetector.json
-│   ├── dog_0.png
-│   ├── dog_1.png
-│   ├── dog_2.png
-│   └── ...
+  ```
+  dataset/
+  ├── cats
+  │   ├── megaDetector.json
+  │   ├── cat_0.png
+  │   ├── cat_1.png
+  │   ├── cat_2.png
+  │   ├── ...
+  ├── dogs
+  │   ├── megaDetector.json
+  │   ├── dog_0.png
+  │   ├── dog_1.png
+  │   ├── dog_2.png
+  │   └── ...
 
 
 
@@ -296,40 +293,40 @@ dataset/
 
 
 
-```
+  ```
 
-</td>
-<td>
+  </td>
+  <td>
 
-```
-dataset/
-├── cats
-│   ├── images
-│   │   ├── cat_0.png
-│   │   ├── cat_1.png
-│   │   ├── cat_2.png
-│   │   └── ...
-│   └── annotation
-│       ├── cat_0.txt
-│       ├── cat_1.txt
-│       ├── cat_2.txt
-│       └── ...
-├── dogs
-│   ├── images
-│   │   ├── dog_0.png
-│   │   ├── dog_1.png
-│   │   ├── dog_2.png
-│   │   └── ...
-│   └── annotation
-│       ├── dog_0.txt
-│       ├── dog_1.txt
-│       ├── dog_2.txt
-│       └── ...
-```
+  ```
+  dataset/
+  ├── cats
+  │   ├── images
+  │   │   ├── cat_0.png
+  │   │   ├── cat_1.png
+  │   │   ├── cat_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── cat_0.txt
+  │       ├── cat_1.txt
+  │       ├── cat_2.txt
+  │       └── ...
+  ├── dogs
+  │   ├── images
+  │   │   ├── dog_0.png
+  │   │   ├── dog_1.png
+  │   │   ├── dog_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── dog_0.txt
+  │       ├── dog_1.txt
+  │       ├── dog_2.txt
+  │       └── ...
+  ```
 
-</td>
-</tr>
-</table>
+  </td>
+  </tr>
+  </table>
 
 - Split the dataset into training, validation and test images. The number of images and the split we used are:
 
