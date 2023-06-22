@@ -17,8 +17,7 @@ class Network:
 			self.debug(message)
 		self.message_queue.append(message)
 		if len(self.message_queue) == self.queue_lenght:			 
-			#self._send()
-			print("SEND")
+			self._send()			
 
 	def _send(self):		
 		try:
