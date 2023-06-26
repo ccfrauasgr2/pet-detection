@@ -1,14 +1,12 @@
-from django.http import JsonResponse
 from .models import Pic, Pet
 from .serializers import PicSerializer, PetSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Max
-import sqlite3
-import time
 import json
-
+import zlib
+from pymongo import MongoClient
 
 @api_view(['POST'])
 def pet_camera_post(request, format=None):
@@ -16,14 +14,13 @@ def pet_camera_post(request, format=None):
     if request.method == 'POST':
         serializers = []
         pic = {
-            "picture": request.data['picture'],
+            "picture": request.data['picture'], #zlib.decompress(request.data['picture']).decode()
             "date": request.data['date'],
             "time": request.data['time']
         }
         picSerializer = PicSerializer(data=pic)
         if picSerializer.is_valid():
             picSerializer.save()
-            #serializers.append(picSerializer)
         else:
             return Response(picSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -46,22 +43,71 @@ def pet_camera_post(request, format=None):
                 return Response(petSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         for item in serializers:
-            #print(item)
             item.save()
-            #time.sleep(2)
 
         return Response(status=status.HTTP_201_CREATED)
 
-        #return Response(status=status.HTTP_200_OK)
-        """"
-        serializer = PetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+@api_view(['GET'])
+def pet_get_images(request, format=None):
+    if request.method == 'GET':
+        pics = get_query_images(0)
+        if pics == 0:
+            return Response(data="no images found", status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        """
+            json_string = get_query_pets(pics)
+            return Response(data=json_string, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+def pet_check_for_new_images(request, format=None):
+    if request.method == 'GET':
+        pics = get_query_images(request.data['last_id'])
+        if pics == 0:
+            return Response(data="no images found", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            json_string = get_query_pets(pics)
+            return Response(data=json_string, status=status.HTTP_200_OK)
+
+
+def get_query_images(last_element_id):
+    if Pic.objects.exists() and last_element_id < Pic.objects.latest('id').id:
+        queryset = Pic.objects.filter(id__gt=last_element_id)
+        remaining_count = queryset.count()
+        if remaining_count < 10:
+            images = queryset[:remaining_count]
+        else:
+            images = queryset[:10]
+        return images
+    else:
+        return 0
+
+
+def get_query_pets(pics):
+    data_entries = []
+    for pic in pics:
+        pets = Pet.objects.filter(foreignKey=pic.id).values()
+        pets_list = list(pets)
+        data = {
+            'picture': pic.picture,
+            'date': pic.date,
+            'time': pic.time,
+            'detections': pets_list
+        }
+        data_entries.append(data)
+    json_data = {
+        'list': data_entries
+    }
+    json_string = json.dumps(json_data)
+    return json_string
+
+"""
+@api_view(['POST'])
+def mongo_new_db(request, format=None):
+    if request.method == 'POST':
+        
+        return 0
+"""
+"""
 @api_view(['GET'])
 def pets_get_all(request, format=None):
 
@@ -121,4 +167,4 @@ def pic_detail(request, id, format=None):
 
     elif request.method == 'DELETE':
         pic.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)"""

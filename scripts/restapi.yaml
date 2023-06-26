@@ -7,8 +7,8 @@ spec:
     app: restapi
   ports:
     - protocol: TCP
-      port: #TODO
-      targetPort: #TODO
+      port: 8080 #TODO
+      targetPort: 8000 #TODO
   type: LoadBalancer
 ---  
 apiVersion: apps/v1
@@ -37,10 +37,10 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - name: restapi
-        image: #TODO
+        image: skywalker360/pet-detection-repo:1.1 #TODO
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: #TODO
+        - containerPort: 8000 #TODO
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
@@ -52,7 +52,7 @@ spec:
             secretKeyRef:
               name: mongo-secret
               key: mongo-password 
-        - name: #TODO
+        - name: MONGO_INITDB_CONFIG #TODO
           valueFrom:
             configMapKeyRef:
               name: mongo-config

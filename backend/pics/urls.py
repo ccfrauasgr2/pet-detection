@@ -20,14 +20,21 @@ from pics import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('pics/', views.pic_list),
-    path('pics/<int:id>', views.pic_detail),
-    path('pets/post', views.pet_camera_post),
-    path('pets/get_all', views.pets_get_all),
-    path('pics/get_all', views.pics_get_all),
-    path('pics/get_all_until_id', views.pics_get_all_until_id)
+    #old urls
+    #path('admin/', admin.site.urls),
+    #path('pics/', views.pic_list),
+    #path('pics/<int:id>', views.pic_detail),
+    #path('pets/get_all', views.pets_get_all),
+    #path('pics/get_all', views.pics_get_all),
+    #path('pics/get_all_until_id', views.pics_get_all_until_id)
 
+    #working urls
+    path('pets/post', views.pet_camera_post),
+    path('pets/get_images', views.pet_get_images),
+    path('pets/check_for_new_images', views.pet_check_for_new_images),
+
+    #experimental urls
+    #path('mongo/new_db', views.mongo_new_db),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
