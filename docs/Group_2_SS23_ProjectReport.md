@@ -272,8 +272,8 @@ flowchart LR
     
 
     id21 --> id22 --> id23 --> id24 --> id27
-    id33 --> id34
-    id25 & id27 & id34 --> id26
+    id33 & id25 --> id34
+    id27 & id34 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
