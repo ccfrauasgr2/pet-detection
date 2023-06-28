@@ -272,11 +272,13 @@ flowchart LR
     
 
     id21 --> id22 --> id23 --> id24 --> id27
-    id25 & id27 & id33 --> id26
+    id33 --> id34
+    id25 & id27 & id34 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
     id33[Implement\nTNB]
+    id34[Integrate\nTNB in REST API]
 
     id26 & id31 --> id32
     end
@@ -294,13 +296,13 @@ flowchart LR
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Primary Tasks                                                                                                                        | Secondary Tasks                                                              |
-| ------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                               |                                                                              |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Implement TNB<br/>- Deploy Backend                                                                          | - Develop Frontend<br/>- Develop Courier                                     |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop Courier<br/>- Deploy Courier | Develop REST API                                                             |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS            | - Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend<br/>- Test System |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | Develop Frontend<br/>- Deploy Frontend                                                                                               | - Develop REST API                                                           |
+| Member              | MatrNr. | Uni-Mail                            | Primary Tasks                                                                                                                                 | Secondary Tasks                                          |
+| ------------------- | ------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                        |                                                          |
+| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Integrate TNB in REST API</br>- Deploy Backend                                                                       | - Develop Frontend<br/>- Develop Courier                 |
+| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop Courier<br/>- Deploy Courier          | Develop REST API                                         |
+| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB | - Deploy Backend<br/>- Deploy Frontend<br/>- Test System |
+| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop Frontend<br/>- Deploy Frontend                                                                                                      | Develop REST API                                         |
 <div style="page-break-after: always"></div>
 
 # Sensor Node
