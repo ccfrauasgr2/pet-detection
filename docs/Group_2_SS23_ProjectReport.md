@@ -1,4 +1,89 @@
-TODO: Table of contents
+<div style="text-align: center;">
+  <img src="img/frauas_logo.png" width="250" alt="Logo">
+</div>
+
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="5"><strong>Project Report</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="6">Automatic Pet Detection With Edge Computing</font>
+</div>
+
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="5"><strong>Supervisor</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="4">Prof. Dr. Christian Baun</font>
+</div>
+
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="5"><strong>Group 2</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="4">Vincent Roßknecht</font>
+  <br>
+  <font size="4">Jonas Hülsmann</font>
+  <br>
+  <font size="4">Marco Tenderra</font>
+  <br>
+  <font size="4">Minh Kien Nguyen</font>
+  <br>
+  <font size="4">Alexander Atanassov</font>
+</div>
+
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="5"><strong>Submission Date</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="4">July 5th, 2023</font>
+</div>
+
+
+
+
+<div style="page-break-after: always"></div>
+
+**Table of Contents**
+
+- [Overview](#overview)
+- [Sensor Node](#sensor-node)
+  - [Set up Pi 4B](#set-up-pi-4b)
+  - [Set up Camera](#set-up-camera)
+  - [Prepare Training Data](#prepare-training-data)
+  - [Train \& Validate Model](#train--validate-model)
+  - [Deploy Trained Model](#deploy-trained-model)
+  - [Develop Courier](#develop-courier)
+  - [Deploy Courier](#deploy-courier)
+- [Cluster](#cluster)
+  - [Set up Pi 3B \& 3B+](#set-up-pi-3b--3b)
+  - [Set up Static IP](#set-up-static-ip)
+  - [Set up Kubernetes Cluster](#set-up-kubernetes-cluster)
+  - [Set up Storage Service](#set-up-storage-service)
+  - [Set up DBS](#set-up-dbs)
+  - [Develop REST API](#develop-rest-api)
+  - [Implement TNB](#implement-tnb)
+  - [Deploy Backend](#deploy-backend)
+  - [Develop Frontend](#develop-frontend)
+  - [Deploy Frontend](#deploy-frontend)
+- [Test System](#test-system)
+
+<div style="page-break-after: always"></div>
 
 # Overview
 
@@ -106,7 +191,7 @@ flowchart LR
 | Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
-| REST API Pods                   | expose endpoints to facilitate communication & data exchange between system components                                                                         |
+| REST API Pods                   | process data to facilitate data communication between system components                                                                                        |
 | Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
 | Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                               |
 | Local PC                        | serve as tool for setting up system                                                                                                                            |
@@ -132,6 +217,7 @@ flowchart LR
     restapi-config[ConfigMap\nrestapi-config]
     restapi-svc[LoadBalancer Service\nrestapi-svc]
     restapi-deployment[Deployment\nrestapi-deployment]
+    restapi-secret[Secret\nrestapi-secret]
     
 
     mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
@@ -139,6 +225,7 @@ flowchart LR
     mongo-secret --> mongo-sts & restapi-deployment
     mongo-config --> restapi-deployment 
     restapi-config --> frontend-deployment
+    restapi-secret --> restapi-deployment
 
     end
 
@@ -214,7 +301,7 @@ flowchart LR
 | Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API<br/>- Develop Courier<br/>- Deploy Courier                              |
 | Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop REST API<br/>- Develop Frontend<br/>- Deploy Frontend                                                                                                                          |
-
+<div style="page-break-after: always"></div>
 
 # Sensor Node
 
@@ -247,14 +334,150 @@ flowchart LR
 - To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
+- Download unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).
+- Annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has ~35.000 images, which should be sufficient for training.
+- Convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py). The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from Megadetector 
+  
+  `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
+
+  to YOLOv8
+
+  `<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`
+
+  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767). The following representation shows the difference between the MegaDetector and the YOLOv8 annotation in more detail.
+
+  <table border="0", class="fixed">
+  <col width="250px">
+  <col width="250px">
+   <tr>
+      <td><b style="font-size:20px">MegaDetector</b></td>
+      <td><b style="font-size:20px">YOLOv8</b></td>
+   </tr>
+  <tr>
+  <td>
+
+  ```
+  dataset/
+  ├── cats
+  │   ├── megaDetector.json
+  │   ├── cat_0.png
+  │   ├── cat_1.png
+  │   ├── cat_2.png
+  │   ├── ...
+  ├── dogs
+  │   ├── megaDetector.json
+  │   ├── dog_0.png
+  │   ├── dog_1.png
+  │   ├── dog_2.png
+  │   └── ...
+
+
+
+
+
+
+
+
+
+
+  ```
+
+  </td>
+  <td>
+
+  ```
+  dataset/
+  ├── cats
+  │   ├── images
+  │   │   ├── cat_0.png
+  │   │   ├── cat_1.png
+  │   │   ├── cat_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── cat_0.txt
+  │       ├── cat_1.txt
+  │       ├── cat_2.txt
+  │       └── ...
+  ├── dogs
+  │   ├── images
+  │   │   ├── dog_0.png
+  │   │   ├── dog_1.png
+  │   │   ├── dog_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── dog_0.txt
+  │       ├── dog_1.txt
+  │       ├── dog_2.txt
+  │       └── ...
+  ```
+
+  </td>
+  </tr>
+  </table>
+
+- Split the dataset into training, validation and test images. The number of images and the split we used are:
+
+  | Pet | Training | Validation | Test  |
+  | --- | -------- | ---------- | ----- |
+  | Cat | 13.875   | 1.816      | 1.740 |
+  | Dog | 14.782   | 1.871      | 1.848 |
+  | Sum | 28.657   | 3.687      | 3.588 |
+
+  Percentage of ``training/validation/test`` split: ``79.75% / 10.27% / 9.98%``
 
 ## Train & Validate Model
+We chose the YOLOv8 model, since it is the best choice for object detection. A comparison between YOLOv8 and other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ``ultralytics``, this project was done with version 8.0.105.
+```python
+!pip install ultralytics
+import ultralytics
+```
+In addition, it is necessary to establish a connection with Google Drive to conveniently access the training and validation datasets.
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
+When dealing with a large number of files in Google Colab, it is advisable to compress the datasets into ZIP files before uploading. It is also recommended to make three distinct ZIP files for the training, validation, and test datasets. After uploading them to Google Drive, the ZIP files can then be easily extracted using the `!unzip` command within the Google Colab notebook.<br>
+```python
+!unzip '/content/drive/pathToZipFile/train.zip'
+!unzip '/content/drive/pathToZipFile/validate.zip'
+!unzip '/content/drive/pathToZipFile/test.zip'
+```
+After this there should be 3 folders in the direct environment of the Google Colab Notebook. Now we can start training, for better performance choose a GPU runtime in Google Colab (Runtime -> Change runtime type). In this project we used a Nvidia V100 GPU as runtime type. We need to create a YAML file to provide the paths to the datasets. In this project it looks like that:
+```yaml
+train: yolov8/data/train
+val: yolov8/data/train
+
+# number of classes
+nc: 2
+
+names: ['cat', 'dog']
+```
+To start training run the following command, all possible parameters are listed [here](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/yolo/cfg/default.yaml).
+```bash
+!yolo task=detect mode=train model=yolov8s.pt data=path/to/dataset.yaml epochs=20 batch=-1 project=path/to/result_storage name=pets
+```
+We chose the ``yolov8s`` model as our base because it offers a balance between training speed and accuracy, which suits our needs effectively. Using a Nvidia V100 GPU the traing of the model took ~5min/epoch for a total of ~1h40min. The results from the training, including the model, can be found in the `project` directory, which is specified in the command before.
+
+A comprehensive overview of training with YOLOv8 can be found [here](https://towardsdatascience.com/trian-yolov8-instance-segmentation-on-your-data-6ffa04b2debd). The summary of our training results can be found [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/docs/img) as images in `training_results.png` and `training_confusion_matrix.png` or as a table [here](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training) in the `results.csv` file. Here is an explanation for the different metrics from the results:
+
+- `train/box_loss` and `val/box_loss`: These metrics measure the discrepancy between predicted bounding box coordinates and the ground truth bounding box coordinates during training and validation, respectively.
+- `train/cis_loss` and `val/cls_loss`: These metrics address class imbalance by quantifying the difference between predicted class probabilities and the true class labels during training and validation, respectively.
+- `train/dfl_loss` and `val/dfl_loss`: These metrics handle the issue of long-tail distribution by evaluating the discrepancy between predicted class distributions and the ground truth class distributions during training and validation, respectively.
+- `metrics/precision` and `metrics/recall(B)`: Precision measures the accuracy of positive predictions, while recall (sensitivity) calculates the ratio of correctly predicted positive samples to the total number of actual positive samples. Both metrics provide insights into model performance. 
+- `metrics/mAP50` and `metrics/mAP50-95(B)`: Mean Average Precision (mAP) at an IoU threshold of 0.50 and mAP across a range of IoU thresholds (from 0.50 to 0.95 with a step size of 0.05) measure the average precision of correctly localized and classified objects, providing comprehensive evaluations of model performance at different IoU thresholds.<br>
+
+The letter "B" in `metrics/recall(B)` and `metrics/mAP50-95(B)` specifies, that this is an object detection model, whereas "(M)" would specify a segmentation model.
+
+To estimate the model performance, there were some further tests done on it. For this we use the test dataset with images the model was neither trained or validated with. This dataset contains 3.589 more images of both cats (1.740) and dogs (1.848). The model was used to identify the pet on these images and return the pet and the bounding box for every image. With the python script `top1_mAP.py` [here](https://github.com/ccfrauasgr2/pet-detection/tree/main/sensor_node\model_training) the Top-1-Accuracy (Top-1-Acc) and the mean average Precision (mAP) are calculated. For the mAP calculation we used the function `average_precision_score` from the python package `sklearn`. The results are Top-1-Acc = 87.68% and mAP = 96.983%.
+
 
 ## Deploy Trained Model
 
 ## Develop Courier
 
 ## Deploy Courier
+
+<div style="page-break-after: always"></div>
 
 # Cluster
 
@@ -466,8 +689,8 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   kubectl get pods
 
   # Check if all corresponding PV and PVC are Bound
+  kubectl get pv
   kubectl get pvc
-  kubectl get svc
   ```
 - Set up [replication in `MongoDB`](https://www.mongodb.com/docs/v4.4/replication/). The following commands are based on [this tutorial](https://youtu.be/eUa-IDPGL-Q):
 
@@ -518,7 +741,6 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 ## Deploy Frontend
 
+<div style="page-break-after: always"></div>
+
 # Test System
-
-
-
