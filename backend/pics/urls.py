@@ -34,7 +34,8 @@ urlpatterns = [
     path('pets/check_for_new_images', views.pet_check_for_new_images),
 
     #experimental urls
-    #path('mongo/new_db', views.mongo_new_db),
+    path('mongo/test', views.mongo_test),
+    path('mongo/new_db', views.mongo_new_db),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
