@@ -1,37 +1,61 @@
-<img src="img/frauas_logo.png" width="250"/>
+<div style="text-align: center;">
+  <img src="img/frauas_logo.png" width="250" alt="Logo">
+</div>
 
 <br>
 <br>
 
-<font size="4">**Project Report**</font>
-
-<font size="6">Automatic Pet Detection With Edge Computing</font>
+<div style="text-align: center;">
+  <font size="5"><strong>Project Report</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="6">Automatic Pet Detection With Edge Computing</font>
+</div>
 
 <br>
-
-<font size="4">**Supervisor**</font>
-
-<font size="4">Prof. Dr. Christian Baun</font>
-
 <br>
 
-<font size="4">**Group 2**</font>
-
-<font size="4">Vincent Roßknecht</font> 
-
-<font size="4">Jonas Hülsmann</font>
-
-<font size="4">Marco Tenderra</font>
-
-<font size="4">Minh Kien Nguyen</font>
-
-<font size="4">Alexander Atanassov</font>
+<div style="text-align: center;">
+  <font size="5"><strong>Supervisor</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="4">Prof. Dr. Christian Baun</font>
+</div>
 
 <br>
+<br>
 
-<font size="4">**Submission Date**</font>
+<div style="text-align: center;">
+  <font size="5"><strong>Group 2</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="4">Vincent Roßknecht</font>
+  <br>
+  <font size="4">Jonas Hülsmann</font>
+  <br>
+  <font size="4">Marco Tenderra</font>
+  <br>
+  <font size="4">Minh Kien Nguyen</font>
+  <br>
+  <font size="4">Alexander Atanassov</font>
+</div>
 
-<font size="4">July 5th 2023</font>
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="5"><strong>Submission Date</strong></font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="4">July 5th, 2023</font>
+</div>
+
+
+
 
 <div style="page-break-after: always"></div>
 
