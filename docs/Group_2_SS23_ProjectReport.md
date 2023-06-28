@@ -763,7 +763,7 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
       caption = detection_results
       img = open("img/sample_img.png", 'rb')
   
-      url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id=  {group_chat_id}&caption={caption}'
+      url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id={group_chat_id}&caption={caption}'
       response = requests.post(url, files={'photo': img})
       
       if response.status_code == 200:
