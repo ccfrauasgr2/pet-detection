@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 import requests
 import base64
 
@@ -9,12 +8,10 @@ def send_telegram_notification(detection_results):
     """
     notifies user about detection results via Telegram Bot
     """
-    # Load environment variables from .env file
-    load_dotenv()
 
     # Retrieve the bot token and chat ID from environment variables
-    bot_token = base64.b64decode(os.getenv('TELEGRAM_BOT_TOKEN')).decode("utf-8")
-    group_chat_id = base64.b64decode(os.getenv('TELEGRAM_CHAT_ID')).decode("utf-8")
+    bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
+    group_chat_id = base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode("utf-8")
 
     caption = detection_results
     img = open("img/sample_img.png", 'rb')
