@@ -1,3 +1,40 @@
+<img src="img/frauas_logo.png" width="250"/>
+
+<br>
+<br>
+
+<font size="4">**Project Report**</font>
+
+<font size="6">Automatic Pet Detection With Edge Computing</font>
+
+<br>
+
+<font size="4">**Supervisor**</font>
+
+<font size="4">Prof. Dr. Christian Baun</font>
+
+<br>
+
+<font size="4">**Group 2**</font>
+
+<font size="4">Vincent Roßknecht</font> 
+
+<font size="4">Jonas Hülsmann</font>
+
+<font size="4">Marco Tenderra</font>
+
+<font size="4">Minh Kien Nguyen</font>
+
+<font size="4">Alexander Atanassov</font>
+
+<br>
+
+<font size="4">**Submission Date**</font>
+
+<font size="4">July 5th 2023</font>
+
+<div style="page-break-after: always"></div>
+
 **Table of Contents**
 
 - [Overview](#overview)
@@ -21,6 +58,8 @@
   - [Develop Frontend](#develop-frontend)
   - [Deploy Frontend](#deploy-frontend)
 - [Test System](#test-system)
+
+<div style="page-break-after: always"></div>
 
 # Overview
 
@@ -238,7 +277,7 @@ flowchart LR
 | Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API<br/>- Develop Courier<br/>- Deploy Courier                              |
 | Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend |
 | Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop REST API<br/>- Develop Frontend<br/>- Deploy Frontend                                                                                                                          |
-
+<div style="page-break-after: always"></div>
 
 # Sensor Node
 
@@ -413,6 +452,8 @@ To estimate the model performance, there were some further tests done on it. For
 ## Develop Courier
 
 ## Deploy Courier
+
+<div style="page-break-after: always"></div>
 
 # Cluster
 
@@ -624,8 +665,8 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   kubectl get pods
 
   # Check if all corresponding PV and PVC are Bound
+  kubectl get pv
   kubectl get pvc
-  kubectl get svc
   ```
 - Set up [replication in `MongoDB`](https://www.mongodb.com/docs/v4.4/replication/). The following commands are based on [this tutorial](https://youtu.be/eUa-IDPGL-Q):
 
@@ -675,5 +716,7 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 ## Develop Frontend
 
 ## Deploy Frontend
+
+<div style="page-break-after: always"></div>
 
 # Test System
