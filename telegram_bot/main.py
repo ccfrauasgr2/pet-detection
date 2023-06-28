@@ -2,7 +2,6 @@ import os
 import requests
 import base64
 
-# TODO: Define a method for sending notifications and run this method inside any PUT or POST request
 
 def send_telegram_notification(detection_results):
     """
@@ -13,8 +12,17 @@ def send_telegram_notification(detection_results):
     bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
     group_chat_id = base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode("utf-8")
 
-    caption = detection_results
-    img = open("img/sample_img.png", 'rb')
+    caption = "Detected following pet(s):"
+    for det in detection_results["detections"]:
+
+        bid = det["BID"]
+        pet_type =  det["type"]
+        accuracy = det["accuracy"]
+    
+        temp = f"\nBID: {bid} - Type: {pet_type} - Accuracy: {accuracy}"
+        caption += temp
+
+    img = base64.b64decode(detection_results["picture"])
 
     url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id={group_chat_id}&caption={caption}'
     response = requests.post(url, files={'photo': img})
@@ -24,5 +32,30 @@ def send_telegram_notification(detection_results):
     else:
         print('Failed to send notification.')
 
+os.environ['TELEGRAM_BOT_TOKEN'] = 
+os.environ['TELEGRAM_CHAT_ID']
+
+with open("img/sample_img.png", "rb") as image_file:
+    encoded_img = base64.b64encode(image_file.read())
+
+detection_results = {
+  "picture": f"{encoded_img}",
+  "date": "28.05.2023",
+  "time": "10:01:23",
+  "detections": [
+    {
+      "type": "dog",
+      "accuracy": 0.91,
+      "BID": 1
+    },
+    {
+      "type": "cat",
+      "accuracy": 0.79,
+      "BID": 2
+    }
+  ]
+}
+
+
 # Example usage
-send_telegram_notification('Detection results')
+send_telegram_notification(detection_results)
