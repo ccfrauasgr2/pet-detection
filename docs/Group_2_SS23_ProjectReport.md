@@ -738,6 +738,43 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 ## Implement TNB
 
+- Follow this [tutorial](https://sendpulse.com/knowledge-base/chatbot/telegram/create-telegram-chatbot) to create a Telegram Bot. Our TNB is called `G2PetBot`.
+- [Create a Telegram group chat](https://www.alphr.com/telegram-create-group-chat/). Our group chat is called `Cloud Computing SS23`.
+- [Add `G2PetBot` to `Cloud Computing SS23`](https://www.youtube.com/watch?v=gk_tPOY1TDM&ab_channel=Chatimize).
+- Find [the token of `G2PetBot`](https://help.zoho.com/portal/en/kb/desk/support-channels/instant-messaging/telegram/articles/telegram-integration-with-zoho-desk#How_to_find_a_token_for_an_existing_Telegram_Bot) and [the group ID of `Cloud Computing SS23`](https://botostore.com/c/myidbot/).
+- [Encode](https://www.base64encode.org/) the token and group ID as ``base64`` strings.
+- Add the encoded strings as values of `telegram-bot-token` and `telegram-group-chat-id` keys in the `restapiSecret.yaml`-script.
+- Write code that sends detection results to our TNB. For that purpose, refer to the following ``Python`` snippet. When `G2Petbot` receives detection results, it notifies all users in `Cloud Computing SS23` about them.
+
+  ```python
+  import os
+  import requests
+  import base64
+  
+  def send_telegram_notification(detection_results):
+      """
+      notifies user about detection results via Telegram Bot
+      """
+  
+      # Retrieve the bot token and chat ID from environment variables
+      bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
+      group_chat_id = base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode ("utf-8")
+  
+      caption = detection_results
+      img = open("img/sample_img.png", 'rb')
+  
+      url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id=  {group_chat_id}&caption={caption}'
+      response = requests.post(url, files={'photo': img})
+      
+      if response.status_code == 200:
+          print('Notification sent successfully!')
+      else:
+          print('Failed to send notification.')
+  
+  # Example usage
+  send_telegram_notification('Detection results')
+  ```
+
 ## Integrate TNB in REST API
 
 ## Deploy Backend
