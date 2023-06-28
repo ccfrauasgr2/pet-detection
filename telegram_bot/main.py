@@ -23,6 +23,8 @@ def send_telegram_notification(detection_results):
         caption += temp
 
     img = base64.b64decode(detection_results["picture"])
+    print(img)
+    return
 
     url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id={group_chat_id}&caption={caption}'
     response = requests.post(url, files={'photo': img})
@@ -41,7 +43,7 @@ with open("img/sample_img.png", "rb") as image_file:
     encoded_img = base64.b64encode(image_file.read())
 
 detection_results = {
-  "picture": f"{encoded_img}",
+  "picture": encoded_img,
   "date": "28.05.2023",
   "time": "10:01:23",
   "detections": [
