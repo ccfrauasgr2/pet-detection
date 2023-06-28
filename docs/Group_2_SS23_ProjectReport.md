@@ -744,35 +744,76 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 - Find [the token of `G2PetBot`](https://help.zoho.com/portal/en/kb/desk/support-channels/instant-messaging/telegram/articles/telegram-integration-with-zoho-desk#How_to_find_a_token_for_an_existing_Telegram_Bot) and [the group ID of `Cloud Computing SS23`](https://botostore.com/c/myidbot/).
 - [Encode](https://www.base64encode.org/) the token and group ID as ``base64`` strings.
 - Add the encoded strings as values of `telegram-bot-token` and `telegram-group-chat-id` keys in the `restapiSecret.yaml`-script.
-- Write code that sends detection results to our TNB. For that purpose, refer to the following ``Python`` snippet. When `G2Petbot` receives detection results, it notifies all users in `Cloud Computing SS23` about them.
+- Write code that sends detection results to TNB. For that purpose, refer to the following ``Python`` snippet. When `G2Petbot` receives detection results, it notifies all users in `Cloud Computing SS23` about them.
 
   ```python
   import os
-  import requests
+  import telegram # requires "pip install python-telegram-bot"
   import base64
+  import asyncio
   
-  def send_telegram_notification(detection_results):
+  
+  async def send_telegram_notification(detection_results):
       """
-      notifies user about detection results via Telegram Bot
+      notifies user about detection results via a TNB
+  
+      Notification = Image + Caption
       """
   
-      # Retrieve the bot token and chat ID from environment variables
-      bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
-      group_chat_id = base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode ("utf-8")
+      # Retrieve the bot token and group chat ID from environment variables
+      bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode  ("utf-8")
+      group_chat_id = "-" + base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).  decode("utf-8")
   
-      caption = detection_results
-      img = open("img/sample_img.png", 'rb')
+      # Get image for notification
+      img = base64.b64decode(detection_results["picture"])
   
-      url = f'https://api.telegram.org/bot{bot_token}/sendPhoto?chat_id={group_chat_id}&caption={caption}'
-      response = requests.post(url, files={'photo': img})
-      
-      if response.status_code == 200:
-          print('Notification sent successfully!')
-      else:
-          print('Failed to send notification.')
+      # Create caption for notification
+      caption = "Detected following pet(s):"
+      for det in detection_results["detections"]:
+          bid = det["BID"]
+          pet_type =  det["type"]
+          accuracy = det["accuracy"]
+          temp = f"\nBID: {bid} - Type: {pet_type} - Accuracy: {accuracy}"
+          caption += temp
   
-  # Example usage
-  send_telegram_notification('Detection results')
+      # Initialize the TNB
+      bot = telegram.Bot(token=bot_token)
+  
+      # Send detection results to the TNB
+      await bot.send_photo(chat_id=group_chat_id, photo=img, caption=caption)
+  
+  
+  # EXAMPLE USAGE
+  
+  # Initialize environment variables
+  os.environ['TELEGRAM_BOT_TOKEN'] =   "NTg3MDMxOTU2ODpBQUhhN1RIU3hJSllJTU1tUGNrNUlIZV9qVVRHYmNpRHBkOA=="
+  os.environ['TELEGRAM_CHAT_ID'] = "OTg4MzM2MzA2"
+  
+  # Sample image encoded as base64-string
+  with open("img/sample_img.png", "rb") as image_file:
+      encoded_img = base64.b64encode(image_file.read())
+  
+  # Sample detection results
+  detection_results = {
+    "picture": encoded_img,
+    "date": "28.05.2023",
+    "time": "10:01:23",
+    "detections": [
+      {
+        "type": "dog",
+        "accuracy": 0.91,
+        "BID": 1
+      },
+      {
+        "type": "cat",
+        "accuracy": 0.79,
+        "BID": 2
+      }
+    ]
+  }
+  
+  # Run method to test TNB
+  asyncio.run(send_telegram_notification(detection_results))
   ```
 
 ## Integrate TNB in REST API
