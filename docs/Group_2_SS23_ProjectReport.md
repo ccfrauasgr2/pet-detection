@@ -78,6 +78,7 @@
   - [Set up DBS](#set-up-dbs)
   - [Develop REST API](#develop-rest-api)
   - [Implement TNB](#implement-tnb)
+  - [Integrate TNB in REST API](#integrate-tnb-in-rest-api)
   - [Deploy Backend](#deploy-backend)
   - [Develop Frontend](#develop-frontend)
   - [Deploy Frontend](#deploy-frontend)
@@ -736,6 +737,8 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 ## Develop REST API
 
 ## Implement TNB
+
+## Integrate TNB in REST API
 
 ## Deploy Backend
 
