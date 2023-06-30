@@ -1,37 +1,42 @@
-<div style="text-align: center;">
-  <img src="img/frauas_logo.png" width="250" alt="Logo">
-</div>
-
 <br>
 <br>
 
 <div style="text-align: center;">
-  <font size="5"><strong>Project Report</strong></font>
-</div>
-<br>
-<div style="text-align: center;">
-  <font size="6">Automatic Pet Detection With Edge Computing</font>
+  <img src="img/frauas_logo.png" width="300" alt="Logo">
 </div>
 
 <br>
 <br>
+<br>
 
 <div style="text-align: center;">
-  <font size="5"><strong>Supervisor</strong></font>
-</div>
-<br>
-<div style="text-align: center;">
-  <font size="4">Prof. Dr. Christian Baun</font>
+  <font size="4"><strong>Project Report</strong></font>
 </div>
 
 <br>
 <br>
+<br>
 
 <div style="text-align: center;">
-  <font size="5"><strong>Group 2</strong></font>
+  <font size="6.9">Automatic Pet Detection</font>
 </div>
 <br>
 <div style="text-align: center;">
+  <font size="6.9">With Edge Computing</font>
+</div>
+
+<br>
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="3"><em>by</em></font>
+</div>
+<br>
+<br>
+<div style="text-align: center;">
+  <font size="3"><strong>Group 2</strong></font>
+  <br>
   <font size="4">Vincent Roßknecht</font>
   <br>
   <font size="4">Jonas Hülsmann</font>
@@ -47,13 +52,19 @@
 <br>
 
 <div style="text-align: center;">
-  <font size="5"><strong>Submission Date</strong></font>
-</div>
-<br>
-<div style="text-align: center;">
-  <font size="4">July 5th, 2023</font>
+  <font size="3"><strong>Supervisor</strong></font>
+  <br>
+  <font size="4">Prof. Dr. Christian Baun</font>
 </div>
 
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="3"><strong>Submission Date</strong></font>
+  <br>
+  <font size="4">July 14th, 2023</font>
+</div>
 
 
 
@@ -88,7 +99,7 @@
 
 # Overview
 
-**Introduction**: The project *Automatic Pet Detection With Edge Computing* is part of the Cloud Computing SS23 module of Prof. Dr. Christian Baun at the Frankfurt University of Applied Sciences. Further information about the module can be found [here](https://www.christianbaun.de/CGC23/index.html).
+**Introduction**: The project *Automatic Pet Detection With Edge Computing* is part of the [Cloud Computing SS23 module](https://www.christianbaun.de/CGC23/index.html) of Prof. Dr. Christian Baun at the Frankfurt University of Applied Sciences.
 
 **Objective**: This project aims to develop an edge computing solution for the automatic detection of cats and dogs. General steps to achieve the project goal are listed in the **Project Plan** part of this Overview section.
 
@@ -100,50 +111,9 @@
 
 **Hardware**:
 
-Received from Prof.:
-
-- 1x Raspberry Pi 4 Model B (Pi 4B)
-- 1x Raspberry Pi 3 Model B+ (Pi 3B+)
-- 3x Raspberry Pi 3 Model B V1.2 (Pi 3B)
-- 5x Samsung 32GB MicroSDHC
-- 1x Apple USB-C-to-USB-C Charger
-- 1x Anker 6-Port PowerPort
-- 2x TP-Link TL-SG105 5-Port Desktop Switch
-- 6x LAN Cable
-- 4x CoolReal USB-C-to-USB-C Cable
-- 1x Raspberry Pi Camera Module 2 (Camera Module)
-
-Obtained from own source:
-
-- 1x FRITZ!Box 3272 Router
-- 1x USB-to-USB-C Cable
-- 1x ISY ICR-120 8-in-1 Card Reader
-
-**Network Architecture**:
-
-```mermaid
-flowchart LR
-  hotspot[Hotspot Device]
-  router[Router]
-  sensornode[Sensor Node\nPi 4B]
-  switch[Switch]
-  
-
-
-subgraph cluster[Cluster]
-  master[Master Node\nPi 3B+]
-  worker1[Worker Node\nPi 3B]
-  worker2[Worker Node\nPi 3B]
-  worker3[Worker Node\nPi 3B]
-end  
-  
-  localpc[Local PC]
-
-  hotspot ==USB-Tethering=== router
-  router -. WLAN .- localpc & sensornode 
-  router ==LAN=== switch ==LAN=== master & worker1 & worker2 & worker3
-
-```
+| Received from Prof.                                                                                                                                                                                                                                                                                                                                                 | Obtained from own source                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1x Raspberry Pi 4 Model B (Pi 4B)<br>1x Raspberry Pi 3 Model B+ (Pi 3B+)<br>3x Raspberry Pi 3 Model B V1.2 (Pi 3B)<br>5x Samsung 32GB MicroSDHC<br>1x Apple USB-C-to-USB-C Charger<br>1x Anker 6-Port PowerPort<br>2x TP-Link TL-SG105 5-Port Desktop Switch<br>6x LAN Cable<br>4x CoolReal USB-C-to-USB-C Cable<br>1x Raspberry Pi Camera Module 2 (Camera Module) | 1x FRITZ!Box 3272 Router<br>1x USB-to-USB-C Cable<br>1x ISY ICR-120 8-in-1 Card Reader |
 
 **System Architecture**:
 
@@ -183,6 +153,8 @@ flowchart LR
   dss -.dynamically\nprovisions.-> persistentVolume
   
 ```
+<br>
+<br>
 
 | Component                       | Role                                                                                                                                                           |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -198,9 +170,33 @@ flowchart LR
 | Local PC                        | serve as tool for setting up system                                                                                                                            |
 
 
-**System Behavior**:
+**System Behavior**: See [Test System](#test-system) section.
 
-See [Test System](#test-system) section.
+**Network Architecture**:
+
+```mermaid
+flowchart LR
+  hotspot[Hotspot Device]
+  router[Router]
+  sensornode[Sensor Node\nPi 4B]
+  switch[Switch]
+  
+
+
+subgraph cluster[Cluster]
+  master[Master Node\nPi 3B+]
+  worker1[Worker Node\nPi 3B]
+  worker2[Worker Node\nPi 3B]
+  worker3[Worker Node\nPi 3B]
+end  
+  
+  localpc[Local PC]
+
+  hotspot ==USB-Tethering=== router
+  router -. WLAN .- localpc & sensornode 
+  router ==LAN=== switch ==LAN=== master & worker1 & worker2 & worker3
+
+```
 
 **Kubernetes Architecture:**
 
@@ -289,21 +285,19 @@ flowchart LR
 
     id32 & id17 --> id51
     
-    
-
-   
-
 ```
+
+<div style="page-break-after: always"></div>
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Primary Tasks                                                                                                                                 | Secondary Tasks                                          |
-| ------------------- | ------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                        |                                                          |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Integrate TNB in REST API</br>- Deploy Backend                                                                       | Develop Courier                                          |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop Courier<br/>- Deploy Courier          | Develop REST API                                         |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB | - Deploy Backend<br/>- Deploy Frontend<br/>- Test System |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop Frontend<br/>- Deploy Frontend                                                                                                      | Develop REST API                                         |
+| Member<br>MatrNr.                 | Uni-Mail                            | Primary<br>Tasks                                                                                                                              | Secondary<br>Tasks                                       |
+| --------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Vincent<br>Roßknecht<br>1471764   | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                        |                                                          |
+| Jonas<br>Hülsmann<br>1482889      | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Integrate TNB in REST API</br>- Deploy Backend                                                                       | Develop Courier                                          |
+| Marco<br>Tenderra<br>1251463      | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop Courier<br/>- Deploy Courier          | Develop REST API                                         |
+| Minh Kien<br>Nguyen<br>1434361    | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB | - Deploy Backend<br/>- Deploy Frontend<br/>- Test System |
+| Alexander<br>Atanassov<br>1221846 | alexander.atanassov@stud.fra-uas.de | - Develop Frontend<br/>- Deploy Frontend                                                                                                      | Develop REST API                                         |
 <div style="page-break-after: always"></div>
 
 # Sensor Node
@@ -338,8 +332,8 @@ flowchart LR
 
 ## Prepare Training Data
 - Download unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).
-- Annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has ~35.000 images, which should be sufficient for training.
-- Convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py). The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from Megadetector 
+- Annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has around 35.000 images, which should be sufficient for training.
+- Convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py). The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
   
   `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
 
@@ -351,10 +345,8 @@ flowchart LR
 
   <table border="0", class="fixed">
   <col width="250px">
-  <col width="250px">
    <tr>
-      <td><b style="font-size:20px">MegaDetector</b></td>
-      <td><b style="font-size:20px">YOLOv8</b></td>
+      <td><b style="font-size:16px">MegaDetector</b></td>
    </tr>
   <tr>
   <td>
@@ -374,18 +366,18 @@ flowchart LR
   │   ├── dog_2.png
   │   └── ...
 
-
-
-
-
-
-
-
-
-
   ```
 
-  </td>
+  </td>  
+  </tr>
+  </table>
+
+  <table border="0", class="fixed">
+  <col width="250px">
+   <tr>
+      <td><b style="font-size:16px">YOLOv8</b></td>
+   </tr>
+  <tr>
   <td>
 
   ```
