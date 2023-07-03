@@ -36,6 +36,7 @@ urlpatterns = [
     #experimental urls
     path('mongo/test', views.mongo_test),
     path('mongo/new_db', views.mongo_new_db),
+    path('mongo/input', views.mongo_camera_post)
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

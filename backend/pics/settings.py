@@ -53,9 +53,13 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+"""
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',  # or the URL where your Angular app is hosted
 ]
+"""
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'pics.urls'
 

@@ -7,10 +7,10 @@ spec:
     app: frontend
   ports:
     - protocol: TCP
-      port: #TODO
-      targetPort: #TODO
+      port: 80 #TODO
+      targetPort: 80 #TODO
   type: LoadBalancer
----  
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +18,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: frontend 
+      app: frontend
   replicas: 3
   template:
     metadata:
@@ -37,12 +37,12 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - name: frontend
-        image: #TODO
+        image: alllexander1/pets-app-arm64 #TODO
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: #TODO
+        - containerPort: 80 #TODO
         env:
-        - name: #TODO
+        - name: BACKEND_IP #TODO
           valueFrom:
             configMapKeyRef:
               name: restapi-config

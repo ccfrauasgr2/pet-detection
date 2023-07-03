@@ -7,7 +7,7 @@ spec:
     app: restapi
   ports:
     - protocol: TCP
-      port: 8080 #TODO
+      port: 8000 #TODO
       targetPort: 8000 #TODO
   type: LoadBalancer
 ---  
@@ -42,7 +42,7 @@ spec:
         ports:
         - containerPort: 8000 #TODO
         env:
-        - name: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGO_INITDB_ROOT_USERNE
           valueFrom:
             secretKeyRef:
               name: mongo-secret
