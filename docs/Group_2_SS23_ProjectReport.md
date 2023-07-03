@@ -19,6 +19,23 @@
   - [Implement TNB](#implement-tnb)
   - [Deploy Backend](#deploy-backend)
   - [Develop Frontend](#develop-frontend)
+    - [Overview](#overview-1)
+    - [Why Angular?](#why-angular)
+      - [Component-Based Architecture](#component-based-architecture)
+      - [Two-way Data binding](#two-way-data-binding)
+      - [Dependency Injection](#dependency-injection)
+      - [Powerful Router](#powerful-router)
+    - [Web-App Requirements](#web-app-requirements)
+    - [Project Setup](#project-setup)
+      - [Install NodeJs and Angular CLI (Windows)](#install-nodejs-and-angular-cli-windows)
+      - [Set up the project](#set-up-the-project)
+    - [Implementing the components](#implementing-the-components)
+      - [Navigation bar](#navigation-bar)
+      - [About Us page](#about-us-page)
+      - [Main page (Posts)](#main-page-posts)
+      - [Capture](#capture)
+    - [Implementing the Services](#implementing-the-services)
+    - [Results](#results)
   - [Deploy Frontend](#deploy-frontend)
 - [Test System](#test-system)
 
@@ -674,6 +691,125 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 ## Develop Frontend
 
+### Overview
+
+As a fronend for our project, we decided to create an web-application whose main task is to call the data from the backend and present it to the user. In general it should list the pictures with their description, created by the detector, and apply some filter functions. As a framework for the frontend we choose Angular. Why we choose it will be described in the next chapter.
+
+### Why Angular?
+
+Angular is a TypeScript framework for interactive web-applications. It is created by Google and provides a structure for developing user interfaces. There are two versions of Angular: Angular and AngularJS. AngularJS is older and is for JavaScript while Angular is newer and for TypeScript. For this project Angular for TypeScript is used. In the following some of the advantages will be described [See ref.](https://www.knowledgehut.com/blog/web-development/advantages-and-disadvantages-of-angular) :
+
+#### Component-Based Architecture
+The applictation is splited into smaller components which work together and can exchange information with each other. The components build a hierarchical structure. They are reusable and make the program more readable.
+
+#### Two-way Data binding
+This helps the user to exchange data between the model (Typescript file) and the view (HTML file). This ensures that the model and view are alwayes sync.
+
+#### Dependency Injection
+Dependencies are services or objects which are required for a class to work. Instead to create this objects inside the class, the class can request them. This reduces the coupling between components and services which is better for testability and maintainability.
+
+#### Powerful Router
+Angular has a powerful navigation service which can load various components into the view depending on the URL in the browser.
+
+### Web-App Requirements
+
+The web-application should have the following functionalities:
+- Request the captures from the backend. (10 captures per request).
+- Apply filter on the request e.g only dogs
+- Check for new captures.
+- Navigate between the menu pages (In our case posts and about us).
+- Present the captures (date, time, picture, accurance).
+- Include a button to load the next 10 posts and an update button.
+
+### Project Setup
+
+#### Install NodeJs and Angular CLI (Windows)
+1. Download and install NodeJS (JavaScript runtime environment).
+2. Install Angular: after installing NodeJs run the following command in CMD.
+```
+npm install -g @angular/cli
+```
+
+#### Set up the project
+1. Create a new project eg.:
+```
+ng new web-app
+```
+2. Generate a component eg.:
+```
+ng g component navbar
+```
+3. Generate new service
+```
+ng g service capture-loader
+```
+4. Run app:
+```
+ng serve
+```
+By default the app is hosted on localhost 4020.
+
+### Implementing the components
+
+#### Navigation bar
+This component is used to navigate trough the pages of our app. In our case we have just two pages: "Posts" and "About Us".
+
+#### About Us page
+This component has no functionalities. It is a information page about the project.
+
+#### Main page (Posts)
+This is the main page of our application. It represents a scrollable list of captures. Each capture consists of a picture, date-time and accuracy. When the page is reached, 10 posts are loaded from the backend. On a button click, 10 more are loaded. There is also a filter where the user can specify the type, earliest date and minimal accuracy.
+
+#### Capture
+This component represents a single capture. It is a template which displays an capture object. The date and time are set as a title of the template. The picture is displayed below. At the button is a table which shows the accuracy of every pet on the image. The component is used by the main page.
+
+### Implementing the Services
+
+The application has only one service. It is used to make the HTTP requests. The service is injected into the main page to load the captures. There are the following requests:
+
+- load images:
+  - This request is used to load 10 images from the backend. A filter is provided which specifies what what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, all) and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load further 10 images. In this case, also the ID of the last loaded images is passed so the backend can load the next images with the given filter. 
+- check for new images:
+  - This request checks if there are any new images in the database. The id of the newest capture has to be provided so the backend can check if there are any new captures in the database.
+
+### Results
+
+Main page:
+<br>
+![](img/home.PNG)
+<br>
+About us page:
+<br>
+![](img/aboutus.PNG)
+
+
 ## Deploy Frontend
+
+1. Set environmental variables:
+   <br>
+   The environmental variables are used to read the adress of the backend from the deployment yaml file. They can be set like this:
+   ```ts
+   backendIP: process.env['BACKEND_IP']
+   ``` 
+2. Generate Docker file:
+    <br>
+    The next step is to create a dockerfile so a docker image of the app can be created.
+3. Build project:
+   <br>
+   Next step is to build the project with production configuration.
+   ```
+   ng build --configuration=production 
+   ```
+4. Generate Docker image for linux arm64:
+   <br>
+   To deploy the web-app on the kubernetes cluster, a docker image for linux arm64 architecture must be created.
+   ```
+   docker buildx build --platform linux/arm64 -t alllexander1/pets-app-arm64:v1 --push
+   ```
+5. Create .yaml file for service and deployment:
+   <br>
+   The .yaml file consists of two parts which are service and deployment. he service part is responsible that the web-app can be reached. The deployment on the other hand is for keeping the pod running.
+6. Deploy on the kubernetes cluster:
+  <br>
 
 # Test System
