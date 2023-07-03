@@ -77,7 +77,7 @@
   - [Set up Pi 4B](#set-up-pi-4b)
   - [Set up Camera](#set-up-camera)
   - [Prepare Training Data](#prepare-training-data)
-  - [Train \& Validate Model](#train--validate-model)
+  - [Train \& Test Model](#train--test-model)
   - [Deploy Trained Model](#deploy-trained-model)
   - [Develop Courier](#develop-courier)
   - [Deploy Courier](#deploy-courier)
@@ -420,7 +420,7 @@ flowchart LR
 
   Percentage of ``training/validation/test`` split: ``79.75% / 10.27% / 9.98%``
 
-## Train & Validate Model
+## Train & Test Model
 We chose the YOLOv8 model, since it is the best choice for object detection. A comparison between YOLOv8 and other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ``ultralytics``, this project was done with version 8.0.105.
 ```python
 !pip install ultralytics
