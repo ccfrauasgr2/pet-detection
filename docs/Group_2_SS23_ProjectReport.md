@@ -785,31 +785,29 @@ About us page:
 
 ## Deploy Frontend
 
-1. Set environmental variables:
-   <br>
-   The environmental variables are used to read the adress of the backend from the deployment yaml file. They can be set like this:
-   ```ts
-   backendIP: process.env['BACKEND_IP']
-   ``` 
-2. Generate Docker file:
+
+1. Generate Docker file:
     <br>
     The next step is to create a dockerfile so a docker image of the app can be created.
-3. Build project:
+2. Build project:
    <br>
    Next step is to build the project with production configuration.
    ```
    ng build --configuration=production 
    ```
-4. Generate Docker image for linux arm64:
+3. Generate Docker image for linux arm64:
    <br>
    To deploy the web-app on the kubernetes cluster, a docker image for linux arm64 architecture must be created.
    ```
    docker buildx build --platform linux/arm64 -t alllexander1/pets-app-arm64:v1 --push
    ```
-5. Create .yaml file for service and deployment:
+4. Create .yaml file for service and deployment:
    <br>
    The .yaml file consists of two parts which are service and deployment. he service part is responsible that the web-app can be reached. The deployment on the other hand is for keeping the pod running.
-6. Deploy on the kubernetes cluster:
+5. Deploy on the kubernetes cluster:
   <br>
+  ```
+  kubectl apply -f .\frontend.yaml
+  ```
 
 # Test System
