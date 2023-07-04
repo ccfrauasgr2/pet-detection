@@ -832,14 +832,14 @@ The frontend is an web-application whose main task is to retrieve data from the 
 
 **Web-App Requirements**
 
-The web-application must be capable of:
-- Requesting the captured images from the backend (Maximum 10 pictures per request)
-- Adding filter conditions to the request (e.g., only dogs)
-- Checking for new captured images
-- Navigating between the menu pages (In our case *Posts* and *About Us*)
-- Displaying captured images and their detection results (date, time, picture, accuracy)
+The web-application must be able to:
+- Request the captured images from the backend (Maximum 10 pictures per request)
+- Add filter conditions to the request (e.g., only dogs)
+- Check for new captured images
+- Navigate between the menu pages (In our case *Posts* and *About Us*)
+- Display captured images and their detection results (date, time, picture, accuracy)
 
-**Project Setup**
+**Setup**
 
 - Install ``NodeJs`` and ``Angular CLI`` (Windows)
   - Download and install ``NodeJS`` (JavaScript runtime environment).
@@ -879,7 +879,7 @@ The web-application must be capable of:
 
 **Service**
 
-The application has only one service: making HTTP requests. The service is injected into the main page to load the captured images. Here are the available requests:
+The application has only one service for making HTTP requests. The service is injected into the main page to load the captured images. Here are the requests made by the service:
 
 - *Load images*: This request is used to retrieve 10 images from the backend. A filter is provided which specifies what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, or all), and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load the 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
 - *Check for new images*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
