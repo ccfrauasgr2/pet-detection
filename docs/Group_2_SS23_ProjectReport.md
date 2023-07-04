@@ -875,11 +875,11 @@ The web-application must be able to:
 
 - *Main page (Posts)*: The main page of our application represents a scrollable list of captured images. Each captured image comes with its detection results (date, time, accuracy). When the page is selected, 10 posts (captured images) are loaded from the backend. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time and minimum accuracy.
 
-- *Capture*: This component displays a single captured image and its detection results. The date and time are set as title, and below them is the captured image and a table which shows the accuracy of every pet on the image. The component is used by the main page.
+- *Capture*: This component displays a single captured image and its detection results. The date and time are set as title, and below them is the captured image and a table which shows the accuracy of every pet detection on the image. The component is used by the main page.
 
 **Service**
 
-The application has only one service for making HTTP requests. The service is injected into the main page to load the captured images. Here are the requests made by the service:
+The application has only one service which is injected into the main page to retrieve the captured images. The service makes the following HTTP requests:
 
 - *Load images*: This request is used to retrieve 10 images from the backend. A filter is provided which specifies what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, or all), and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load the 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
 - *Check for new images*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
@@ -887,11 +887,11 @@ The application has only one service for making HTTP requests. The service is in
 **Results**
 
 Main page:
-<br>
+
 ![](img/home.PNG)
-<br>
+
 About Us page:
-<br>
+
 ![](img/aboutus.PNG)
 
 
