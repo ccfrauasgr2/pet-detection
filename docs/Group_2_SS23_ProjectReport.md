@@ -1,3 +1,75 @@
+<br>
+<br>
+
+<div style="text-align: center;">
+  <img src="img/frauas_logo.png" width="300" alt="Logo">
+</div>
+
+<br>
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="4"><strong>Project Report</strong></font>
+</div>
+
+<br>
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="6.9">Automatic Pet Detection</font>
+</div>
+<br>
+<div style="text-align: center;">
+  <font size="6.9">With Edge Computing</font>
+</div>
+
+<br>
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="3"><em>by</em></font>
+</div>
+<br>
+<br>
+<div style="text-align: center;">
+  <font size="3"><strong>Group 2</strong></font>
+  <br>
+  <font size="4">Vincent Roßknecht</font>
+  <br>
+  <font size="4">Jonas Hülsmann</font>
+  <br>
+  <font size="4">Marco Tenderra</font>
+  <br>
+  <font size="4">Minh Kien Nguyen</font>
+  <br>
+  <font size="4">Alexander Atanassov</font>
+</div>
+
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="3"><strong>Supervisor</strong></font>
+  <br>
+  <font size="4">Prof. Dr. Christian Baun</font>
+</div>
+
+<br>
+<br>
+
+<div style="text-align: center;">
+  <font size="3"><strong>Submission Date</strong></font>
+  <br>
+  <font size="4">July 14th, 2023</font>
+</div>
+
+
+
+<div style="page-break-after: always"></div>
+
 **Table of Contents**
 
 - [Overview](#overview)
@@ -5,7 +77,7 @@
   - [Set up Pi 4B](#set-up-pi-4b)
   - [Set up Camera](#set-up-camera)
   - [Prepare Training Data](#prepare-training-data)
-  - [Train \& Validate Model](#train--validate-model)
+  - [Train \& Test Model](#train--test-model)
   - [Deploy Trained Model](#deploy-trained-model)
   - [Develop Courier](#develop-courier)
   - [Deploy Courier](#deploy-courier)
@@ -17,6 +89,7 @@
   - [Set up DBS](#set-up-dbs)
   - [Develop REST API](#develop-rest-api)
   - [Implement TNB](#implement-tnb)
+  - [Integrate TNB in REST API](#integrate-tnb-in-rest-api)
   - [Deploy Backend](#deploy-backend)
   - [Develop Frontend](#develop-frontend)
     - [Overview](#overview-1)
@@ -39,9 +112,11 @@
   - [Deploy Frontend](#deploy-frontend)
 - [Test System](#test-system)
 
+<div style="page-break-after: always"></div>
+
 # Overview
 
-**Introduction**: The project *Automatic Pet Detection With Edge Computing* is part of the Cloud Computing SS23 module of Prof. Dr. Christian Baun at the Frankfurt University of Applied Sciences. Further information about the module can be found [here](https://www.christianbaun.de/CGC23/index.html).
+**Introduction**: The project *Automatic Pet Detection With Edge Computing* is part of the [Cloud Computing SS23 module](https://www.christianbaun.de/CGC23/index.html) of Prof. Dr. Christian Baun at the Frankfurt University of Applied Sciences.
 
 **Objective**: This project aims to develop an edge computing solution for the automatic detection of cats and dogs. General steps to achieve the project goal are listed in the **Project Plan** part of this Overview section.
 
@@ -53,50 +128,9 @@
 
 **Hardware**:
 
-Received from Prof.:
-
-- 1x Raspberry Pi 4 Model B (Pi 4B)
-- 1x Raspberry Pi 3 Model B+ (Pi 3B+)
-- 3x Raspberry Pi 3 Model B V1.2 (Pi 3B)
-- 5x Samsung 32GB MicroSDHC
-- 1x Apple USB-C-to-USB-C Charger
-- 1x Anker 6-Port PowerPort
-- 2x TP-Link TL-SG105 5-Port Desktop Switch
-- 6x LAN Cable
-- 4x CoolReal USB-C-to-USB-C Cable
-- 1x Raspberry Pi Camera Module 2 (Camera Module)
-
-Obtained from own source:
-
-- 1x FRITZ!Box 3272 Router
-- 1x USB-to-USB-C Cable
-- 1x ISY ICR-120 8-in-1 Card Reader
-
-**Network Architecture**:
-
-```mermaid
-flowchart LR
-  hotspot[Hotspot Device]
-  router[Router]
-  sensornode[Sensor Node\nPi 4B]
-  switch[Switch]
-  
-
-
-subgraph cluster[Cluster]
-  master[Master Node\nPi 3B+]
-  worker1[Worker Node\nPi 3B]
-  worker2[Worker Node\nPi 3B]
-  worker3[Worker Node\nPi 3B]
-end  
-  
-  localpc[Local PC]
-
-  hotspot ==USB-Tethering=== router
-  router -. WLAN .- localpc & sensornode 
-  router ==LAN=== switch ==LAN=== master & worker1 & worker2 & worker3
-
-```
+| Received from Prof.                                                                                                                                                                                                                                                                                                                                                 | Obtained from own source                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1x Raspberry Pi 4 Model B (Pi 4B)<br>1x Raspberry Pi 3 Model B+ (Pi 3B+)<br>3x Raspberry Pi 3 Model B V1.2 (Pi 3B)<br>5x Samsung 32GB MicroSDHC<br>1x Apple USB-C-to-USB-C Charger<br>1x Anker 6-Port PowerPort<br>2x TP-Link TL-SG105 5-Port Desktop Switch<br>6x LAN Cable<br>4x CoolReal USB-C-to-USB-C Cable<br>1x Raspberry Pi Camera Module 2 (Camera Module) | 1x FRITZ!Box 3272 Router<br>1x USB-to-USB-C Cable<br>1x ISY ICR-120 8-in-1 Card Reader |
 
 **System Architecture**:
 
@@ -136,6 +170,8 @@ flowchart LR
   dss -.dynamically\nprovisions.-> persistentVolume
   
 ```
+<br>
+<br>
 
 | Component                       | Role                                                                                                                                                           |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -151,9 +187,33 @@ flowchart LR
 | Local PC                        | serve as tool for setting up system                                                                                                                            |
 
 
-**System Behavior**:
+**System Behavior**: See [Test System](#test-system) section.
 
-See [Test System](#test-system) section.
+**Network Architecture**:
+
+```mermaid
+flowchart LR
+  hotspot[Hotspot Device]
+  router[Router]
+  sensornode[Sensor Node\nPi 4B]
+  switch[Switch]
+  
+
+
+subgraph cluster[Cluster]
+  master[Master Node\nPi 3B+]
+  worker1[Worker Node\nPi 3B]
+  worker2[Worker Node\nPi 3B]
+  worker3[Worker Node\nPi 3B]
+end  
+  
+  localpc[Local PC]
+
+  hotspot ==USB-Tethering=== router
+  router -. WLAN .- localpc & sensornode 
+  router ==LAN=== switch ==LAN=== master & worker1 & worker2 & worker3
+
+```
 
 **Kubernetes Architecture:**
 
@@ -204,7 +264,7 @@ flowchart LR
     id11[Set up\nPi 4B]
     id12[Set up\nCamera]
     id13[Prepare\nTraining Data]
-    id14[Train & Validate\nModel]
+    id14[Train & Test\nModel]
     id15[Deploy\nTrained Model]
     id16[Develop\nCourier]
     id17[Deploy\nCourier]
@@ -226,11 +286,13 @@ flowchart LR
     
 
     id21 --> id22 --> id23 --> id24 --> id27
-    id25 & id27 & id33 --> id26
+    id33 & id25 --> id34
+    id27 & id34 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
     id33[Implement\nTNB]
+    id34[Integrate\nTNB in REST API]
 
     id26 & id31 --> id32
     end
@@ -240,22 +302,20 @@ flowchart LR
 
     id32 & id17 --> id51
     
-    
-
-   
-
 ```
+
+<div style="page-break-after: always"></div>
 
 **Group 2 Info & Task Distribution**:
 
-| Member              | MatrNr. | Uni-Mail                            | Tasks                                                                                                                                                                                    |
-| ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vincent Roßknecht   | 1471764 | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Validate Model<br/>- Test System                                                                                                                   |
-| Jonas Hülsmann      | 1482889 | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Develop Frontend<br/>- Implement TNB<br/>- Deploy Backend<br/>- Develop Courier                                                                                 |
-| Marco Tenderra      | 1251463 | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop REST API<br/>- Develop Courier<br/>- Deploy Courier                              |
-| Minh Kien Nguyen    | 1434361 | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB<br/>- Deploy Backend<br/>- Deploy Frontend |
-| Alexander Atanassov | 1221846 | alexander.atanassov@stud.fra-uas.de | - Develop REST API<br/>- Develop Frontend<br/>- Deploy Frontend                                                                                                                          |
-
+| Member<br>MatrNr.                 | Uni-Mail                            | Primary<br>Tasks                                                                                                                              | Secondary<br>Tasks                                       |
+| --------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Vincent<br>Roßknecht<br>1471764   | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Test Model<br/>- Test System                                                                            |                                                          |
+| Jonas<br>Hülsmann<br>1482889      | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Integrate TNB in REST API</br>- Deploy Backend                                                                       | Develop Courier                                          |
+| Marco<br>Tenderra<br>1251463      | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br/>- Deploy Trained Model<br/>- Develop Courier<br/>- Deploy Courier          | Develop REST API                                         |
+| Minh Kien<br>Nguyen<br>1434361    | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB | - Deploy Backend<br/>- Deploy Frontend<br/>- Test System |
+| Alexander<br>Atanassov<br>1221846 | alexander.atanassov@stud.fra-uas.de | - Develop Frontend<br/>- Deploy Frontend                                                                                                      | Develop REST API                                         |
+<div style="page-break-after: always"></div>
 
 # Sensor Node
 
@@ -289,8 +349,8 @@ flowchart LR
 
 ## Prepare Training Data
 - Download unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).
-- Annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has ~35.000 images, which should be sufficient for training.
-- Convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py). The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from Megadetector 
+- Annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has around 35.000 images, which should be sufficient for training.
+- Convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py). The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
   
   `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
 
@@ -302,10 +362,8 @@ flowchart LR
 
   <table border="0", class="fixed">
   <col width="250px">
-  <col width="250px">
    <tr>
-      <td><b style="font-size:20px">MegaDetector</b></td>
-      <td><b style="font-size:20px">YOLOv8</b></td>
+      <td><b style="font-size:16px">MegaDetector</b></td>
    </tr>
   <tr>
   <td>
@@ -325,18 +383,18 @@ flowchart LR
   │   ├── dog_2.png
   │   └── ...
 
-
-
-
-
-
-
-
-
-
   ```
 
-  </td>
+  </td>  
+  </tr>
+  </table>
+
+  <table border="0", class="fixed">
+  <col width="250px">
+   <tr>
+      <td><b style="font-size:16px">YOLOv8</b></td>
+   </tr>
+  <tr>
   <td>
 
   ```
@@ -379,7 +437,7 @@ flowchart LR
 
   Percentage of ``training/validation/test`` split: ``79.75% / 10.27% / 9.98%``
 
-## Train & Validate Model
+## Train & Test Model
 We chose the YOLOv8 model, since it is the best choice for object detection. A comparison between YOLOv8 and other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ``ultralytics``, this project was done with version 8.0.105.
 ```python
 !pip install ultralytics
@@ -430,6 +488,8 @@ To estimate the model performance, there were some further tests done on it. For
 ## Develop Courier
 
 ## Deploy Courier
+
+<div style="page-break-after: always"></div>
 
 # Cluster
 
@@ -641,8 +701,8 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   kubectl get pods
 
   # Check if all corresponding PV and PVC are Bound
+  kubectl get pv
   kubectl get pvc
-  kubectl get svc
   ```
 - Set up [replication in `MongoDB`](https://www.mongodb.com/docs/v4.4/replication/). The following commands are based on [this tutorial](https://youtu.be/eUa-IDPGL-Q):
 
@@ -686,6 +746,86 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 ## Develop REST API
 
 ## Implement TNB
+
+- Follow this [tutorial](https://sendpulse.com/knowledge-base/chatbot/telegram/create-telegram-chatbot) to create a Telegram Bot. Our TNB is called `G2PetBot`.
+- [Create a Telegram group chat](https://www.alphr.com/telegram-create-group-chat/). Our group chat is called `Cloud Computing SS23`.
+- [Add `G2PetBot` to `Cloud Computing SS23`](https://www.youtube.com/watch?v=gk_tPOY1TDM&ab_channel=Chatimize).
+- Find [the token of `G2PetBot`](https://help.zoho.com/portal/en/kb/desk/support-channels/instant-messaging/telegram/articles/telegram-integration-with-zoho-desk#How_to_find_a_token_for_an_existing_Telegram_Bot) and [the group ID of `Cloud Computing SS23`](https://botostore.com/c/myidbot/).
+- [Encode](https://www.base64encode.org/) the token and group ID as ``base64`` strings.
+- Add the encoded strings as values of `telegram-bot-token` and `telegram-group-chat-id` keys in the `restapiSecret.yaml`-script.
+- Write code that sends detection results to TNB. For that purpose, refer to the following ``Python`` snippet. When `G2Petbot` receives detection results, it notifies all users in `Cloud Computing SS23` about them.
+
+  ```python
+  import os
+  import telegram # requires "pip install python-telegram-bot"
+  import base64
+  import asyncio
+  
+  
+  async def send_telegram_notification(detection_results):
+      """
+      notifies user about detection results via a TNB
+  
+      Notification = Image + Caption
+      """
+  
+      # Retrieve the bot token and group chat ID from environment variables
+      bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
+      group_chat_id = "-" + base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode("utf-8")
+  
+      # Get image for notification
+      img = base64.b64decode(detection_results["picture"])
+  
+      # Create caption for notification
+      caption = "Detected following pet(s):"
+      for det in detection_results["detections"]:
+          bid = det["BID"]
+          pet_type =  det["type"]
+          accuracy = det["accuracy"]
+          temp = f"\nBID: {bid} - Type: {pet_type} - Accuracy: {accuracy}"
+          caption += temp
+  
+      # Initialize the TNB
+      bot = telegram.Bot(token=bot_token)
+  
+      # Send detection results to the TNB
+      await bot.send_photo(chat_id=group_chat_id, photo=img, caption=caption)
+  
+  
+  # EXAMPLE USAGE
+  
+  # Initialize environment variables
+  os.environ['TELEGRAM_BOT_TOKEN'] = "NTg3MDMxOTU2ODpBQUhhN1RIU3hJSllJTU1tUGNrNUlIZV9qVVRHYmNpRHBkOA=="
+  os.environ['TELEGRAM_CHAT_ID'] = "OTg4MzM2MzA2"
+  
+  # Sample image encoded as base64-string
+  with open("img/sample_img.png", "rb") as image_file:
+      encoded_img = base64.b64encode(image_file.read())
+  
+  # Sample detection results
+  detection_results = {
+    "picture": encoded_img,
+    "date": "28.05.2023",
+    "time": "10:01:23",
+    "detections": [
+      {
+        "type": "dog",
+        "accuracy": 0.91,
+        "BID": 1
+      },
+      {
+        "type": "cat",
+        "accuracy": 0.79,
+        "BID": 2
+      }
+    ]
+  }
+  
+  # Run method to test TNB
+  asyncio.run(send_telegram_notification(detection_results))
+  ```
+
+## Integrate TNB in REST API
 
 ## Deploy Backend
 
@@ -809,5 +949,7 @@ About us page:
   ```
   kubectl apply -f .\frontend.yaml
   ```
+
+<div style="page-break-after: always"></div>
 
 # Test System
