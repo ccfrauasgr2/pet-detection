@@ -816,75 +816,73 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Overview**
 
-As a fronend for our project, we decided to create an web-application whose main task is to call the data from the backend and present it to the user. In general it should list the pictures with their description, created by the detector, and apply some filter functions. As a framework for the frontend we choose Angular. Why we choose it will be described in the next chapter.
+The frontend is an web-application whose main task is to retrieve data from the backend and present them to the user. Data retrieved by the frontend are visual data (i.e., captured images) and their detection results. The frontend is also capable of filtering retrieved data. ``Angular`` was used as framework for the frontend.
 
 **Why Angular?**
 
-Angular is a TypeScript framework for interactive web-applications. It is created by Google and provides a structure for developing user interfaces. There are two versions of Angular: Angular and AngularJS. AngularJS is older and is for JavaScript while Angular is newer and for TypeScript. For this project Angular for TypeScript is used. In the following some of the advantages will be described (for more information refer to [this](https://www.knowledgehut.com/blog/web-development/advantages-and-disadvantages-of-angular)):
+``Angular`` is a TypeScript framework for interactive web-applications, meaning it provides a structure for developing user interfaces. There are two versions of ``Angular``: ``Angular`` and ``AngularJS``. The latter is older and for ``JavaScript``, while the former is newer and for ``TypeScript``. In this project ``Angular`` for TypeScript is used. Here are some advantages of ``Angular`` (for more information refer to [this article](https://www.knowledgehut.com/blog/web-development/advantages-and-disadvantages-of-angular)):
 
-- *Component-Based Architecture*: The applictation is splited into smaller components which work together and can exchange information with each other. The components build a hierarchical structure. They are reusable and make the program more readable.
+- *Component-Based Architecture*: The application is splitted into smaller components which work together and can exchange information with each other. The components build a hierarchical structure. They are reusable and make the program more readable.
 
 - *Two-way Data binding*: This helps the user to exchange data between the model (Typescript file) and the view (HTML file). This ensures that the model and view are alwayes sync.
 
 - *Dependency Injection*: Dependencies are services or objects which are required for a class to work. Instead to create this objects inside the class, the class can request them. This reduces the coupling between components and services which is better for testability and maintainability.
 
-- *Powerful Router*: Angular has a powerful navigation service which can load various components into the view depending on the URL in the browser.
+- *Powerful Router*: ``Angular`` has a powerful navigation service which can load various components into the view depending on the URL in the browser.
 
 **Web-App Requirements**
 
-The web-application should have the following functionalities:
-- Request the captures from the backend. (10 captures per request).
-- Apply filter on the request e.g only dogs
-- Check for new captures.
-- Navigate between the menu pages (In our case posts and about us).
-- Present the captures (date, time, picture, accurance).
-- Include a button to load the next 10 posts and an update button.
+The web-application must be capable of:
+- Requesting the captured images from the backend (Maximum 10 pictures per request)
+- Adding filter conditions to the request (e.g., only dogs)
+- Checking for new captured images
+- Navigating between the menu pages (In our case *Posts* and *About Us*)
+- Displaying captured images and their detection results (date, time, picture, accuracy)
 
 **Project Setup**
 
-- Install NodeJs and Angular CLI (Windows)
-  1. Download and install NodeJS (JavaScript runtime environment).
-  2. Install Angular: after installing NodeJs run the following command in CMD.
+- Install ``NodeJs`` and ``Angular CLI`` (Windows)
+  - Download and install ``NodeJS`` (JavaScript runtime environment).
+  - Install ``Angular`` by running the following command in CMD:
      
      ```
      npm install -g @angular/cli
      ```
-
 - Set up the project
-  1. Create a new project eg.:
+  - Create a new project, e.g.:
      ```
      ng new web-app
      ```
-  2. Generate a component eg.:
+  - Generate a component, e.g.:
      ```
      ng g component navbar
      ```
-  3. Generate new service
+  - Generate new service:
      ```
      ng g service capture-loader
      ```
-  4. Run app:
+  - Run app:
      ```
      ng serve
      ```
-     By default the app is hosted on localhost 4020.
+     By default the app is hosted on localhost:4020.
 
-**Implementing the components**
+**Components**
 
-- *Navigation bar*: This component is used to navigate trough the pages of our app. In our case we have just two pages: "Posts" and "About Us".
+- *Navigation bar*: This component is used to navigate through the pages of our app. In our case we have just two pages: *Posts* and *About Us*.
 
-- *About Us page*: This component has no functionalities. It is a information page about the project.
+- *About Us page*: This component simply displays information about the project.
 
-- *Main page (Posts)*: This is the main page of our application. It represents a scrollable list of captures. Each capture consists of a picture, date-time and accuracy. When the page is reached, 10 posts are loaded from the backend. On a button click, 10 more are loaded. There is also a filter where the user can specify the type, earliest date and minimal accuracy.
+- *Main page (Posts)*: The main page of our application represents a scrollable list of captured images. Each captured image comes with its detection results (date, time, accuracy). When the page is selected, 10 posts (captured images) are loaded from the backend. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time and minimum accuracy.
 
-- *Capture*: This component represents a single capture. It is a template which displays an capture object. The date and time are set as a title of the template. The picture is displayed below. At the button is a table which shows the accuracy of every pet on the image. The component is used by the main page.
+- *Capture*: This component displays a single captured image and its detection results. The date and time are set as title, and below them is the captured image and a table which shows the accuracy of every pet on the image. The component is used by the main page.
 
-**Implementing the Services**
+**Service**
 
-The application has only one service. It is used to make the HTTP requests. The service is injected into the main page to load the captures. There are the following requests:
+The application has only one service: making HTTP requests. The service is injected into the main page to load the captured images. Here are the available requests:
 
-- *Load images*: This request is used to load 10 images from the backend. A filter is provided which specifies what what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, all) and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load further 10 images. In this case, also the ID of the last loaded images is passed so the backend can load the next images with the given filter. 
-- *Check for new images*: This request checks if there are any new images in the database. The id of the newest capture has to be provided so the backend can check if there are any new captures in the database.
+- *Load images*: This request is used to retrieve 10 images from the backend. A filter is provided which specifies what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, or all), and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load the 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
+- *Check for new images*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
 
 **Results**
 
@@ -899,19 +897,20 @@ About Us page:
 
 ## Deploy Frontend
 
-- Generate Docker file: Create a dockerfile so a docker image of the app can be created.
-- Build project: Next step is to build the project with production configuration.
+Follow these steps to deploy frontend on the Kubernetes cluster:
+
+- First, generate a Docker file so a docker image of the app can be created.
+- Build project with production configuration:
   ```
   ng build --configuration=production 
   ```
-- Generate Docker image for ``linuxarm64``: To deploy the web-app on the Kubernetes cluster, a docker image for ``linux/arm64`` architecture must be created.
+- Generate Docker image for ``linux/arm64`` (To deploy the web-app on the Kubernetes cluster, a docker image for ``linux/arm64`` architecture must be created):
   ```
   docker buildx build --platform linux/arm64 -t alllexander1/pets-app-arm64:v1 --push
   ```
-- Create YAML file for service and deployment: The YAML file consists of two parts which are service and deployment. he service part is responsible that the web-app can be reached. The deployment on the other hand is for keeping the pod running.
-- Deploy on the Kubernetes cluster:
-  
+- Apply the script `frontend.yaml` to deploy frontend on the Kubernetes cluster:
   ```
+  # On local PC, change to script directory, then
   kubectl apply -f frontend.yaml
   ```
 
