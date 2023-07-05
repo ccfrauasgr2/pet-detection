@@ -876,7 +876,7 @@ The web-application must be able to:
 
 - *Capture/Post* displays a single captured image and its detection results. The date and time of detection are listed first; below them are the captured image and a table which shows the id, type, and accuracy of every pet detection on the image. The component is used by the main page.
 
-  ![](img/capture.PNG)
+  <img src="img/capture.PNG" width="300"/>
 
 - *Main page (Posts)* represents a scrollable list of Captures. By default, when the page is selected, 10 Captures (posts) are displayed. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time, and minimum accuracy.
 
