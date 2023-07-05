@@ -873,9 +873,15 @@ The web-application must be able to:
 
 - *About Us page*: This component simply displays information about the project.
 
+  ![](img/aboutus.PNG)
+
 - *Main page (Posts)*: The main page of our application represents a scrollable list of captured images. Each captured image comes with its detection results (date, time, accuracy). When the page is selected, 10 posts (captured images) are loaded from the backend. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time and minimum accuracy.
 
+  ![](img/home.PNG)
+  
 - *Capture*: This component displays a single captured image and its detection results. The date and time are set as title, and below them is the captured image and a table which shows the accuracy of every pet detection on the image. The component is used by the main page.
+
+  ![](img/capture.PNG)
 
 **Service**
 
@@ -883,16 +889,6 @@ The application has only one service which is injected into the main page to ret
 
 - *Load images*: This request is used to retrieve 10 images from the backend. A filter is provided which specifies what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, or all), and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load the 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
 - *Check for new images*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
-
-**Results**
-
-Main page:
-
-![](img/home.PNG)
-
-About Us page:
-
-![](img/aboutus.PNG)
 
 
 ## Deploy Frontend
