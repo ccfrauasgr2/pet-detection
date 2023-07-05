@@ -816,11 +816,11 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Overview**
 
-The frontend is an web-application whose main task is to retrieve data from the backend and present them to the user. Data retrieved by the frontend are visual data (i.e., captured images) and their detection results. The frontend is also capable of filtering retrieved data. ``Angular`` was used as framework for the frontend.
+The frontend is a web-application whose main task is to retrieve data from the backend and present them to the user. Data retrieved by the frontend are the captured images and their detection results. The frontend is also capable of retrieving data based on certain filter criteria. ``Angular`` was used as framework for the frontend.
 
 **Why Angular?**
 
-``Angular`` is a TypeScript framework for interactive web-applications, meaning it provides a structure for developing user interfaces. There are two versions of ``Angular``: ``Angular`` and ``AngularJS``. The latter is older and for ``JavaScript``, while the former is newer and for ``TypeScript``. In this project ``Angular`` for TypeScript is used. Here are some advantages of ``Angular`` (for more information refer to [this article](https://www.knowledgehut.com/blog/web-development/advantages-and-disadvantages-of-angular)):
+``Angular`` is a TypeScript framework for interactive web-applications, meaning it provides a structure for developing user interfaces. There are two versions of ``Angular``: ``Angular`` and ``AngularJS``. The latter is older and for ``JavaScript``, while the former is newer and for ``TypeScript``. In this project ``Angular`` for ``TypeScript`` is used. Here are some advantages of ``Angular`` (for more information refer to [this article](https://www.knowledgehut.com/blog/web-development/advantages-and-disadvantages-of-angular)):
 
 - *Component-Based Architecture*: The application is splitted into smaller components which work together and can exchange information with each other. The components build a hierarchical structure. They are reusable and make the program more readable.
 
@@ -830,14 +830,13 @@ The frontend is an web-application whose main task is to retrieve data from the 
 
 - *Powerful Router*: ``Angular`` has a powerful navigation service which can load various components into the view depending on the URL in the browser.
 
-**Web-App Requirements**
+**Requirements**
 
 The web-application must be able to:
-- Request the captured images from the backend (Maximum 10 pictures per request)
-- Add filter conditions to the request (e.g., only dogs)
-- Check for new captured images
+- Request captured images and detection results (date, time, pet id, type, accuracy) from the backend (Maximum 10 images per request) based on certain filter criteria
+- Check for new captured images and detection results 
 - Navigate between the menu pages (In our case *Posts* and *About Us*)
-- Display captured images and their detection results (date, time, picture, accuracy)
+- Display captured images and detection results 
 
 **Setup**
 
@@ -869,26 +868,26 @@ The web-application must be able to:
 
 **Components**
 
-- *Navigation bar*: This component is used to navigate through the pages of our app. In our case we have just two pages: *Posts* and *About Us*.
+- *Navigation bar* enables users to navigate through the *Posts* and *About Us* pages of our app.
 
-- *About Us page*: This component simply displays information about the project.
+- *About Us page* displays general information about the project.
 
   ![](img/aboutus.PNG)
 
-- *Main page (Posts)*: The main page of our application represents a scrollable list of captured images. Each captured image comes with its detection results (date, time, accuracy). When the page is selected, 10 posts (captured images) are loaded from the backend. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time and minimum accuracy.
-
-  ![](img/home.PNG)
-  
-- *Capture*: This component displays a single captured image and its detection results. The date and time are set as title, and below them is the captured image and a table which shows the accuracy of every pet detection on the image. The component is used by the main page.
+- *Capture/Post* displays a single captured image and its detection results. The date and time of detection are listed first; below them are the captured image and a table which shows the id, type, and accuracy of every pet detection on the image. The component is used by the main page.
 
   ![](img/capture.PNG)
 
+- *Main page (Posts)* represents a scrollable list of Captures. By default, when the page is selected, 10 Captures (posts) are displayed. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time, and minimum accuracy.
+
+  ![](img/home.PNG)
+  
 **Service**
 
-The application has only one service which is injected into the main page to retrieve the captured images. The service makes the following HTTP requests:
+A service is injected into the main page to retrieve data from the backend. To do that, the service makes the following HTTP requests:
 
-- *Load images*: This request is used to retrieve 10 images from the backend. A filter is provided which specifies what criterias the images should match. The filter options are date (images before a given date), type (cat, dog, or all), and accuracy (all pets on the image should have a minimum accuracy). This request is also used to load the 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
-- *Check for new images*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
+- *Load Images (LI)*: LI request is used to load 10 captured images (and their respective detection results) from the backend. A filter is provided which specifies what criteria these images should match. The filter options are date (images must be before the given date), type (images must contain at least one pet of the given type), and accuracy (all pets on the images should have accuracy greater than or equal to the specified accuracy). LI request is also used to load the next 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
+- *Check New Images (CNI)*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
 
 
 ## Deploy Frontend
@@ -904,7 +903,7 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
   ```
   docker buildx build --platform linux/arm64 -t alllexander1/pets-app-arm64:v1 --push
   ```
-- Apply the script `frontend.yaml` to deploy frontend on the Kubernetes cluster:
+- Apply the script `frontend.yaml`, which contains deployment configuration:
   ```
   # On local PC, change to script directory, then
   kubectl apply -f frontend.yaml
