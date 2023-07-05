@@ -33,7 +33,7 @@ async def send_telegram_notification(detection_results):
     # Send detection results to the TNB
     await bot.send_photo(chat_id=group_chat_id, photo=img, caption=caption)
 
-
+"""
 # EXAMPLE USAGE
 
 # Initialize environment variables
@@ -65,3 +65,4 @@ detection_results = {
 
 # Run method to test TNB
 asyncio.run(send_telegram_notification(detection_results))
+"""

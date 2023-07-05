@@ -37,7 +37,7 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - name: frontend
-        image: alllexander1/pets-app-arm64 #TODO
+        image: alllexander1/pets-app-arm64:v4 #TODO
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80 #TODO

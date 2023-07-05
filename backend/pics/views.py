@@ -8,7 +8,7 @@ import json
 import zlib
 from pymongo import MongoClient
 import os
-import telebot
+from . import telebot
 
 
 """
