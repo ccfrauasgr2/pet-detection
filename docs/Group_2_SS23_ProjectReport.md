@@ -95,7 +95,7 @@
   - [Deploy Frontend](#deploy-frontend)
 - [Test System](#test-system)
   - [Test TNB](#test-tnb)
-  - [Test Frontend](#test-frontend)
+  - [Test Main Functionality](#test-main-functionality)
   - [Test High Availability](#test-high-availability)
 
 <div style="page-break-after: always"></div>
@@ -869,7 +869,7 @@ The web-application must be able to:
   
 **Service**
 
-A service is injected into the main page to retrieve data from the backend. To do that, the service makes the following HTTP requests:
+A service is injected into the main page to retrieve data from the backend. For that purpose, the service makes the following HTTP requests:
 
 - *Load Images (LI)*: LI request is used to load 10 captured images (and their respective detection results) from the backend. A filter is provided which specifies what criteria these images should match. The filter options are date (images must be before the given date), type (images must contain at least one pet of the given type), and accuracy (all pets on the images should have accuracy greater than or equal to the specified accuracy). LI request is also used to load the next 10 images from the backend. In this case, the ID of the last loaded image is also passed to the request so the backend can load the next images with the given filter. 
 - *Check New Images (CNI)*: This request checks if there are any new images in the database. The ID of the newest image on the frontend has to be provided so the backend can check if there are any new images in the database.
@@ -900,7 +900,7 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
 
 To verify that our system satisfies the project requirements and functions correctly (from the end user's perspective), we created the following test cases: 
 - Test TNB
-- Test Frontend
+- Test Main Functionality
 - Test High Availability
 
 We designed each test case with *the IPO (Input-Process-Output) model* in mind. The IPO model provides a structured approach for identifying and defining the inputs, processes, and expected outputs of a particular functionality or process that needs to be tested.
@@ -910,36 +910,29 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 **Input**: The user holds a dog / a cat / a dog or cat image in front of the Camera.
 
 **Process**:
-- First, the Camera captures the visual data before it into an image.
-- Next, the Detection Model detects and classifies pet(s) in the captured image.
-- After that, the Courier sends the captured image and detection results to the Kubernetes Service `restapi-svc` on the cluster.
+- The Camera continuously captures the visual data before it into images, which are sent to the Detection Model for pet detection.
+- Upon successfully detecting pet(s) in any of the captured images, the Detection Model proceeds to classify the pet(s) and shares both the pet image and detection results with the Courier.
+- Next, the Courier sends the pet image and detection results to the Kubernetes Service `restapi-svc` on the cluster.
 - `restapi-svc` then forwards these data to one of the REST API Pods running on one of the worker nodes.
 - The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
-- Lastly, the TNB notifies the user about the new captured image and detection results on Telegram.
+- Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
 
-**Expected Output**: The user receives a Telegram notification about the new captured image and detection results, for example (*Note: the following image does not show the actual output of our system*):
+**Expected Output**: The user receives a Telegram notification about the new pet image and detection results, for example (*Note: the following image does not show the actual output of our system*):
 
-<img src="img/Telegram_Screenshot.png" width="400"/>
+<img src="img/Telegram_Screenshot.png" width="450"/>
 
-## Test Frontend
+## Test Main Functionality
 
-**Input**: The user interacts with the user interface of the frontend.
+**Input**: The user interacts with the frontend UI to request certain data from the system.
 
 **Process**:
-The images and metadata are recieved by the Frontend in a JSON containing multiple images and theier metadata. For every single image from the JSON a `Entry` object is created with a structure like this:
-- ID (of the image)
-- Detected Pets (type)
-- Accuracy for each detection
-- Datetime
+- The user's request is sent to the Kubernetes Service `frontend-svc` on the cluster.
+- `frontend-svc` then forwards the user's request to one of the Frontend Pods, which makes a HTTP request from the user's request (see **Service** part of the [Develop Frontend](#develop-frontend) section for more information) and sends that HTTP request to the Kubernetes Service `restapi-svc` on the cluster.
+- Next, `restapi-svc` forwards the HTTP request to one of the REST API Pods, which translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-read-svc` on the cluster.
+- After that, `mongo-read-svc` forwards the query to one of the ``MongoDB`` instances (Pods), which handles the query by retrieving the requested data from its associated Persistent Volume.
+- Finally, the requested data are passed back along the chain of communication to the Frontend Pod that initiated the corresponding HTTP request, which then displays the requested data on the frontend UI.
 
-There are three filters which can be set:
-- Type: Cat or Dog
-- Date: Show images up to this date
-- Accuracy: Show images with this minimum accuracy
-
-More information on the [Frontend](#develop-frontend).
-
-**Expected Output**: The images from the recieved JSON are displayed and filtered according to the defined filters.
+**Expected Output**: The data requested by the user are displayed on the frontend UI.
 
 ## Test High Availability
 
