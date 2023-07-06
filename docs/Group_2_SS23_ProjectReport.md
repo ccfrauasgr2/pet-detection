@@ -331,9 +331,26 @@ flowchart LR
 - To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
-First we download many unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).<br>
-Second we annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has around 35.000 images, which should be sufficient for training.<br>
-Finally we convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py), after this the images are ready for training. The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
+- First, we downloaded unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).
+- Next, we annotated these images with [MegaDetector](https://github.com/microsoft/CameraTraps/blob/main/megadetector.md) (*Note: To annotate an image means to add annotation files that contain the bounding boxes and types of the objects in the image*). The results is a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept separated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has around 35.000 images, which should be sufficient for training.
+
+  ```
+  dataset/
+  ├── cats
+  │   ├── megaDetector.json
+  │   ├── cat_0.png
+  │   ├── cat_1.png
+  │   ├── cat_2.png
+  │   ├── ...
+  ├── dogs
+  │   ├── megaDetector.json
+  │   ├── dog_0.png
+  │   ├── dog_1.png
+  │   ├── dog_2.png
+  │   └── ...
+  ```
+
+- Then, we converted the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py), after this the images are ready for training. The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
   
   `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
 
@@ -341,62 +358,49 @@ Finally we convert the annotation format to the YOLOv8 format using the [this sc
 
   `<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`
 
-  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767). The following representation shows the difference between the MegaDetector and the YOLOv8 annotation in more detail.
+  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).
 
-```
-dataset/
-├── cats
-│   ├── megaDetector.json
-│   ├── cat_0.png
-│   ├── cat_1.png
-│   ├── cat_2.png
-│   ├── ...
-├── dogs
-│   ├── megaDetector.json
-│   ├── dog_0.png
-│   ├── dog_1.png
-│   ├── dog_2.png
-│   └── ...
+  ```
+  dataset/
+  ├── cats
+  │   ├── images
+  │   │   ├── cat_0.png
+  │   │   ├── cat_1.png
+  │   │   ├── cat_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── cat_0.txt
+  │       ├── cat_1.txt
+  │       ├── cat_2.txt
+  │       └── ...
+  ├── dogs
+  │   ├── images
+  │   │   ├── dog_0.png
+  │   │   ├── dog_1.png
+  │   │   ├── dog_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── dog_0.txt
+  │       ├── dog_1.txt
+  │       ├── dog_2.txt
+  │       └── ...
+  ```
 
-```
 
-```
-dataset/
-├── cats
-│   ├── images
-│   │   ├── cat_0.png
-│   │   ├── cat_1.png
-│   │   ├── cat_2.png
-│   │   └── ...
-│   └── annotation
-│       ├── cat_0.txt
-│       ├── cat_1.txt
-│       ├── cat_2.txt
-│       └── ...
-├── dogs
-│   ├── images
-│   │   ├── dog_0.png
-│   │   ├── dog_1.png
-│   │   ├── dog_2.png
-│   │   └── ...
-│   └── annotation
-│       ├── dog_0.txt
-│       ├── dog_1.txt
-│       ├── dog_2.txt
-│       └── ...
-```
 
-Split the dataset into training, validation and test images. The number of images and the split we used are:
+- Finally, we splitted the dataset into training, validation and test images. The number of images and the split we used are:
 
-| Pet | Training | Validation | Test  |
-| --- | -------- | ---------- | ----- |
-| Cat | 13.875   | 1.816      | 1.740 |
-| Dog | 14.782   | 1.871      | 1.848 |
-| Sum | 28.657   | 3.687      | 3.588 |
-
-Percentage of ``training/validation/test `` split: ``79.75% / 10.27% / 9.98%``
+  | Pet        | Training | Validation | Test  |
+  | ---------- | -------- | ---------- | ----- |
+  | Cat        | 13.875   | 1.816      | 1.740 |
+  | Dog        | 14.782   | 1.871      | 1.848 |
+  | Sum        | 28.657   | 3.687      | 3.588 |
+  | Percentage | 79.75%   | 10.27%     | 9.98% |
 
 ## Train & Test Model
+
+**Train Model**
+
 We chose the YOLOv8 model, since it is the best choice for object detection. A comparison between YOLOv8 and other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ``ultralytics``, this project was done with version 8.0.105.
 ```python
 !pip install ultralytics
@@ -890,22 +894,23 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
 <div style="page-break-after: always"></div>
 
 # Test System
+
 **Test Environment**
 
- The test environment is set up based on functional requirements for our system. The testing is divided into 3 seperate cases: `Telegram Notification Bot`, `Frontend`, and `High Availability (Cluster)`. We are performing the tests according to the IPO-model: Input, Processing, Output. These 3 points are set before testing for each of the 3 cases named above to set a baseline for the evaluation. With this predefined baseline we can compare the expected output with the output recieved when testing the system.<br>
+The test environment is set up based on functional requirements for our system. The testing is divided into three cases: `Telegram Notification Bot`, `Frontend`, and `High Availability (Cluster)`. We perform the tests according to the IPO-model: Input, Processing, Output. These 3 points are set before testing for each of the 3 cases named above to set a baseline for the evaluation. With this predefined baseline we can compare the expected output with the output recieved when testing the system.
 
-| Test Case | Input | Processing | Expected Output |
-|--|---|-------------|---|
-| Telegram Notification Bot (TNB) | Image from Raspberry Pi 4 with Pets | 1. Camera<br>2. Detection Model<br>3. Courier<br>4. REST API Pods<br>5. Telegram Notification Bot (TNB)<br>For more details for every single step, check [System Architectur](#overview) under Overview in this documentation. | Picture plus Description in our telegram channel which looks like [this](docs\img\Telegram_Screenshot.png) |
-| Frontend | JSON: Multiple Pictures (Pets) and their Metadata | 1. The JSON stored in `Entry` objects which are structured like this:<br>- ID (of the image)<br>- detected pets<br>- accuracy for each detection<br>- datetime<br>2. Availible filters:<br>- Type (Dog/Cat)<br>- date<br>- accuracy<br>[More info on the Frontend](#develop-frontend) | All images, i.e. the `Entry` objects are displayed in the frontend and the images change based on the applied filter |
-| High Availability Cluster | Failure of one Raspberry Pi in the Cluster | 1. 3 DB instances (replicaset) in the cluster: 1 Primary (r-w), 2 Secondary (r)<br>2. Read-Requests get send by Mongo-read service to an instance<br>Write-requests are only send to to current Primary instance<br>A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs) and [here](docs\img\Database_Cluster_SetUp.png). | If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work.<br>If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail. |
+| Test Case                       | Input                                             | Processing                                                                                                                                                                                                                                                                                                                                                   | Expected Output                                                                                                                                                                                                                    |
+| ------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Telegram Notification Bot (TNB) | Image from Raspberry Pi 4 with Pets               | 1. Camera<br>2. Detection Model<br>3. Courier<br>4. REST API Pods<br>5. Telegram Notification Bot (TNB)<br>For more details for every single step, check [System Architectur](#overview) under Overview in this documentation.                                                                                                                               | Picture plus Description in our telegram channel which looks like [this](docs\img\Telegram_Screenshot.png)                                                                                                                         |
+| Frontend                        | JSON: Multiple Pictures (Pets) and their Metadata | 1. The JSON stored in `Entry` objects which are structured like this:<br>- ID (of the image)<br>- detected pets<br>- accuracy for each detection<br>- datetime<br>2. Availible filters:<br>- Type (Dog/Cat)<br>- date<br>- accuracy<br>[More info on the Frontend](#develop-frontend)                                                                        | All images, i.e. the `Entry` objects are displayed in the frontend and the images change based on the applied filter                                                                                                               |
+| High Availability Cluster       | Failure of one Raspberry Pi in the Cluster        | 1. 3 DB instances (replicaset) in the cluster: 1 Primary (r-w), 2 Secondary (r)<br>2. Read-Requests get send by Mongo-read service to an instance<br>Write-requests are only send to to current Primary instance<br>A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs) and [here](docs\img\Database_Cluster_SetUp.png). | If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work.<br>If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail. |
 
 **Test Execution**
 
 This is the comparison between our predefined expected output and the output recieved from testing the system. With this information we can evaluate our System.
 
-| Test Case | Expected Output | Test Output |
-| ------ | ------ | ------ |
-| TNB | Picture plus Description with Pet Type and Accuracy in our telegram channel | Test Results |
-| Frontend | All images, i.e. the `Entry` objects are displayed in the frontend and the images change based on the applied filter | Test Results |
+| Test Case                 | Expected Output                                                                                                                                                                                                                  | Test Output  |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| TNB                       | Picture plus Description with Pet Type and Accuracy in our telegram channel                                                                                                                                                      | Test Results |
+| Frontend                  | All images, i.e. the `Entry` objects are displayed in the frontend and the images change based on the applied filter                                                                                                             | Test Results |
 | High Availability Cluster | If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work<br>If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail | Test Results |
