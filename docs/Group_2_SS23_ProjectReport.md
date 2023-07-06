@@ -94,6 +94,9 @@
   - [Develop Frontend](#develop-frontend)
   - [Deploy Frontend](#deploy-frontend)
 - [Test System](#test-system)
+  - [Test TNB](#test-tnb)
+  - [Test Frontend](#test-frontend)
+  - [Test High Availability](#test-high-availability)
 
 <div style="page-break-after: always"></div>
 
@@ -895,13 +898,18 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
 
 # Test System
 
-The test environment is set up based on functional requirements for our system. The testing is divided into three cases: `Telegram Notification Bot`, `Frontend`, and `High Availability (Cluster)`. We perform the tests according to the IPO-model: Input, Processing, Output. These 3 points are set before testing for each of the 3 cases named above to set a baseline for the evaluation. With this predefined baseline we can compare the expected output with the output recieved when testing the system.
+To verify that our system satisfies the project requirements and functions correctly (from the end user's perspective), we created the following test cases: 
+- Test TNB
+- Test Frontend
+- Test High Availability
 
-**Test Case: Telegram Notofication Bot (TNB)**
+We designed each test case with *the IPO (Input-Process-Output) model* in mind. The IPO model provides a structured approach for identifying and defining the inputs, processes, and expected outputs of a particular functionality or process that needs to be tested.
 
-Input:<br>User takes an image with the Camera.
+## Test TNB
 
-Processing:
+**Input**: User takes an image with the Camera.
+
+**Process**:
 1. The Camera takes a picture
 2. The Detection Model looks for cats and dogs in the image
 3. The results of the detection are sent to the cluster
@@ -910,16 +918,16 @@ Processing:
 
 Further information on the [System Architectur](#overview) and the [Telegram Bot](#implement-tnb).
 
-Expected Output:<br>Picture and the corresponding description, containing the type of pets and accuracy in the telegram channel.<br>
+**Expected Output**: Picture and the corresponding description, containing the type of pets and accuracy in the telegram channel.
 Example output:
 
-<img src="img/Telegram_Screenshot.png" width="300"/>
+<img src="img/Telegram_Screenshot.png" width="400"/>
 
-**Test Case: Frontend**
+## Test Frontend
 
-Input:<br>User takes an image with the Camera.
+**Input**: User takes an image with the Camera.
 
-Processing:
+**Process**:
 The images and metadata are recieved by the Frontend in a JSON containing multiple images and theier metadata. For every single image from the JSON a `Entry` object is created with a structure like this:
 - ID (of the image)
 - Detected Pets (type)
@@ -933,16 +941,16 @@ There are three filters which can be set:
 
 More information on the [Frontend](#develop-frontend).
 
-Expected Output:<br>The images from the recieved JSON are displayed and filtered according to the defined filters.<br>
+**Expected Output**: The images from the recieved JSON are displayed and filtered according to the defined filters.
 
-**Test Case: High Availability Cluster**
+## Test High Availability
 
-Input:<br>Failure of one Raspberry Pi in the Cluster, e.g. unplugging it.
+**Input**: Failure of one Raspberry Pi in the Cluster, e.g. unplugging it.
 
-Procesing:<br>There are three instances of the DB (replicaset) in the cluster: One Primary capable of carrying out both Read- and Write-Request and two Secondary which are only able to carry out Read-Requests. Therefore Write-Requests only get send to the Primary instance. A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs).
+**Process**: There are three instances of the DB (replicaset) in the cluster: One Primary capable of carrying out both Read- and Write-Request and two Secondary which are only able to carry out Read-Requests. Therefore Write-Requests only get send to the Primary instance. A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs).
 
 The Cluster set up:
 
 ![](img/Database_Cluster_SetUp.png)
 
-Expected Output:<br>If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work. If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail.
+**Expected Output**: If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work. If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail.
