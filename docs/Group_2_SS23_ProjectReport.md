@@ -331,9 +331,26 @@ flowchart LR
 - To test if the connection is working, enter `libcamera-still -o test.jpg` to capture a single image. For more information about `libcamera-still`, refer to [this documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera-and-libcamera-apps).
 
 ## Prepare Training Data
-First we download many unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).<br>
-Second we annotate images using MegaDetector, from which we receive a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept seperated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has around 35.000 images, which should be sufficient for training.<br>
-Finally we convert the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py), after this the images are ready for training. The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
+- First, we downloaded unannotated cat and dog images from [Kaggle](https://www.kaggle.com/).
+- Next, we annotated these images with [MegaDetector](https://github.com/microsoft/CameraTraps/blob/main/megadetector.md) (*Note: To annotate an image means to add annotation files that contain the bounding boxes and types of the objects in the image*). The results is a JSON annotation file for all images. Since MegaDetector can only differentiate between `Animals`, `Humans`, and `Vehicles`, the downloaded cat and dog images are kept separated. Therefore we have two JSON files with the MegaDetector annotation: one for cats and one for dogs. For some images MegaDetector couldn't find an annotation, because the quality of the image wasn't good enough. In total the dataset has around 35.000 images, which should be sufficient for training.
+
+  ```
+  dataset/
+  ├── cats
+  │   ├── megaDetector.json
+  │   ├── cat_0.png
+  │   ├── cat_1.png
+  │   ├── cat_2.png
+  │   ├── ...
+  ├── dogs
+  │   ├── megaDetector.json
+  │   ├── dog_0.png
+  │   ├── dog_1.png
+  │   ├── dog_2.png
+  │   └── ...
+  ```
+
+- Then, we converted the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py), after this the images are ready for training. The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
   
   `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
 
@@ -341,62 +358,49 @@ Finally we convert the annotation format to the YOLOv8 format using the [this sc
 
   `<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`
 
-  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767). The following representation shows the difference between the MegaDetector and the YOLOv8 annotation in more detail.
+  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).
 
-```
-dataset/
-├── cats
-│   ├── megaDetector.json
-│   ├── cat_0.png
-│   ├── cat_1.png
-│   ├── cat_2.png
-│   ├── ...
-├── dogs
-│   ├── megaDetector.json
-│   ├── dog_0.png
-│   ├── dog_1.png
-│   ├── dog_2.png
-│   └── ...
+  ```
+  dataset/
+  ├── cats
+  │   ├── images
+  │   │   ├── cat_0.png
+  │   │   ├── cat_1.png
+  │   │   ├── cat_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── cat_0.txt
+  │       ├── cat_1.txt
+  │       ├── cat_2.txt
+  │       └── ...
+  ├── dogs
+  │   ├── images
+  │   │   ├── dog_0.png
+  │   │   ├── dog_1.png
+  │   │   ├── dog_2.png
+  │   │   └── ...
+  │   └── annotation
+  │       ├── dog_0.txt
+  │       ├── dog_1.txt
+  │       ├── dog_2.txt
+  │       └── ...
+  ```
 
-```
 
-```
-dataset/
-├── cats
-│   ├── images
-│   │   ├── cat_0.png
-│   │   ├── cat_1.png
-│   │   ├── cat_2.png
-│   │   └── ...
-│   └── annotation
-│       ├── cat_0.txt
-│       ├── cat_1.txt
-│       ├── cat_2.txt
-│       └── ...
-├── dogs
-│   ├── images
-│   │   ├── dog_0.png
-│   │   ├── dog_1.png
-│   │   ├── dog_2.png
-│   │   └── ...
-│   └── annotation
-│       ├── dog_0.txt
-│       ├── dog_1.txt
-│       ├── dog_2.txt
-│       └── ...
-```
 
-Split the dataset into training, validation and test images. The number of images and the split we used are:
+- Finally, we splitted the dataset into training, validation and test images. The number of images and the split we used are:
 
-| Pet | Training | Validation | Test  |
-| --- | -------- | ---------- | ----- |
-| Cat | 13.875   | 1.816      | 1.740 |
-| Dog | 14.782   | 1.871      | 1.848 |
-| Sum | 28.657   | 3.687      | 3.588 |
-
-Percentage of ``training/validation/test `` split: ``79.75% / 10.27% / 9.98%``
+  | Pet        | Training | Validation | Test  |
+  | ---------- | -------- | ---------- | ----- |
+  | Cat        | 13.875   | 1.816      | 1.740 |
+  | Dog        | 14.782   | 1.871      | 1.848 |
+  | Sum        | 28.657   | 3.687      | 3.588 |
+  | Percentage | 79.75%   | 10.27%     | 9.98% |
 
 ## Train & Test Model
+
+**Train Model**
+
 We chose the YOLOv8 model, since it is the best choice for object detection. A comparison between YOLOv8 and other models can be found [here](https://www.stereolabs.com/blog/performance-of-yolo-v5-v7-and-v8/). The training and validation for the YOLOv8 model is done in Google Colab. First we need to setup the Google Colab notebook. To train a YOLOv8 model install ``ultralytics``, this project was done with version 8.0.105.
 ```python
 !pip install ultralytics
@@ -891,7 +895,7 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
 
 # Test System
 
- The test environment is set up based on functional requirements for our system. The testing is divided into 3 seperate cases: `Telegram Notification Bot`, `Frontend`, and `High Availability (Cluster)`. We are performing the tests according to the IPO-model: Input, Processing, Output. These 3 points are set before testing for each of the 3 cases named above to set a baseline for the evaluation. With this predefined baseline we can compare the expected output with the output recieved when testing the system.<br>
+The test environment is set up based on functional requirements for our system. The testing is divided into three cases: `Telegram Notification Bot`, `Frontend`, and `High Availability (Cluster)`. We perform the tests according to the IPO-model: Input, Processing, Output. These 3 points are set before testing for each of the 3 cases named above to set a baseline for the evaluation. With this predefined baseline we can compare the expected output with the output recieved when testing the system.
 
 **Test Case: Telegram Notofication Bot (TNB)**
 
