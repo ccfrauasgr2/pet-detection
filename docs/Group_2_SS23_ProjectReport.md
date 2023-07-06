@@ -923,7 +923,7 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 ## Test Frontend
 
-**Input**: User takes an image with the Camera.
+**Input**: The user interacts with the user interface of the frontend.
 
 **Process**:
 The images and metadata are recieved by the Frontend in a JSON containing multiple images and theier metadata. For every single image from the JSON a `Entry` object is created with a structure like this:
@@ -947,14 +947,20 @@ More information on the [Frontend](#develop-frontend).
 
 **Process**: 
 
-Each of the three worker nodes in our cluster hosts an instance of `MongoDB`. All three instances belong to the same ``MongoDB Replica Set``. One of them is the Primary instance capable of performing both read and write operations (i.e., processing read and write requests); the other two are Secondary instances which can only carry out read operations. Thus, by default write requests are only sent to the Primary node for processing.
+Each of the three worker nodes in our cluster hosts a StatefulSet instance of `MongoDB`. All three instances belong to the same ``MongoDB Replica Set``. One of them is the Primary instance capable of performing both read and write operations (i.e., processing read and write requests); the other two are Secondary instances which can only carry out read operations. Thus, by default write requests are only sent to the Primary instance for processing.
 
 ![](img/Database_Cluster_SetUp.png)
 
-When the failed worker node hosts a Secondary instance:
 
+When a worker node that hosts a Secondary instance fails:
+- That instance no longer receives any read requests.
+- Read requests are directed towards the Primary and the other Secondary instance.
+- Write requests are still only sent to the Primary instance.
 
-When the failed worker node hosts the Primary instance:
+When a worker node that hosts the Primary instance fails:
+- That instance no longer receives any read or write requests.
+- One of the two Secondary instances will be elected as the new Primary instance.
+- Read requests are sent to the new Primary and the only remaining Secondary instance.
+- Write requests are exclusively directed towards the new Primary instance.
 
-
-**Expected Output**: There is no changes in the system from the end user's perspective.
+**Expected Output**: There is no changes in the system functionality from the user's perspective.
