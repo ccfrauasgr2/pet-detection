@@ -890,22 +890,55 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
 <div style="page-break-after: always"></div>
 
 # Test System
-**Test Environment**
 
  The test environment is set up based on functional requirements for our system. The testing is divided into 3 seperate cases: `Telegram Notification Bot`, `Frontend`, and `High Availability (Cluster)`. We are performing the tests according to the IPO-model: Input, Processing, Output. These 3 points are set before testing for each of the 3 cases named above to set a baseline for the evaluation. With this predefined baseline we can compare the expected output with the output recieved when testing the system.<br>
 
-| Test Case | Input | Processing | Expected Output |
-|--|---|-------------|---|
-| Telegram Notification Bot (TNB) | Image from Raspberry Pi 4 with Pets | 1. Camera<br>2. Detection Model<br>3. Courier<br>4. REST API Pods<br>5. Telegram Notification Bot (TNB)<br>For more details for every single step, check [System Architectur](#overview) under Overview in this documentation. | Picture plus Description in our telegram channel which looks like [this](docs\img\Telegram_Screenshot.png) |
-| Frontend | JSON: Multiple Pictures (Pets) and their Metadata | 1. The JSON stored in `Entry` objects which are structured like this:<br>- ID (of the image)<br>- detected pets<br>- accuracy for each detection<br>- datetime<br>2. Availible filters:<br>- Type (Dog/Cat)<br>- date<br>- accuracy<br>[More info on the Frontend](#develop-frontend) | All images, i.e. the `Entry` objects are displayed in the frontend and the images change based on the applied filter |
-| High Availability Cluster | Failure of one Raspberry Pi in the Cluster | 1. 3 DB instances (replicaset) in the cluster: 1 Primary (r-w), 2 Secondary (r)<br>2. Read-Requests get send by Mongo-read service to an instance<br>Write-requests are only send to to current Primary instance<br>A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs) and [here](docs\img\Database_Cluster_SetUp.png). | If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work.<br>If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail. |
+**Test Case: Telegram Notofication Bot (TNB)**
 
-**Test Execution**
+Input:<br>User takes an image with the Camera.
 
-This is the comparison between our predefined expected output and the output recieved from testing the system. With this information we can evaluate our System.
+Processing:
+1. The Camera takes a picture
+2. The Detection Model looks for cats and dogs in the image
+3. The results of the detection are sent to the cluster
+4. REST API Pods establishes communication between Sensor Node and TNB
+5. TNB notifies the user about the detection in telegram
 
-| Test Case | Expected Output | Test Output |
-| ------ | ------ | ------ |
-| TNB | Picture plus Description with Pet Type and Accuracy in our telegram channel | Test Results |
-| Frontend | All images, i.e. the `Entry` objects are displayed in the frontend and the images change based on the applied filter | Test Results |
-| High Availability Cluster | If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work<br>If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail | Test Results |
+Further information on the [System Architectur](#overview) and the [Telegram Bot](#implement-tnb).
+
+Expected Output:<br>Picture and the corresponding description, containing the type of pets and accuracy in the telegram channel.<br>
+Example output:
+
+<img src="img/Telegram_Screenshot.png" width="300"/>
+
+**Test Case: Frontend**
+
+Input:<br>User takes an image with the Camera.
+
+Processing:
+The images and metadata are recieved by the Frontend in a JSON containing multiple images and theier metadata. For every single image from the JSON a `Entry` object is created with a structure like this:
+- ID (of the image)
+- Detected Pets (type)
+- Accuracy for each detection
+- Datetime
+
+There are three filters which can be set:
+- Type: Cat or Dog
+- Date: Show images up to this date
+- Accuracy: Show images with this minimum accuracy
+
+More information on the [Frontend](#develop-frontend).
+
+Expected Output:<br>The images from the recieved JSON are displayed and filtered according to the defined filters.<br>
+
+**Test Case: High Availability Cluster**
+
+Input:<br>Failure of one Raspberry Pi in the Cluster, e.g. unplugging it.
+
+Procesing:<br>There are three instances of the DB (replicaset) in the cluster: One Primary capable of carrying out both Read- and Write-Request and two Secondary which are only able to carry out Read-Requests. Therefore Write-Requests only get send to the Primary instance. A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs).
+
+The Cluster set up:
+
+![](img/Database_Cluster_SetUp.png)
+
+Expected Output:<br>If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work. If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail.
