@@ -163,7 +163,7 @@ flowchart LR
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Camera                          | capture and send visual data to the sensor node                                                                                                                |
 | Detection Model                 | analyze visual data to detect & classify pet                                                                                                                   |
-| Courier                         | send detection results to the cluster                                                                                                                          |
+| Courier                         | send visual data & detection results to the cluster                                                                                                            |
 | Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
@@ -907,19 +907,17 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 ## Test TNB
 
-**Input**: User takes an image with the Camera.
+**Input**: The user holds a dog / a cat / a dog or cat image in front of the Camera.
 
 **Process**:
-1. The Camera takes a picture
-2. The Detection Model looks for cats and dogs in the image
-3. The results of the detection are sent to the cluster
-4. REST API Pods establishes communication between Sensor Node and TNB
-5. TNB notifies the user about the detection in telegram
+- First, the Camera captures the visual data in front of it into an image.
+- Then, the Detection Model detects and classifies pet(s) in the captured image.
+- Next, the Courier sends the captured image and detection results to the Kubernetes Service `restapi-svc` on the cluster.
+- `restapi-svc` then forwards these data to one of the REST API Pods running on of the worker nodes.
+- The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
+- Lastly, the TNB notifies the user about the new captured image and detection results on Telegram.
 
-Further information on the [System Architectur](#overview) and the [Telegram Bot](#implement-tnb).
-
-**Expected Output**: Picture and the corresponding description, containing the type of pets and accuracy in the telegram channel.
-Example output:
+**Expected Output**: The user receives a Telegram notification about the new captured image and detection results, for example (*Note: the following image does not show the actual output of our system*):
 
 <img src="img/Telegram_Screenshot.png" width="400"/>
 
