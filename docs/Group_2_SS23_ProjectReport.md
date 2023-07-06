@@ -910,10 +910,10 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 **Input**: The user holds a dog / a cat / a dog or cat image in front of the Camera.
 
 **Process**:
-- First, the Camera captures the visual data in front of it into an image.
-- Then, the Detection Model detects and classifies pet(s) in the captured image.
-- Next, the Courier sends the captured image and detection results to the Kubernetes Service `restapi-svc` on the cluster.
-- `restapi-svc` then forwards these data to one of the REST API Pods running on of the worker nodes.
+- First, the Camera captures the visual data before it into an image.
+- Next, the Detection Model detects and classifies pet(s) in the captured image.
+- After that, the Courier sends the captured image and detection results to the Kubernetes Service `restapi-svc` on the cluster.
+- `restapi-svc` then forwards these data to one of the REST API Pods running on one of the worker nodes.
 - The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the new captured image and detection results on Telegram.
 
@@ -943,12 +943,18 @@ More information on the [Frontend](#develop-frontend).
 
 ## Test High Availability
 
-**Input**: Failure of one Raspberry Pi in the Cluster, e.g. unplugging it.
+**Input**: Failure of one of the worker nodes in the cluster, e.g. by unplugging it.
 
-**Process**: There are three instances of the DB (replicaset) in the cluster: One Primary capable of carrying out both Read- and Write-Request and two Secondary which are only able to carry out Read-Requests. Therefore Write-Requests only get send to the Primary instance. A more in-depth explanation of the process can be found under [Set up DBS](#set-up-dbs).
+**Process**: 
 
-The Cluster set up:
+Each of the three worker nodes in our cluster hosts an instance of `MongoDB`. All three instances belong to the same ``MongoDB Replica Set``. One of them is the Primary instance capable of performing both read and write operations (i.e., processing read and write requests); the other two are Secondary instances which can only carry out read operations. Thus, by default write requests are only sent to the Primary node for processing.
 
 ![](img/Database_Cluster_SetUp.png)
 
-**Expected Output**: If a Secondary instance fails the is no change in the system, since both Read- and Write-Requests stil work. If the Primary instance fails the Cluster has to elect a new Primary instance, otherwise Write-Requests will fail.
+When the failed worker node hosts a Secondary instance:
+
+
+When the failed worker node hosts the Primary instance:
+
+
+**Expected Output**: There is no changes in the system from the end user's perspective.
