@@ -926,10 +926,9 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 **Input**: The user interacts with the frontend UI to request certain data from the system.
 
 **Process**:
-- The user's request is sent to the Kubernetes Service `frontend-svc` on the cluster.
-- `frontend-svc` forwards the user's request to one of the Frontend Pods, which makes a HTTP request from the user's request (see **Service** part of the [Develop Frontend](#develop-frontend) section for more information) and sends that HTTP request to the Kubernetes Service `restapi-svc` on the cluster.
-- Next, `restapi-svc` forwards the HTTP request to one of the REST API Pods, which translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-read-svc` on the cluster.
-- Then, `mongo-read-svc` forwards the query to one of the ``MongoDB`` instances (Pods), which handles the query by retrieving the requested data from its associated Persistent Volume.
+- The Frontend Pod that provides the UI and handles user interactions makes a HTTP request from the user's request (see **Service** part of the [Develop Frontend](#develop-frontend) section for more information). The HTTP request is then sent to the Kubernetes Service `restapi-svc` on the cluster.
+- Next, `restapi-svc` forwards that HTTP request to one of the REST API Pods, which then translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-read-svc` on the cluster.
+- `mongo-read-svc` forwards that query to one of the ``MongoDB`` instances (Pods), which handles the query by retrieving the requested data from its associated Persistent Volume.
 - Finally, the requested data are passed back along the chain of communication to the Frontend Pod that initiated the corresponding HTTP request, which then displays the requested data on the frontend UI.
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
