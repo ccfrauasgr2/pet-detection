@@ -1,3 +1,5 @@
+import asyncio
+
 from flask import Flask, render_template, make_response, jsonify, request
 from pymongo import MongoClient
 import mongo as mg
@@ -106,7 +108,7 @@ def mongo_camera_post():
         except:
             return make_response("pet konnte nicht gespeichert werden", 503)
 
-    telebot.send_telegram_notification(request.data)
+    asyncio.run(telebot.send_telegram_notification(data))
     return make_response("Erfolg", 201)
 
 

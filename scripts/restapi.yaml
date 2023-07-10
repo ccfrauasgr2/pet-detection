@@ -37,12 +37,12 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - name: restapi
-        image: skywalker360/flask_pd:1.0 #TODO
+        image: skywalker360/flask_pd:1.1 #TODO
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3200 #TODO
         env:
-        - name: MONGO_INITDB_ROOT_USERNE
+        - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
             secretKeyRef:
               name: mongo-secret

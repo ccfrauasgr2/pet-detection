@@ -5,9 +5,16 @@ from flask import make_response
 
 def mongo_connect_read():
     # Retrieve the environment variables
-    user_name = os.environ['MONGO_INITDB_ROOT_USERNAME']
-    user_pwd = os.environ['MONGO_INITDB_ROOT_PASSWORD']
-    mongo_initdb_config = os.environ['MONGO_INITDB_CONFIG']
+    user_name = ""
+    user_pwd = ""
+    mongo_initdb_config = ""
+
+    try:
+        user_name = os.environ['MONGO_INITDB_ROOT_USERNAME']
+        user_pwd = os.environ['MONGO_INITDB_ROOT_PASSWORD']
+        mongo_initdb_config = os.environ['MONGO_INITDB_CONFIG']
+    except Exception as error:
+        return [0, error]
 
     # Construct the MongoDB connection string
     mongo_connection_string = f"mongodb://{user_name}:{user_pwd}@{mongo_initdb_config}"
@@ -15,46 +22,46 @@ def mongo_connect_read():
     # Verbindung zur MongoDB herstellen
     try:
         client = MongoClient(mongo_connection_string)
-        return client
-    except:
-        return 0
+        return [1, client]
+    except Exception as error:
+        return [0, error]
 
 
 def mongo_connect_write():
     client = mongo_connect_read()
-    if client == 0:
-        return 0
+    if client[0] == 0:
+        return client
     else:
         try:
             host, port = client.primary
             mongo_connection_string_new = f"mongodb://{host}.mongo-headless-svc.default.svc.cluster.local:{port}"
             client.close()
             headless_client = MongoClient(mongo_connection_string_new)
-            return headless_client
-        except:
-            return 1
+            return [2, headless_client]
+        except Exception as error:
+            return [1, error]
 
 
 def mongo_establish_connection_write():
     response = mongo_connect_write()
-    if response == 0:
+    if response[0] == 0:
         msg = "Verbindung zum Mongo_Read_Service konnte nicht hergestellt werden."
         package = {
             "code": 0,
-            "response": make_response(msg, 503)
+            "response": make_response(response[1], 503)
         }
         return package
-    elif response == 1:
+    elif response[0] == 1:
         msg = "Verbindung zum Mongo_Headless_Service konnte nicht hergestellt werden."
         package = {
             "code": 0,
-            "response": make_response(msg, 503)
+            "response": make_response(response[1], 503)
         }
         return package
     else:
         package = {
             "code": 1,
-            "response": response    # Rückgabe des Headless_Clients
+            "response": response[1]    # Rückgabe des Headless_Clients
         }
         return package
 
