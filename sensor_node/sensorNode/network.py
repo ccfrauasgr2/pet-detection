@@ -22,9 +22,9 @@ class Network:
 	def _send(self):		
 		try:
 			if self.message_queue == 1:
-				response = requests.post(self.url, data=message_queue[0])
+				response = requests.post(self.url, data=self.message_queue[0])
 			else:
-				message={'message': json.dumps(message_queue)}
+				message={'message': json.dumps(self.message_queue)}
 				response = requests.post(self.url, data=message)
 			self.message_queue = list()
 			response.raise_for_status() 
