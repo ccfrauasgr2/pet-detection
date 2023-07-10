@@ -85,9 +85,8 @@
   - [Set up Kubernetes Cluster](#set-up-kubernetes-cluster)
   - [Set up Storage Service](#set-up-storage-service)
   - [Set up DBS](#set-up-dbs)
-  - [Develop REST API](#develop-rest-api)
   - [Implement TNB](#implement-tnb)
-  - [Integrate TNB in REST API](#integrate-tnb-in-rest-api)
+  - [Develop REST API](#develop-rest-api)
   - [Deploy Backend](#deploy-backend)
   - [Develop Frontend](#develop-frontend)
   - [Deploy Frontend](#deploy-frontend)
@@ -267,15 +266,14 @@ flowchart LR
     
 
     id21 --> id22 --> id23 --> id24 --> id27
-    id33 & id25 --> id34
-    id27 & id34 --> id26
+    id27 & id25 --> id26
         
     id31[Develop\nFrontend]
     id32[Deploy\nFrontend]
     id33[Implement\nTNB]
-    id34[Integrate\nTNB in REST API]
 
     id26 & id31 --> id32
+    id33 --> id25
     end
 
     
@@ -292,7 +290,7 @@ flowchart LR
 | Member<br>MatrNr.                 | Uni-Mail                            | Primary<br>Tasks                                                                                                                              | Secondary<br>Tasks                                       |
 | --------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | Vincent<br>Roßknecht<br>1471764   | vincent.rossknecht@stud.fra-uas.de  | - Prepare Training Data<br/>- Train & Test Model<br/>- Test System                                                                            |                                                          |
-| Jonas<br>Hülsmann<br>1482889      | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Integrate TNB in REST API</br>- Deploy Backend                                                                       | Develop Courier                                          |
+| Jonas<br>Hülsmann<br>1482889      | jonas.huelsman@stud.fra-uas.de      | - Develop REST API<br/>- Deploy Backend                                                                                                       |                                                          |
 | Marco<br>Tenderra<br>1251463      | tenderra@stud.fra-uas.de            | - Set up Pi 4B<br/>- Set up Camera<br/>- Prepare Training Data<br>- Develop & Deploy Application                                              | Develop REST API                                         |
 | Minh Kien<br>Nguyen<br>1434361    | minh.nguyen4@stud.fra-uas.de        | - Set up Pi 3B & 3B+<br/>- Set up Static IP<br/>- Set up Kubernetes Cluster<br/>- Set up Storage Service<br/>- Set up DBS<br/>- Implement TNB | - Deploy Backend<br/>- Deploy Frontend<br/>- Test System |
 | Alexander<br>Atanassov<br>1221846 | alexander.atanassov@stud.fra-uas.de | - Develop Frontend<br/>- Deploy Frontend                                                                                                      | Develop REST API                                         |
@@ -702,8 +700,6 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 ![](img/dbs2.png)
 
-## Develop REST API
-
 ## Implement TNB
 
 - Follow this [tutorial](https://sendpulse.com/knowledge-base/chatbot/telegram/create-telegram-chatbot) to create a Telegram Bot. Our TNB is called `G2PetBot`.
@@ -784,7 +780,7 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
   asyncio.run(send_telegram_notification(detection_results))
   ```
 
-## Integrate TNB in REST API
+## Develop REST API
 
 ## Deploy Backend
 
@@ -901,9 +897,8 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 **Input**: The user holds a dog / a cat / a dog or cat image in front of the Camera.
 
 **Process**:
-- The Camera continuously captures the visual data before it into images, then sends them to the Detection Model for pet detection.
-- Upon successfully detecting pet(s) in any of the captured images, the Detection Model proceeds to classify the pet(s) and shares both the pet image and detection results with the Courier.
-- Next, the Courier sends the pet image and detection results to the Kubernetes Service `restapi-svc` on the cluster.
+- The Camera continuously captures the visual data before it into images, then sends them to the Application in the Sensor Node for further processing.
+- In the Application, the Detection Model carries out pet detection constantly on the continuous stream of input images. Upon successful pet detection in any of the input images, that image and the corresponding detection results are forwarded to the Packager, which then packs these data in a JSON file and sends it to the Compressor. There, the data are zipped before being sent by the Network to the Kubernetes Service `restapi-svc` on the cluster.
 - `restapi-svc` then forwards these data to one of the REST API Pods running on one of the worker nodes.
 - The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
