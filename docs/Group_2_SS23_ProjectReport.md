@@ -152,8 +152,8 @@ flowchart LR
   dss -.dynamically\nprovisions.-> persistentVolume
   
 ```
-<br>
-<br>
+
+<div style="page-break-after: always"></div>
 
 | Component                       | Role                                                                                                                                                                                 |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -166,7 +166,6 @@ flowchart LR
 | Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS)                       |
 | Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                                     |
 | Local PC                        | serve as tool for setting up system                                                                                                                                                  |
-
 
 **System Behavior**: See [Test System](#test-system) section.
 
@@ -484,9 +483,7 @@ Sample JSON data:
  "time": "11:03:46",
  "detections": [
   {
-   "type": "Dog",
-   "accuracy": 0.9125242233276367,
-   "BID": 1
+   "type": "Dog", "accuracy": 0.9125242233276367, "BID": 1
   },
   ... 
  ]
@@ -922,8 +919,10 @@ The web-application must be able to:
   ![](img/aboutus.PNG)
 
 - *Capture/Post* displays a single captured image and its detection results. The date and time of detection are listed first; below them are the captured image and a table which shows the id, type, and accuracy of every pet detection on the image. The component is used by the main page.
-
-  <img src="img/capture.PNG" width="300"/>
+  
+  <div style="text-align: center;">
+    <img src="img/capture.PNG" width="300"/>
+  </div>  
 
 - *Main page (Posts)* represents a scrollable list of Captures. By default, when the page is selected, 10 Captures (posts) are displayed. On a button click, 10 more are loaded. There is also a filter with which the user can specify the wanted pet type, earliest detection date time, and minimum accuracy.
 
@@ -972,15 +971,17 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 **Input**: The user holds a dog / a cat / a dog or cat image in front of the Camera.
 
 **Process**:
-- The Camera continuously captures the visual data before it into images, then sends them to the Application in the Sensor Node for further processing.
-- In the Application, the ``Detection`` (Model) carries out pet detection constantly on the continuous stream of input images. Upon successful pet detection in any of the input images, that image and the corresponding detection results are forwarded to the ``Package``, which then packs these data in a JSON file and sends it to the ``Compress``. There, the data are zipped before being sent by the ``Network`` to the Kubernetes Service `restapi-svc` on the cluster. For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
+- The Camera continuously captures the visual data before it into images, then sends them to the Application in the Sensor Node.
+- In the Application, the ``Detection`` (Model) continuously carries out pet detection on the input stream of images. Upon successful pet detection in any of the input images, that image and the corresponding detection results are forwarded to the ``Package``, where the image is further processed and the detection results are packed into JSON format. The data are then encoded and zipped by the ``Compress`` before being sent by the ``Network`` to the Kubernetes Service `restapi-svc` on the cluster. For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
 - Next, `restapi-svc` forwards these data to one of the REST API Pods running on one of the worker nodes.
 - The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
 
 **Expected Output**: The user receives a Telegram notification about the new pet image and detection results, for example (*Note: the following image does not show the actual output of our system*):
 
-<img src="img/Telegram_Screenshot.png" width="375"/>
+<div style="text-align: center;">
+  <img src="img/Telegram_Screenshot.png" width="325"/>
+</div>
 
 ## Test Main Functionality
 
