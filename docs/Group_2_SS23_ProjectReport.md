@@ -158,7 +158,7 @@ flowchart LR
 | Component                       | Role                                                                                                                                                           |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Camera                          | capture and send visual data to the sensor node                                                                                                                |
-| Application                     | TODO                                                                                                                                                           |
+| Application                     | Analyse images for cats and dogs and sending it to the backend                                                                                                                                                           |
 | Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
@@ -445,6 +445,76 @@ To estimate the model performance, there were some further tests done on it. For
 
 
 ## Develop & Deploy Application
+
+**Description Application**
+On the Sensor Node itself is the application to take a image, process it and send it to the back-end. The whole code is written in Python3 and object oriented.
+6 Classes have bin created to fullfill the task
+- Camera
+- Detection
+- Network
+- Package
+- compress
+- SensorNode
+**Camera**
+  
+The Camera Class has only one Import from picamera2, which is the new version of picamera. The advantage of version two is that it can now run on 64bit systems.
+The class got three Methods one method Called take_image and take_array. Both take the current view of the Camera and return it in diffrent kind of return value.
+The last Method is the stop_camera method, which stopes the recording of images and is freeing up rescrouces.
+
+**Detection**
+
+The Detection class is used to analyse a image. It uses the pip package ultralytics.
+In the initializing of the object a path to a model get transmitted to the object and the model gets loaded.
+This is happening to prevent the need to load multiple times the model and wasting rescrouces.
+The class has one method make_prediction. In this method yolov8 gets used to analyse and return the results or a NoBoundingboxDetected exception, which is a self made exception.
+
+**Network**
+
+The Network class is there to send a package/json file to the backend. It has one public method called sendPost(). This uses the pip package request to send a post reqeust to a URL.
+It has one private method called _send(), which first check if there is a package to send and how many there are. This Method has a queue implemented, this could be used to queue up reqeust and send the packages more packed to the backend.
+This could prevent some overhead and speed up the process.
+
+**Package**
+
+In the Package container class the return value of the detection class get processed and transformed into a json. At the same time the Original input image gets processed. All detected objects gets a green box and a unique number. 
+For this image manipulation we used opencCv2 and numpy. The image afterwards gets converted into a Base64 string using the Compress class. To exectue those steps only the public method toJson() needs to be exectued.
+
+The Json string:
+{
+ "picture": " ",
+ "date": "2023-05-29",
+ "time": "11:03:46",
+ "detections": [
+ {
+   "type": "Dog",
+   "accuracy": 0.9125242233276367,
+   "BID": 1
+  }, ... ]
+
+**Compress**
+
+The Compress class is there to reduce the file output size and make it faster to send data.
+It has two methods for converting a bytearray to either jpg or png and one more function to zip any exsiting string like a json string.
+The class can reduce a file of the size of approximatly 2 mb to 700kb. Additonally it has a method toBase64 to transform the image to a base64 string.
+To convert the image we use PIL. The method we use for requieres us to temporarly save it to the hardrive and than load it again. We decided to quick save it on dev/shm, which is a folder in the RAM. All data on it is volatile and will be discrarded after a restart.
+
+**Controller/SensorNode**
+
+The main file is called sensorNode.py. This file needs to be executed inorder to use the application. It has a unlimited loop, which uses itertools.count(), which automatically counts the interations.
+The application itself is a console application. It has Argparse implemented to exchange important configuration at runtime without the need of recoding.
+We use the following Arguments
+- --model, default is using best.pt Path to our Model 
+-  --url, default is http:192.168.178.201/mongo/input URL to our backend
+-  --conf, default is 0,5 it sets the lowest percentage of confidence our model should accept
+-  --queue, default is 1 it sets the queue lenght in the Network class
+-  --debug, default is false it saves the output image and output package
+-  --single, default is false if true the application has only one iteration and than shutsdown
+
+  For help use python sensorNode.py --help
+  For a quick execution use python sensorNode.py
+
+
+
 
 <div style="page-break-after: always"></div>
 
