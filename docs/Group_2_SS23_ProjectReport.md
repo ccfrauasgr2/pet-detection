@@ -155,17 +155,17 @@ flowchart LR
 <br>
 <br>
 
-| Component                       | Role                                                                                                                                                           |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                          | capture and send visual data to the sensor node                                                                                                                |
-| Application                     | Analyse images for cats and dogs and sending it to the backend                                                                                                                                                           |
-| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
-| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
-| REST API Pods                   | process data to facilitate data communication between system components                                                                                        |
-| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
-| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                               |
-| Local PC                        | serve as tool for setting up system                                                                                                                            |
+| Component                       | Role                                                                                                                                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Camera                          | capture and send visual data to the sensor node                                                                                                                                      |
+| Application                     | - analyze visual data for pet detection<br>- process and pack pet image & detection results into JSON format<br>- compress JSON data into ZIP file<br>- send ZIP file to the cluster |
+| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                               |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                                   |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                               |
+| REST API Pods                   | process data to facilitate data communication between system components                                                                                                              |
+| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS)                       |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                                     |
+| Local PC                        | serve as tool for setting up system                                                                                                                                                  |
 
 
 **System Behavior**: See [Test System](#test-system) section.
@@ -446,75 +446,80 @@ To estimate the model performance, there were some further tests done on it. For
 
 ## Develop & Deploy Application
 
-**Description Application**
-On the Sensor Node itself is the application to take a image, process it and send it to the back-end. The whole code is written in Python3 and object oriented.
-6 Classes have bin created to fullfill the task
-- Camera
-- Detection
-- Network
-- Package
-- compress
-- SensorNode
+**Description**
+
+On the Sensor Node itself is *the* Application to take an image, process it, and send it to the backend. Six classes have been created for that purpose:
+
+- ``Camera``
+- ``Detection``
+- ``Package``
+- ``Compress``
+- ``Network``
+- ``SensorNode``
+
+The Application code is object-oriented and written in ``Python3``.
+  
 **Camera**
   
-The Camera Class has only one Import from picamera2, which is the new version of picamera. The advantage of version two is that it can now run on 64bit systems.
-The class got three Methods one method Called take_image and take_array. Both take the current view of the Camera and return it in diffrent kind of return value.
-The last Method is the stop_camera method, which stopes the recording of images and is freeing up rescrouces.
+The ``Camera`` class imports the package ``picamera2``, which can run on ``64-bit`` systems.
+The class has three methods. The methods ``take_image`` and ``take_array`` capture the current visual data in front of the Camera and return them as a ``PIL`` image or a ``numpy`` array, respectively. The last method is ``stop_camera``, which stops the recording of images and frees up resources.
 
 **Detection**
 
-The Detection class is used to analyse a image. It uses the pip package ultralytics.
-In the initializing of the object a path to a model get transmitted to the object and the model gets loaded.
-This is happening to prevent the need to load multiple times the model and wasting rescrouces.
-The class has one method make_prediction. In this method yolov8 gets used to analyse and return the results or a NoBoundingboxDetected exception, which is a self made exception.
-
-**Network**
-
-The Network class is there to send a package/json file to the backend. It has one public method called sendPost(). This uses the pip package request to send a post reqeust to a URL.
-It has one private method called _send(), which first check if there is a package to send and how many there are. This Method has a queue implemented, this could be used to queue up reqeust and send the packages more packed to the backend.
-This could prevent some overhead and speed up the process.
+The ``Detection`` class analyses images by using the package ``ultralytics``, which provides methods for loading and applying a YOLO model.
+During the initialization of a ``Detection`` object, the path to the trained model is passed as a parameter to load that model into the object. The model needs only be loaded once, thereby avoiding resource wastage.
+The class uses the method ``make_prediction`` for pet detection. More specifically, in this method the trained model is called to analyse images and detect pet(s). The method returns either successful detection results or a custom ``NoBoundingboxDetected`` exception indicating that no pet(s) could be detected.
 
 **Package**
 
-In the Package container class the return value of the detection class get processed and transformed into a json. At the same time the Original input image gets processed. All detected objects gets a green box and a unique number. 
-For this image manipulation we used opencCv2 and numpy. The image afterwards gets converted into a Base64 string using the Compress class. To exectue those steps only the public method toJson() needs to be exectued.
+The ``Package`` class packs the results of the ``Detection`` class into JSON format.
+At the same time, the original input image is also processed: every detected object (pet) on the image will be framed inside a green bounding box and assigned a unique (identifier) number. For that purpose, the ``opencv2`` and ``numpy`` packages are used. To execute these steps, only the method ``toJson`` needs to be called.
+Afterwards, the image is converted into a ``base64`` string using the ``Compress`` class.
 
-The Json string:
+Sample JSON data:
+```
 {
- "picture": " ",
+ "picture": <Encoded string of image>,
  "date": "2023-05-29",
  "time": "11:03:46",
  "detections": [
- {
+  {
    "type": "Dog",
    "accuracy": 0.9125242233276367,
    "BID": 1
-  }, ... ]
+  },
+  ... 
+ ]
+}
+```
 
 **Compress**
 
-The Compress class is there to reduce the file output size and make it faster to send data.
-It has two methods for converting a bytearray to either jpg or png and one more function to zip any exsiting string like a json string.
-The class can reduce a file of the size of approximatly 2 mb to 700kb. Additonally it has a method toBase64 to transform the image to a base64 string.
-To convert the image we use PIL. The method we use for requieres us to temporarly save it to the hardrive and than load it again. We decided to quick save it on dev/shm, which is a folder in the RAM. All data on it is volatile and will be discrarded after a restart.
+The ``Compress`` class is tasked with reducing the size of the JSON data and the pet image output by the `Package` class, as this will enable faster data transfer to the cluster.
+The class provides the methods `compress_jpg` and `compress_png` to convert a ByteArray image into a JPG or a PNG, respectively. These method require us to temporarily save the image to the hardrive and then load it again. We decided to quickly save the image to ``dev/shm``, which is a folder in RAM. All data on RAM are volatile and will be discarded after restart.
+The class also provides a method named `compress_zip` for zipping data and a method named ``toBase64`` for converting an image into a ``base64`` string.
+
+**Network**
+
+The ``Network`` class is there to send JSON data (i.e., packages) to the cluster. It has a method ``sendPost`` which uses the package ``request`` to send a POST request to the designated URL on the cluster.
+The class also has one method called ``_send`` which first checks if there are any packages to send and how many. ``_send`` was implemented with a queue, which can be used to queue up requests and send the packages more packed to the cluster.
+This implementation could reduce some overhead and speed up the data transferring process.
 
 **Controller/SensorNode**
 
-The main file is called sensorNode.py. This file needs to be executed inorder to use the application. It has a unlimited loop, which uses itertools.count(), which automatically counts the interations.
-The application itself is a console application. It has Argparse implemented to exchange important configuration at runtime without the need of recoding.
-We use the following Arguments
-- --model, default is using best.pt Path to our Model 
--  --url, default is http:192.168.178.201/mongo/input URL to our backend
--  --conf, default is 0,5 it sets the lowest percentage of confidence our model should accept
--  --queue, default is 1 it sets the queue lenght in the Network class
--  --debug, default is false it saves the output image and output package
--  --single, default is false if true the application has only one iteration and than shutsdown
+The main file is called ``sensorNode.py``. This file needs to be executed in order to use the Application. It has an unlimited loop, which uses ``itertools.count()``, which automatically counts the iterations.
+The Application itself is a console application. It has ``argparse`` implemented to exchange important configuration at runtime without the need of recoding.
+We use the following ``arguments``:
+- ``--model``, default is ``model/best.pt``, Path to our Model 
+- ``--url``, default is ``http://192.168.178.201/mongo/input``, URL of our backend on the cluster
+- ``--conf``, default is ``0.5``, it sets the lowest percentage of confidence our model should accept
+- ``--queue``, default is ``1``, it sets the queue length in the ``Network`` class
+- ``--debug``, default is ``false``, it saves the output image and output package
+- ``--single``, default is ``false``, if true the application has only one iteration and then shuts down
 
-  For help use python sensorNode.py --help
-  For a quick execution use python sensorNode.py
+For help, run the command ``python sensorNode.py --help``
 
-
-
+For a quick execution, run ``python sensorNode.py``
 
 <div style="page-break-after: always"></div>
 
@@ -968,8 +973,8 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Process**:
 - The Camera continuously captures the visual data before it into images, then sends them to the Application in the Sensor Node for further processing.
-- In the Application, the Detection Model carries out pet detection constantly on the continuous stream of input images. Upon successful pet detection in any of the input images, that image and the corresponding detection results are forwarded to the Packager, which then packs these data in a JSON file and sends it to the Compressor. There, the data are zipped before being sent by the Network to the Kubernetes Service `restapi-svc` on the cluster.
-- `restapi-svc` then forwards these data to one of the REST API Pods running on one of the worker nodes.
+- In the Application, the ``Detection`` (Model) carries out pet detection constantly on the continuous stream of input images. Upon successful pet detection in any of the input images, that image and the corresponding detection results are forwarded to the ``Package``, which then packs these data in a JSON file and sends it to the ``Compress``. There, the data are zipped before being sent by the ``Network`` to the Kubernetes Service `restapi-svc` on the cluster. For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
+- Next, `restapi-svc` forwards these data to one of the REST API Pods running on one of the worker nodes.
 - The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
 
