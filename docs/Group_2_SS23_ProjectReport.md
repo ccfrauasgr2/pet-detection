@@ -155,17 +155,17 @@ flowchart LR
 
 <div style="page-break-after: always"></div>
 
-| Component                       | Role                                                                                                                                                                                 |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Camera                          | capture and send visual data to the sensor node                                                                                                                                      |
-| Application                     | - analyze visual data for pet detection<br>- process and pack pet image & detection results into JSON format<br>- compress JSON data into ZIP file<br>- send ZIP file to the cluster |
-| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                               |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                                   |
-| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                               |
-| REST API Pods                   | process data to facilitate data communication between system components                                                                                                              |
-| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS)                       |
-| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                                     |
-| Local PC                        | serve as tool for setting up system                                                                                                                                                  |
+| Component                       | Role                                                                                                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | capture and send visual data to the sensor node                                                                                                                                    |
+| Application                     | - analyze visual data for pet detection<br>- process and pack pet image & detection results into JSON format<br>- compress JSON data to ZIP file<br>- send ZIP file to the cluster |
+| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                             |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                                 |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                             |
+| REST API Pods                   | process data to facilitate data communication between system components                                                                                                            |
+| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS)                     |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                                   |
+| Local PC                        | serve as tool for setting up system                                                                                                                                                |
 
 **System Behavior**: See [Test System](#test-system) section.
 
@@ -202,7 +202,7 @@ flowchart LR
     subgraph Kubernetes Cluster
   
     mongo-sts[StatefulSet\nmongo-sts]
-    mongo-read-svc[LoadBalancer Service\nmongo-read-svc]
+    mongo-svc[LoadBalancer Service\nmongo-svc]
     mongo-headless-svc[Service\nmongo-headless-svc]
     mongo-secret[Secret\nmongo-secret]
     mongo-config[ConfigMap\nmongo-config]
@@ -214,8 +214,8 @@ flowchart LR
     restapi-secret[Secret\nrestapi-secret]
     
 
-    mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
-    mongo-sts -.- mongo-headless-svc -.- restapi-deployment
+    mongo-sts --- mongo-svc --- restapi-deployment --- restapi-svc --- frontend-deployment --- frontend-svc
+    mongo-headless-svc -.- mongo-sts
     mongo-secret --> mongo-sts & restapi-deployment
     mongo-config --> restapi-deployment 
     restapi-config --> frontend-deployment
@@ -229,11 +229,10 @@ flowchart LR
     tnb[TNB]
 
     restapi-deployment --> tnb
-    compass --- mongo-read-svc
+    mongo-svc --- compass
     app --> restapi-svc
-    user --- frontend-svc
+    frontend-svc --- user
     
-
 ```
 
 **Project Plan**:
@@ -707,6 +706,8 @@ Expected installation result:
 
 ## Set up DBS
 
+**Pre-API-Development Setup**
+
 Since we delegate the replication of PV data to the DBS Pods, we must use a DBS that enables data replication across its instances. That DBS must also support `arm64/v8` architecture on our Pi 3. Another important factor to consider is which type of DBS (relational or NoSQL) to be used for storing images and detection results, as these data will be queried later by users. Hence for each DBS type to consider, we pick a representative DBS that satisfies the above necessary conditions, then compare their characteristics:
 
 | [``MySQL``](https://www.mysql.com/) (Relational DBS)                            | [``MongoDB``](https://www.mongodb.com/) (NoSQL Document DBS)                           |
@@ -740,7 +741,7 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   kubectl exec -it mongo-sts-0 -- mongo
 
   # Initiate a replica set with the available MongoDB servers/pods "mongo-sts-0", "mongo-sts-1", & "mongo-sts-2"
-  # "mongo-sts-0" will be set as the primary node, while the other will be set as secondary nodes
+  # "mongo-sts-0" will be set as the primary instance, while the other will be set as secondary instances
   rs.initiate(
      {
         _id: "rs0",
@@ -756,21 +757,25 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   # Exit from "mongo-sts-0"
   exit
   
-  # Go into "mongo-sts-0" again to check the initiated primary and secondary nodes
+  # Go into "mongo-sts-0" again to check the initiated primary and secondary instances
   kubectl exec -it mongo-sts-0 -- mongo
   rs.status()
 
-  # Enable replication from primary to secondary nodes
+  # Enable replication from primary to secondary instances
   rs.secondaryOk()
   ```
 
-For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-read-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access it and thus the MongoDB database from outside the cluster. 
+For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access `mongo-svc` and the MongoDB database from outside the cluster. 
 
 ![](img/dbs1.png)
 
 In ``MongoDB Compass/GUI``, configure the connection string as follows to enable connection:
 
 ![](img/dbs2.png)
+
+**Mid-API-Development Setup**
+
+During 
 
 ## Implement TNB
 
@@ -994,8 +999,8 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Process**:
 - The Frontend Pod that provides the frontend UI to the user makes a HTTP request from the user's request (see **Service** part of the [Develop Frontend](#develop-frontend) section for more information). The HTTP request is then sent to the Kubernetes Service `restapi-svc` on the cluster.
-- Next, `restapi-svc` forwards that HTTP request to one of the REST API Pods, which then translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-read-svc` on the cluster.
-- `mongo-read-svc` forwards the received query to one of the ``MongoDB`` instances (Pods), which handles the query by retrieving the requested data from its associated Persistent Volume.
+- Next, `restapi-svc` forwards that HTTP request to one of the REST API Pods, which then translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-svc` on the cluster.
+- `mongo-svc` forwards the received query to one of the ``MongoDB`` instances (Pods), which handles the query by retrieving the requested data from its associated Persistent Volume.
 - Finally, the requested data are passed back along the chain of communication to the Frontend Pod that received the user's request, which then displays the requested data on the frontend UI.
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
