@@ -12,8 +12,8 @@ async def send_telegram_notification(detection_results):
     """
 
     # Retrieve the bot token and group chat ID from environment variables
-    bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
-    group_chat_id = "-" + base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode("utf-8")
+    bot_token = os.environ['TELEGRAM_BOT_TOKEN']
+    group_chat_id = "-" + os.environ['TELEGRAM_CHAT_ID']
 
     # Get image for notification
     img = base64.b64decode(detection_results["picture"])
@@ -32,37 +32,3 @@ async def send_telegram_notification(detection_results):
 
     # Send detection results to the TNB
     await bot.send_photo(chat_id=group_chat_id, photo=img, caption=caption)
-
-"""
-# EXAMPLE USAGE
-
-# Initialize environment variables
-os.environ['TELEGRAM_BOT_TOKEN'] = "NTg3MDMxOTU2ODpBQUhhN1RIU3hJSllJTU1tUGNrNUlIZV9qVVRHYmNpRHBkOA=="
-os.environ['TELEGRAM_CHAT_ID'] = "OTg4MzM2MzA2"
-
-# Sample image encoded as base64-string
-with open("img/sample_img.png", "rb") as image_file:
-    encoded_img = base64.b64encode(image_file.read())
-
-# Sample detection results
-detection_results = {
-  "picture": encoded_img,
-  "date": "28.05.2023",
-  "time": "10:01:23",
-  "detections": [
-    {
-      "type": "dog",
-      "accuracy": 0.91,
-      "BID": 1
-    },
-    {
-      "type": "cat",
-      "accuracy": 0.79,
-      "BID": 2
-    }
-  ]
-}
-
-# Run method to test TNB
-asyncio.run(send_telegram_notification(detection_results))
-"""
