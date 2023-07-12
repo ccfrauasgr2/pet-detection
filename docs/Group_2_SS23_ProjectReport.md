@@ -822,8 +822,8 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
   # EXAMPLE USAGE
   
   # Initialize environment variables
-  os.environ['TELEGRAM_BOT_TOKEN'] = "NTg3MDMxOTU2ODpBQUhhN1RIU3hJSllJTU1tUGNrNUlIZV9qVVRHYmNpRHBkOA=="
-  os.environ['TELEGRAM_CHAT_ID'] = "OTg4MzM2MzA2"
+  os.environ['TELEGRAM_BOT_TOKEN'] = "<Base64 encoded string of the bot token>"
+  os.environ['TELEGRAM_CHAT_ID'] = "<Base64 encoded string of the group chat id>"
   
   # Sample image encoded as base64-string
   with open("img/sample_img.png", "rb") as image_file:
@@ -972,7 +972,12 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Process**:
 - The Camera continuously captures the visual data before it into images, then sends them to the Application in the Sensor Node.
-- In the Application, the ``Detection`` (Model) continuously carries out pet detection on the input stream of images. Upon successful pet detection in any of the input images, that image and the corresponding detection results are forwarded to the ``Package``, where the image is further processed and the detection results are packed into JSON format. The data are then encoded and zipped by the ``Compress`` before being sent by the ``Network`` to the Kubernetes Service `restapi-svc` on the cluster. For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
+- In the Application:
+  - The ``Detection`` (Model) carries out pet detection constantly on the continuous stream of input images. 
+  - Upon successful detection, the resulting image and the corresponding detection results are forwarded to the ``Package``, where the image is further processed and the detection results are packed into JSON format. 
+  - The *packaged* data are sent to the ``Compress``, which encodes the processed image as ``base64`` string and puts it into the JSON results before zipping and directing them to the ``Network``.
+  - The ``Network`` forwards the *compressed* data to the Kubernetes Service `restapi-svc` on the cluster. 
+  - For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
 - Next, `restapi-svc` forwards these data to one of the REST API Pods running on one of the worker nodes.
 - The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
@@ -980,7 +985,7 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 **Expected Output**: The user receives a Telegram notification about the new pet image and detection results, for example (*Note: the following image does not show the actual output of our system*):
 
 <div style="text-align: center;">
-  <img src="img/Telegram_Screenshot.png" width="325"/>
+  <img src="img/Telegram_Screenshot.png" width="400"/>
 </div>
 
 ## Test Main Functionality
