@@ -28,27 +28,60 @@ def mongo_test():
 
 @app.route("/mongo/new_db", methods=["POST"])
 def mongo_new_db():
+    try:
+        data = request.get_json()
+        """
+        package = mg.mongo_establish_connection_write()
+
+        if package["code"] == 0 or package["code"] == 1:
+            return package["response"]
+
+        """
+        """
+        if code != 0 or 1, dann bedeutet das, dass die Verbindung herrgestellt werden konnte
+        'response' ist dann kein make_response-Objekt, sondern der headless-client
+        """
+        """
+        headless_client = package["response"]
+
+        # Datenbank erstellen
+        db = headless_client[data["name"]]
+
+        # Collections erstellen
+        db["pics"]
+        db["pets"]
+        """
+        return make_response("DB & Coll. erfolgreich erstellt!", 201)
+    except Exception as error:
+        return make_response(str(error), 503)
+
+@app.route("/mongo/db", methods=["POST"])
+def mongo_db():
     data = request.get_json()
+
     package = mg.mongo_establish_connection_write()
 
-    if package["code"] == 0 or package["code"] == 1:
+    if package["code"] == 0:
         return package["response"]
 
-    """
-    if code != 0 or 1, dann bedeutet das, dass die Verbindung herrgestellt werden konnte
-    'response' ist dann kein make_response-Objekt, sondern der headless-client
-    """
-    headless_client = package["response"]
+    client = package["response"]
 
+    """
     # Datenbank erstellen
     db = headless_client[data["name"]]
 
     # Collections erstellen
     db["pics"]
     db["pets"]
+    """
+    host = "jo"
+    host, port = client.primary
+    #address = host.address
+    print(host)
+    #print(str(host))
+    response = make_response(str(host), 201)
 
-    return make_response("DB & Coll. erfolgreich erstellt!", 201)
-
+    return response
 
 @app.route("/mongo/input", methods=["POST"])
 def mongo_camera_post():
