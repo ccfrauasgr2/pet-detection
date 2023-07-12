@@ -8,7 +8,7 @@ def mongo_connect_read():
     # Retrieve the environment variables
     user_name = "admin" #"YWRtaW4="
     user_pwd = "CompNet123" #"Q29tcE5ldDEyMw=="
-    mongo_initdb_config = "192.168.178.200"
+    mongo_initdb_config = "192.168.178.204"
     """
     try:
         user_name = os.environ['MONGO_INITDB_ROOT_USERNAME']
@@ -21,8 +21,8 @@ def mongo_connect_read():
         return [0, result]
     """
     # Construct the MongoDB connection string
-    #mongo_connection_string = f"mongodb://{user_name}:{user_pwd}@{mongo_initdb_config}"
-    mongo_connection_string  = "mongodb://mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017/"
+    mongo_connection_string = f"mongodb://{user_name}:{user_pwd}@{mongo_initdb_config}"
+    #mongo_connection_string  = "mongodb://mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017/"
 
     # Verbindung zur MongoDB herstellen
     try:
