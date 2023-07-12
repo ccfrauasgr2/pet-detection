@@ -1,7 +1,6 @@
 import os
 import telegram # requires "pip install python-telegram-bot"
 import base64
-import asyncio
 
 
 async def send_telegram_notification(detection_results):
