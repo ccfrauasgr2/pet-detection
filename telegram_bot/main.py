@@ -35,8 +35,8 @@ async def send_telegram_notification(detection_results):
 
 
 
-os.environ['TELEGRAM_BOT_TOKEN'] = "NTg3MDMxOTU2ODpBQUhhN1RIU3hJSllJTU1tUGNrNUlIZV9qVVRHYmNpRHBkOA=="
-os.environ['TELEGRAM_CHAT_ID'] = "OTg4MzM2MzA2"
+os.environ['TELEGRAM_BOT_TOKEN'] = "<Base64 encoded string of the bot token>"
+os.environ['TELEGRAM_CHAT_ID'] = "<Base64 encoded string of the group chat id>"
 
 with open("img/sample_img.png", "rb") as image_file:
     encoded_img = base64.b64encode(image_file.read())
