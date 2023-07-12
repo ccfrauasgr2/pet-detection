@@ -60,7 +60,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='SensorNode',
                                      description='Detect Cats and Dogs')
     parser.add_argument('--model',default='model/best.pt', help="Path To Model",type=str)
-    parser.add_argument('--url',default='192.168.178.61/pets/post', help="URL to server",type=str )
+    parser.add_argument('--url',default='http://192.168.178.201/mongo/input', help="URL to server",type=str )
     parser.add_argument('--conf', help="Lowest level of detection rate", type=float, default=0.5)
     parser.add_argument('--queue',default=1, help="Number of Images before it get send", type=int )
     parser.add_argument('--debug', help="Image should be saved", action='store_true')
