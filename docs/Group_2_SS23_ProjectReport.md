@@ -209,7 +209,7 @@ flowchart LR
     subgraph Kubernetes Cluster
   
     mongo-sts[StatefulSet\nmongo-sts]
-    mongo-read-svc[LoadBalancer Service\nmongo-read-svc]
+    mongo-svc[LoadBalancer Service\nmongo-svc]
     mongo-headless-svc[Service\nmongo-headless-svc]
     mongo-secret[Secret\nmongo-secret]
     mongo-config[ConfigMap\nmongo-config]
@@ -221,7 +221,7 @@ flowchart LR
     restapi-secret[Secret\nrestapi-secret]
     
 
-    mongo-sts --- mongo-read-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
+    mongo-sts --- mongo-svc --- restapi-deployment --- restapi-svc   --- frontend-deployment --- frontend-svc
     mongo-sts -.- mongo-headless-svc -.- restapi-deployment
     mongo-secret --> mongo-sts & restapi-deployment
     mongo-config --> restapi-deployment 
@@ -236,7 +236,7 @@ flowchart LR
     tnb[TNB]
 
     restapi-deployment --> tnb
-    compass --- mongo-read-svc
+    compass --- mongo-svc
     courier --> restapi-svc
     user --- frontend-svc
     
@@ -726,7 +726,7 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   rs.secondaryOk()
   ```
 
-For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-read-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access it and thus the MongoDB database from outside the cluster. 
+For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access it and thus the MongoDB database from outside the cluster. 
 
 ![](img/dbs1.png)
 

@@ -66,4 +66,4 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: mongo-config
-              key: mongo-read-url
+              key: mongo-url
