@@ -775,10 +775,10 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Mid-API-Development Setup**
 
-Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Although this decision means that the High Availability requirement of the project cannot be fulfilled, we argue that the system must be available first before it should be highly available.
+Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Although this decision means that the [Test High Availability](#test-high-availability) will fail, we argue that the system must be available first before it should be highly available.
 
 Here are the changes in the setup:
-- There is now only one ``MongoDB`` instance on the cluster (`mongo-sts-0`).
+- There is now only one ``MongoDB`` instance (`mongo-sts-0`) on the cluster instead of three as in the Pre-API-Development Setup.
 - ``mongo-read-svc`` (assigned external IP: `192.168.178.200`), which was created initially to receive only read requests, was replaced with `mongo-svc` (assigned external IP: `192.168.178.204`), which currently receives both read and write requests, since there exists only one ``MongoDB`` instance to read from and write to. This change is optional, as ``mongo-read-svc`` can also be configured to handle both read and write requests, but in that case the name of ``mongo-read-svc`` would not reflect exactly the types of request it receives.
 
 ## Implement TNB
@@ -917,27 +917,30 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
   - The *packaged* data are sent to the ``Compress``, which encodes the processed image as ``base64`` string and puts it into the JSON results before zipping and directing them to the ``Network``.
   - The ``Network`` forwards the *compressed* data to the Kubernetes Service `restapi-svc` on the cluster. 
   - For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
-- Next, `restapi-svc` forwards these data to one of the REST API Pods running on one of the worker nodes.
-- The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
+- Next, `restapi-svc` forwards these data to one of the REST API Pods running on one of the worker nodes. The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
 
-**Expected Output**: The user receives a Telegram notification about the new pet image and detection results, for example (*Note: the following image does not show the actual output of our system*):
+**Expected Output**: The user receives a Telegram notification about the new pet image and detection results. See following image for example (*Note: this image does not show the actual output of our system*).
 
 <div style="text-align: center;">
-  <img src="img/Telegram_Screenshot.png" width="400"/>
+  <img src="img/Telegram_Screenshot.png" width="375"/>
 </div>
+
+**Current Status**: <span style="color: #01368c;">**TEST_IN_PROGRESS**</span>
 
 ## Test Main Functionality
 
 **Input**: The user interacts with the frontend UI to request certain data from the system.
 
 **Process**:
-- The Frontend Pod that provides the frontend UI to the user makes a HTTP request from the user's request (see **Service** part of the [Develop Frontend](#develop-frontend) section for more information). The HTTP request is then sent to the Kubernetes Service `restapi-svc` on the cluster.
-- Next, `restapi-svc` forwards that HTTP request to one of the REST API Pods, which then translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-svc` on the cluster.
-- `mongo-svc` forwards the received query to one of the ``MongoDB`` instances (Pods), which handles the query by retrieving the requested data from its associated Persistent Volume.
+- The Frontend Pod that provides the user with the frontend UI makes a HTTP request from the user's request (see **Service** part of the [Develop Frontend](#develop-frontend) section for more information). The HTTP request is then sent to the Kubernetes Service `restapi-svc`.
+- Next, `restapi-svc` forwards that HTTP request to one of the REST API Pods, which then translates the HTTP request into a ``MongoDB`` query and sends the query to the Kubernetes Service `mongo-svc`.
+- `mongo-svc` forwards the received query to the only ``MongoDB`` instance on the cluster, which handles the query by retrieving the requested data from its associated Persistent Volume.
 - Finally, the requested data are passed back along the chain of communication to the Frontend Pod that received the user's request, which then displays the requested data on the frontend UI.
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
+
+**Current Status**: <span style="color: #01368c;">**TEST_IN_PROGRESS**</span>
 
 ## Test High Availability
 
@@ -962,3 +965,5 @@ When the worker node that hosts the Primary instance fails:
 - Write requests are exclusively directed towards the new Primary instance.
 
 **Expected Output**: There is no changes in the system functionality from the user's perspective.
+
+**Current Status**: <span style="color: #ff5555;">**TEST_FAILED**</span> (due to inevitable changes in the DBS setup on the cluster, see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information).
