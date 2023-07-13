@@ -765,7 +765,7 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   rs.secondaryOk()
   ```
 
-For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access `mongo-svc` and the MongoDB database from outside the cluster. 
+For convenience we will set up ``MongoDB Compass/GUI``, so that we can check which data are available on our MongoDB database without having to go into a MongoDB server/pod. Since we use the ``LoadBalancer`` type for the Kubernetes Service `mongo-read-svc`, `MetalLB` will automatically assign a fixed IP address (`192.168.178.200` in our case) to this service, enabling ``MongoDB Compass/GUI`` to access `mongo-read-svc` and the MongoDB database from outside the cluster. 
 
 ![](img/dbs1.png)
 
@@ -775,7 +775,11 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Mid-API-Development Setup**
 
-During 
+Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Although this decision means that the High Availability requirement of the project cannot be fulfilled, we argue that the system must be available first before it should be highly available.
+
+Here are the changes in the setup:
+- There is now only one ``MongoDB`` instance on the cluster (`mongo-sts-0`).
+- ``mongo-read-svc`` (assigned external IP: `192.168.178.200`), which was created initially to receive only read requests, was replaced with `mongo-svc` (assigned external IP: `192.168.178.204`), which currently receives both read and write requests, since there exists only one ``MongoDB`` instance to read from and write to. This change is not required, as ``mongo-read-svc`` can also be configured to handle both read and write requests, but in that case the name of ``mongo-read-svc`` would not reflect exactly the types of request it receives.
 
 ## Implement TNB
 
@@ -844,12 +848,12 @@ During
     "time": "10:01:23",
     "detections": [
       {
-        "type": "dog",
+        "type": "Dog",
         "accuracy": 0.91,
         "bid": 1
       },
       {
-        "type": "cat",
+        "type": "Cat",
         "accuracy": 0.79,
         "bid": 2
       }

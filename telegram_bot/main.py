@@ -54,12 +54,12 @@ detection_results = {
   "time": "10:01:23",
   "detections": [
     {
-      "type": "dog",
+      "type": "Dog",
       "accuracy": 0.91,
       "bid": 1
     },
     {
-      "type": "cat",
+      "type": "Cat",
       "accuracy": 0.79,
       "bid": 2
     }
