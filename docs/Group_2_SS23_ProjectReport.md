@@ -352,6 +352,8 @@ flowchart LR
 
   `<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`
 
+  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).
+
   ```
   dataset/
   ├── cats
