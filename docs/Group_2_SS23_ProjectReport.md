@@ -477,12 +477,12 @@ Afterwards, the image is converted into a ``base64`` string using the ``Compress
 Sample JSON data:
 ```
 {
- "picture": <Encoded string of image>,
+ "picture": <Base64 encoded string of image>,
  "date": "2023-05-29",
  "time": "11:03:46",
  "detections": [
   {
-   "type": "Dog", "accuracy": 0.9125242233276367, "BID": 1
+   "type": "Dog", "accuracy": 0.9125242233276367, "bid": 1
   },
   ... 
  ]
@@ -802,6 +802,7 @@ During
       """
   
       # Retrieve the bot token and group chat ID from environment variables
+      # NOTE: Remove base64.b64decode().decode("utf-8") when integrating this code into API code, since Kubernetes does base64 decoding automatically for environment variables specified in Kubernetes Secret
       bot_token = base64.b64decode(os.environ['TELEGRAM_BOT_TOKEN']).decode("utf-8")
       group_chat_id = "-" + base64.b64decode(os.environ['TELEGRAM_CHAT_ID']).decode("utf-8")
   
@@ -811,7 +812,7 @@ During
       # Create caption for notification
       caption = "Detected following pet(s):"
       for det in detection_results["detections"]:
-          bid = det["BID"]
+          bid = det["bid"]
           pet_type =  det["type"]
           accuracy = det["accuracy"]
           temp = f"\nBID: {bid} - Type: {pet_type} - Accuracy: {accuracy}"
@@ -825,6 +826,8 @@ During
   
   
   # EXAMPLE USAGE
+  # FOR TESTING ON LOCAL PC ONLY
+  # NOT FOR TESTING ON CLUSTER
   
   # Initialize environment variables
   os.environ['TELEGRAM_BOT_TOKEN'] = "<Base64 encoded string of the bot token>"
@@ -837,18 +840,18 @@ During
   # Sample detection results
   detection_results = {
     "picture": encoded_img,
-    "date": "28.05.2023",
+    "date": "2023-05-28",
     "time": "10:01:23",
     "detections": [
       {
         "type": "dog",
         "accuracy": 0.91,
-        "BID": 1
+        "bid": 1
       },
       {
         "type": "cat",
         "accuracy": 0.79,
-        "BID": 2
+        "bid": 2
       }
     ]
   }
