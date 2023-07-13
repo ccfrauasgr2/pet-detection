@@ -779,7 +779,7 @@ Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instan
 
 Here are the changes in the setup:
 - There is now only one ``MongoDB`` instance on the cluster (`mongo-sts-0`).
-- ``mongo-read-svc`` (assigned external IP: `192.168.178.200`), which was created initially to receive only read requests, was replaced with `mongo-svc` (assigned external IP: `192.168.178.204`), which currently receives both read and write requests, since there exists only one ``MongoDB`` instance to read from and write to. This change is not required, as ``mongo-read-svc`` can also be configured to handle both read and write requests, but in that case the name of ``mongo-read-svc`` would not reflect exactly the types of request it receives.
+- ``mongo-read-svc`` (assigned external IP: `192.168.178.200`), which was created initially to receive only read requests, was replaced with `mongo-svc` (assigned external IP: `192.168.178.204`), which currently receives both read and write requests, since there exists only one ``MongoDB`` instance to read from and write to. This change is optional, as ``mongo-read-svc`` can also be configured to handle both read and write requests, but in that case the name of ``mongo-read-svc`` would not reflect exactly the types of request it receives.
 
 ## Implement TNB
 
