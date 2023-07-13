@@ -1,0 +1,15 @@
+.header {
+    position: fixed;
+    top: 0%;
+    width: 100%;
+    z-index: 999;
+}
+
+.footer {
+    background-color: whitesmoke;
+    padding: 10px;
+    bottom: 0;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+}
