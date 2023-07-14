@@ -93,7 +93,7 @@
 - [Test System](#test-system)
   - [Test TNB](#test-tnb)
   - [Test Main Functionality](#test-main-functionality)
-  - [Test High Availability](#test-high-availability)
+  - [Test High Availability DBS](#test-high-availability-dbs)
 
 <div style="page-break-after: always"></div>
 
@@ -155,17 +155,17 @@ flowchart LR
 
 <div style="page-break-after: always"></div>
 
-| Component                       | Role                                                                                                                                                                               |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Camera                          | capture and send visual data to the sensor node                                                                                                                                    |
-| Application                     | - analyze visual data for pet detection<br>- process and pack pet image & detection results into JSON format<br>- compress JSON data to ZIP file<br>- send ZIP file to the cluster |
-| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                                             |
-| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                                                 |
-| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                                             |
-| REST API Pods                   | process data to facilitate data communication between system components                                                                                                            |
-| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS)                     |
-| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                                                   |
-| Local PC                        | serve as tool for setting up system                                                                                                                                                |
+| Component                       | Role                                                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Camera                          | capture and send visual data to the sensor node                                                                                                                |
+| Application                     | - analyze visual data for pet detection<br>- process and pack pet image & detection results into JSON format<br>- send JSON data to the cluster                |
+| Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
+| Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
+| Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
+| REST API Pods                   | process data to facilitate data communication between system components                                                                                        |
+| Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
+| Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                               |
+| Local PC                        | serve as tool for setting up system                                                                                                                            |
 
 **System Behavior**: See [Test System](#test-system) section.
 
@@ -472,9 +472,13 @@ The class uses the method ``make_prediction`` for pet detection. More specifical
 
 The ``Package`` class packs the results of the ``Detection`` class into JSON format.
 At the same time, the original input image is also processed: every detected object (pet) on the image will be framed inside a green bounding box and assigned a unique (identifier) number. For that purpose, the ``opencv2`` and ``numpy`` packages are used. To execute these steps, only the method ``toJson`` needs to be called.
-Afterwards, the image is converted into a ``base64`` string using the ``Compress`` class.
 
-Sample JSON data:
+**Compress**
+
+The ``Compress`` class is tasked with converting the pet image output by the `Package` class into a ``base64`` string and putting it into the JSON data. For that purpose, the class provides the methods `compress_jpg` and `compress_png`, which convert a ByteArray image into a JPG or a PNG, respectively. These methods require us to temporarily save the image to the hardrive and then load it again. We decided to quickly save the image to ``dev/shm``, which is a folder in RAM. All data on RAM are volatile and will be discarded after restart.
+The class also provides a method named ``toBase64`` for converting an image into a ``base64`` string.
+
+Sample JSON data after ``Compress``ed:
 ```
 {
  "picture": <Base64 encoded string of image>,
@@ -488,12 +492,6 @@ Sample JSON data:
  ]
 }
 ```
-
-**Compress**
-
-The ``Compress`` class is tasked with reducing the size of the JSON data and the pet image output by the `Package` class, as this will enable faster data transfer to the cluster.
-The class provides the methods `compress_jpg` and `compress_png` to convert a ByteArray image into a JPG or a PNG, respectively. These method require us to temporarily save the image to the hardrive and then load it again. We decided to quickly save the image to ``dev/shm``, which is a folder in RAM. All data on RAM are volatile and will be discarded after restart.
-The class also provides a method named `compress_zip` for zipping data and a method named ``toBase64`` for converting an image into a ``base64`` string.
 
 **Network**
 
@@ -775,7 +773,7 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Mid-API-Development Setup**
 
-Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Although this decision means that the [Test High Availability](#test-high-availability) will fail, we argue that the system must be available first before it should be highly available.
+Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Although this decision means that the [Test High Availability DBS](#test-high-availability-dbs) will fail, we argue that the system must be available first before it should be highly available.
 
 Here are the changes in the setup:
 - There is now only one ``MongoDB`` instance (`mongo-sts-0`) on the cluster instead of three as in the Pre-API-Development Setup.
@@ -901,7 +899,7 @@ Follow these steps to deploy frontend on the Kubernetes cluster:
 To verify that our system satisfies the project requirements and functions correctly (from the end user's perspective), we created the following test cases: 
 - Test TNB
 - Test Main Functionality
-- Test High Availability
+- Test High Availability DBS
 
 We designed each test case with *the IPO (Input-Process-Output) model* in mind. The IPO model provides a structured approach for identifying and defining the inputs, processes, and expected outputs of a particular functionality or process that needs to be tested.
 
@@ -914,19 +912,19 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 - In the Application:
   - The ``Detection`` (Model) carries out pet detection constantly on the continuous stream of input images. 
   - Upon successful detection, the resulting image and the corresponding detection results are forwarded to the ``Package``, where the image is further processed and the detection results are packed into JSON format. 
-  - The *packaged* data are sent to the ``Compress``, which encodes the processed image as ``base64`` string and puts it into the JSON results before zipping and directing them to the ``Network``.
+  - The *packaged* data are sent to the ``Compress``, which encodes the processed image as ``base64`` string and puts it into the JSON results before sending them to the ``Network``.
   - The ``Network`` forwards the *compressed* data to the Kubernetes Service `restapi-svc` on the cluster. 
   - For more information about this process by the Application, see [Develop & Deploy Application](#develop--deploy-application).
-- Next, `restapi-svc` forwards these data to one of the REST API Pods running on one of the worker nodes. The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
+- Next, `restapi-svc` directs these data towards one of the REST API Pods running on one of the worker nodes. The REST API Pod receiving the data creates a notification from them and sends it to the TNB.
 - Lastly, the TNB notifies the user about the pet image and detection results on Telegram.
 
-**Expected Output**: The user receives a Telegram notification about the new pet image and detection results. See following image for example (*Note: this image does not show the actual output of our system*).
+**Expected Output**: The user receives a Telegram notification about the new pet image and detection results.
+
+**Current Status**: <span style="color: #74b72e;">**PASSED**</span>
 
 <div style="text-align: center;">
-  <img src="img/Telegram_Screenshot.png" width="375"/>
+  <img src="img/Telegram_Screenshot.png"/>
 </div>
-
-**Current Status**: <span style="color: #01368c;">**TEST_IN_PROGRESS**</span>
 
 ## Test Main Functionality
 
@@ -940,9 +938,9 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
 
-**Current Status**: <span style="color: #01368c;">**TEST_IN_PROGRESS**</span>
+**Current Status**: <span style="color: #1aa7ec;">**EXECUTING**</span>
 
-## Test High Availability
+## Test High Availability DBS
 
 **Input**: Failure of one of the worker nodes in the cluster, e.g. by unplugging it.
 
@@ -966,4 +964,4 @@ When the worker node that hosts the Primary instance fails:
 
 **Expected Output**: There is no changes in the system functionality from the user's perspective.
 
-**Current Status**: <span style="color: #ff5555;">**TEST_FAILED**</span> (due to inevitable changes in the DBS setup on the cluster, see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information).
+**Current Status**: <span style="color: #ff5555;">**ABORTED**</span> (due to inevitable changes in the DBS setup on the cluster, see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information).
