@@ -940,7 +940,7 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
 
-**Current State**: <span style="color: #1aa7ec;">**PENDING**</span> (will be updated)
+**Current State**: <span style="color: #666666;">**NOT RUN**</span> (will be updated)
 
 ## Test High Availability DBS
 
