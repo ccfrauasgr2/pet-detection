@@ -773,7 +773,7 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Mid-API-Development Setup**
 
-Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Unfortunately, this decision means that the [Test High Availability DBS](#test-high-availability-dbs) will have to be aborted. However, the system's functionality *must* take precedence over the high availability of the DBS.
+Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). Unfortunately, this decision means that the [Test High Availability DBS](#test-high-availability-dbs) will not be applicable. However, the system's functionality *must* take precedence over the high availability of the DBS.
 
 Here are the changes in the setup:
 - There is now only one ``MongoDB`` instance (`mongo-sts-0`) on the cluster instead of three as in the Pre-API-Development Setup.
@@ -920,11 +920,13 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Expected Output**: The user receives a Telegram notification about the new pet image and detection results.
 
-**Current Status**: <span style="color: #74b72e;">**PASSED**</span>
+**Current State**: <span style="color: #74b72e;">**PASSED**</span>
 
-<div style="text-align: center;">
-  <img src="img/Telegram_Screenshot.png"/>
-</div>
+**Actual Output**:
+
+![](img/Telegram_Screenshot.png)
+
+![](img/Telegram_Screenshot1.png)
 
 ## Test Main Functionality
 
@@ -938,7 +940,7 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
 
-**Current Status**: <span style="color: #1aa7ec;">**EXECUTING**</span>
+**Current State**: <span style="color: #1aa7ec;">**PENDING**</span> (will be updated)
 
 ## Test High Availability DBS
 
@@ -964,4 +966,4 @@ When the worker node that hosts the Primary instance fails:
 
 **Expected Output**: There is no changes in the system functionality from the user's perspective.
 
-**Current Status**: <span style="color: #ff5555;">**ABORTED**</span> (see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information)
+**Current State**: <span style="color: #666666;">**NOT APPLICABLE**</span> (see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information)
