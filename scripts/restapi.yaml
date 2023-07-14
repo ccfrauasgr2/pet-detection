@@ -37,7 +37,7 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - name: restapi
-        image: skywalker360/flask_pd:1.32 #TODO
+        image: skywalker360/flask_pd:1.41 #TODO
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3200 #TODO
