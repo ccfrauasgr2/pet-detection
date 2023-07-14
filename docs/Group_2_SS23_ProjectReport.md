@@ -162,7 +162,7 @@ flowchart LR
 | Persistent Volumes (PV)         | - serve as persistent storage resource in the cluster<br>- use local storage available on worker nodes                                                         |
 | Storage Service                 | - dynamically provision PV<br>- manage the underlying storage infrastructure of PV                                                                             |
 | Frontend Pods                   | - provide user interface<br>- handle user interactions                                                                                                         |
-| REST API Pods                   | process data to facilitate data communication between system components                                                                                        |
+| REST API Pods                   | process data & facilitate data communication between system components                                                                                         |
 | Database (DBS) Pods             | - handle read- and write-requests (queries) for detection results<br>- synchronize & replicate data across pods/worker nodes (Master-slave replication in DBS) |
 | Telegram Notification Bot (TNB) | notify user about detection results via Telegram                                                                                                               |
 | Local PC                        | serve as tool for setting up system                                                                                                                            |
@@ -791,7 +791,84 @@ Here are the changes in the setup:
 
 ## Develop REST API
 
+**Overview**
+
+The main tasks of the backend are to process data and to facilitate data communication between system components. More specifically, it provides an interface between the Sensor Node and the Frontend to send and retrieve data. The data sent and retrieved include the a ``base64``-encoded picture, date and time of the picture, as well as detection results such as pet type and accuracy.
+
+The programming language used for the implementation of the backend is ``Python`` in the version ``3.10``. We have chosen ``Python`` over alternatives like ``C++`` or ``Java``, because it is the only language every group member is equally familiar with. This means that everyone can help with his knowledge should problems during the development phase arise.
+
+For the communication interface we have chosen ``REST`` as our framework over other alternatives like ``MQTT`` because of its ease of use and scalability as well as previously good experience with it.
+
+**Setup**
+
+- Download and install ``Python 3.10`` and an IDE of choice, e.g. ``PyCharm``.
+- Download and install necessary dependencies/libraries for the project to your ``Python HOME`` directory or virtual environment.
+  - The dependencies are listed in the ``requirements.txt`` file in the ``backend`` and ``flask`` folders of the project source code.
+  - Run ``pip install -r requirements.txt`` to install the dependencies
+
+**Django-REST-API**
+
+The first version of our backend has been implemented with the use of the ``Django``-Framework. This framework provides us with a lot of built-in functionalities for the implementation of our REST-interface and the connection to our database.
+
+The ``Django`` project folder consists of the following files:
+- ``pics/``
+- ``Dockerfile``
+- ``db.sqlite3``
+- ``docker-compose.yml``
+- ``manage.py``
+- ``requirements.txt``
+
+``manage.py`` is the entry-point to our backend and must be executed with the command ``python manage.py runserver`` from the command line to boot the web application.
+
+``Sqlite3`` (``db.sqlite3``) is a database provided by the ``Django``-framework. Until our final database solution was implemented, ``Sqlite3`` served as a storage for the data utilized by the frontend for testing purposes.
+
+``requirements.txt``, ``Dockerfile``, and ``docker-compose.yml`` are all necessary config-files for the creation of a docker-image of the backend. The ``requirements.txt`` describes the required dependencies, the ``Dockerfile`` contains commands on how the image is supposed to be created, and ``docker-compose.yaml`` provides additional configuration.
+
+The ``pics/`` folder contains our internal program logic:
+- ``settings.py`` contains our overall project configuration including application definitions, database access etc.
+- ``models.py`` defines the database objects
+- ``migrations/`` folder contains all created instances of the models
+- ``serializiers.py`` defines serializers based on the database object definitions of ``models.py``. They are used to check if the correctness of the data sent by the camera module to backend.
+- ``telebot.py`` implements a basic telegram-bot that posts a notification if a new picture has been sent to the backend by the camera
+- ``urls.py`` defines the URLs used by the camera and the frontend to access the backend
+- ``views.py`` implements the functionality of the urls.
+  - Retrieve JSON data from the payload of the request
+  - Check validity of the data via the serializers
+  - save/retrieve data to/from the database
+  - return a response to the client (including the retrieved data)
+
+Once we decided to use ``MongoDB`` as our DBS, the ``Sqlite3`` DBS was not needed anymore and a lot of functionalities became obsolete, because ``MongoDB`` is an object-storage DBS, whereas the serializers are designed for relational databases. Additionally, there were problems with the deployment of the ``Django``-backend on the Kubernetes cluster. That is why we decided to drop ``Django`` and used the ``Flask``-Framework instead.
+
+**Flask-REST-API**
+
+The new ``Flask``-backend is more lightweight and comprehensible than the bloated ``Django``-backend. The ``Flask`` project folder includes the following files:
+- ``Dockerfile`` & ``requirements.txt`` for the docker image
+- ``app.py`` as the entry point to the application and the definition of the REST-API-functionality
+- ``mongo.py`` for creating a connection to the ``MongoDB`` on the Kubernetes cluster
+- ``telebot.py`` for the telegram notification on camera input
+
+This version of the backend has been successfully deployed on the Kubernetes cluster and provides a REST-interface for other applications inside and outside of the cluster.
+
 ## Deploy Backend
+
+The ``Flask``-backend has been deployed by following these steps:
+1. Create a docker image of the application with this command:
+   
+   ```
+   docker build --platform linux/arm64 -t skywalker360/flask_pd:<tag>   
+   ``` 
+
+   The ``<tag>`` is to be filled with the newest tag available + 0.1
+2. Push the docker image to the Docker Hub repository
+3. Apply the following scripts in the project source code:
+
+   ```
+   # On local PC, change to script directory, then
+   kubectl apply -f restapiSecret.yaml   
+   kubectl apply -f restapiConfig.yaml   
+   kubectl apply -f restapi.yaml   
+   ```
+
 
 ## Develop Frontend
 
