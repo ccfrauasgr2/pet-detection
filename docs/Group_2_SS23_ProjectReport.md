@@ -738,7 +738,7 @@ Since we prioritize *setup complexity* ``>`` *performance*, ``MongoDB`` is our c
   # On local PC, go into the first MongoDB server/pod "mongo-sts-0"
   kubectl exec -it mongo-sts-0 -- mongo
 
-  # Initiate a replica set with the available MongoDB servers/pods "mongo-sts-0", "mongo-sts-1", & "mongo-sts-2"
+  # Initiate a replica set named "rs0" with the available MongoDB servers/pods "mongo-sts-0", "mongo-sts-1", & "mongo-sts-2"
   # "mongo-sts-0" will be set as the primary instance, while the other will be set as secondary instances
   rs.initiate(
      {
@@ -773,10 +773,10 @@ In ``MongoDB Compass/GUI``, configure the connection string as follows to enable
 
 **Mid-API-Development Setup**
 
-Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would have to send a read request to `mongo-read-svc` to query for the DNS name of that instance first (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*). The simplification of the DBS setup enabled the system to function properly. Unfortunately, this decision means that the [Test High Availability DBS](#test-high-availability-dbs) will not be applicable. However, the system's functionality *must* take precedence over the high availability of the DBS.
+Initially, for the REST API Pods to write data to the Primary ``MongoDB`` instance (the only one in the replica set receiving write operations/requests), they would first have to send a read request to `mongo-read-svc` to query for the DNS name of that instance (e.g., `mongo-sts-0`). Only then can the REST API Pods send their write requests to the Primary ``MongoDB`` instance's DNS address (e.g., `mongo-sts-0.mongo-headless-svc.default.svc.cluster.local:27017`), which is exposed to them by the Kubernetes Service `mongo-headless-svc`. However, during the development of REST API, we were unable to get the DNS name of the Primary ``MongoDB`` instance while querying for it. Since the debugging process could not produce any significant results and we did not have enough time to consider other DBS options, we had to discard the `MongoDB Replica Set` setup on the cluster (i.e., the *Pre-API-Development Setup*) and went with only one ``MongoDB`` instance instead (i.e., the *Mid-API-Development Setup*), which enabled the system to function properly. As a consequence of changing the initial DBS setup, [Test High Availability DBS](#test-high-availability-dbs) will have to be skipped. However, from our perspective, the system's functionality takes precedence over the high availability of the DBS.
 
 Here are the changes in the setup:
-- There is now only one ``MongoDB`` instance (`mongo-sts-0`) on the cluster instead of three as in the Pre-API-Development Setup.
+- There is now only one ``MongoDB`` instance (`mongo-sts-0`) on the cluster as opposed to three in the Pre-API-Development Setup.
 - ``mongo-read-svc`` (assigned external IP: `192.168.178.200`), which was created initially to receive only read requests, was replaced with `mongo-svc` (assigned external IP: `192.168.178.204`), which currently receives both read and write requests, since there exists only one ``MongoDB`` instance to read from and write to. This change is optional, as ``mongo-read-svc`` can also be configured to handle both read and write requests, but in that case the name of ``mongo-read-svc`` would not reflect exactly the types of request it receives.
 
 ## Implement TNB
@@ -940,7 +940,7 @@ We designed each test case with *the IPO (Input-Process-Output) model* in mind. 
 
 **Expected Output**: The data requested by the user are displayed on the frontend UI.
 
-**Current State**: <span style="color: #666666;">**NOT RUN**</span> (will be updated)
+**Current State**: <span style="color: #1aa7ec;">**NOT RUN**</span> (will be updated)
 
 ## Test High Availability DBS
 
@@ -966,4 +966,4 @@ When the worker node that hosts the Primary instance fails:
 
 **Expected Output**: There is no changes in the system functionality from the user's perspective.
 
-**Current State**: <span style="color: #666666;">**NOT APPLICABLE**</span> (see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information)
+**Current State**: <span style="color: #666666;">**SKIPPED**</span> (see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information)
