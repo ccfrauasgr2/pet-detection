@@ -964,4 +964,4 @@ When the worker node that hosts the Primary instance fails:
 
 **Expected Output**: There is no changes in the system functionality from the user's perspective.
 
-**Current Status**: <span style="color: #ff5555;">**ABORTED**</span> (due to inevitable changes in the DBS setup on the cluster, see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information).
+**Current Status**: <span style="color: #ff5555;">**ABORTED**</span> (see **Mid-API-Development Setup** part of the [Set up DBS](#set-up-dbs) section for more information)
