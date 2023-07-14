@@ -32,4 +32,4 @@ class Compress:
 		
 	def toBase64(self):
 		with open(self.last_img_path , 'rb') as f:
-			return base64.b64encode(f.read()).decode('utf-8')
+			return base64.b64encode(f.read()).decode()
