@@ -334,25 +334,15 @@ flowchart LR
   │   ├── megaDetector.json
   │   ├── cat_0.png
   │   ├── cat_1.png
-  │   ├── cat_2.png
   │   ├── ...
   ├── dogs
   │   ├── megaDetector.json
   │   ├── dog_0.png
   │   ├── dog_1.png
-  │   ├── dog_2.png
   │   └── ...
   ```
 
-- Then, we converted the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py), after this the images are ready for training. The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector 
-  
-  `<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`
-
-  to YOLOv8
-
-  `<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`
-
-  More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).
+- Then, we converted the annotation format to the YOLOv8 format using the [this script](https://github.com/ccfrauasgr2/pet-detection/blob/main/sensor_node/model_training/convert_to_yolov8_annotation.py), after this the images are ready for training. The annotations are extracted from the two JSON files and are written into multiple TXT files. The YOLOv8 annotation format requires one TXT annotation file for every image. Furthermore, the annotation for the bounding box itself changes from MegaDetector (`<class> x_top_left_bbox, y_top_left_bbox, width_bbox, height_bbox`) to YOLOv8 (`<class> x_center_bbox, y_center_bbox, width_bbox, height_bbox`). More information on the YOLOv8 annotation can be found [here](https://medium.com/@connect.vin/yat-an-open-source-data-annotation-tool-for-yolo-8bb75bce1767).
 
   ```
   dataset/
@@ -360,27 +350,21 @@ flowchart LR
   │   ├── images
   │   │   ├── cat_0.png
   │   │   ├── cat_1.png
-  │   │   ├── cat_2.png
   │   │   └── ...
   │   └── annotation
   │       ├── cat_0.txt
   │       ├── cat_1.txt
-  │       ├── cat_2.txt
   │       └── ...
   ├── dogs
   │   ├── images
   │   │   ├── dog_0.png
   │   │   ├── dog_1.png
-  │   │   ├── dog_2.png
   │   │   └── ...
   │   └── annotation
   │       ├── dog_0.txt
   │       ├── dog_1.txt
-  │       ├── dog_2.txt
   │       └── ...
   ```
-
-
 
 - Finally, we splitted the dataset into training, validation and test images. The number of images and the split we used are:
 
