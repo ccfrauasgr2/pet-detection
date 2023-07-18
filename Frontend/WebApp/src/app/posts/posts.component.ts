@@ -2,6 +2,7 @@ import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Entry } from '../entry.model';
 import { PetsService } from '../pets.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Time } from '@angular/common';
 
 @Component({
   selector: 'app-posts',
