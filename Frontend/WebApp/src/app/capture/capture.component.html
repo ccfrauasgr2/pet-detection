@@ -1,25 +1,29 @@
 <mat-card>
+    <!--Header including date and time-->
     <mat-card-header>
         <div mat-card-avatar class="example-header-image"></div>
         <mat-card-title>Pet Detector</mat-card-title>
         <mat-card-subtitle>{{this.display_date_time(this.entry?.date)}}</mat-card-subtitle>
+        <span>id: {{this.entry?.id}}</span>
     </mat-card-header>
     <mat-card-content class="img-fit">
+        <!--Image-->
         <img style="width:100%; height: 100%; margin-bottom: 20px;" [src]="this.entry?.image">
         <mat-card-title style="margin-bottom: 10px;">Evaluation:</mat-card-title>
+        <!--Accuracy table-->
         <table align="center">
             <thead>
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Type</th>
-                    <th scope="col">Accurace</th>
+                    <th scope="col">Accuracy</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let o of this.entry?.objects | keyvalue">
-                    <td>{{o.key}}</td>
-                    <td>{{o.value[0]}}</td>
-                    <td>{{o.value[1]}}%</td>
+                <tr *ngFor="let k of this.sort_objects()">
+                    <td>{{k}}</td>
+                    <td>{{this.entry.objects[k][0]}}</td>
+                    <td>{{(this.entry.objects[k][1] * 100).toFixed(2)}}%</td>
                 </tr>
             </tbody>
         </table>

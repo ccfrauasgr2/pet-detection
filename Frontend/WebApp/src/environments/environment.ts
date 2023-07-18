@@ -2,8 +2,5 @@
 
 export const environment = {
     production: true,
-    //backendIP: '$BACKEND_IP'
-    backendIP: window['process']['env']['BACKEND_IP'] //env['BACKEND_IP']
-    //backendPort: process.env.BACKEND_PORT || '<backend-port>'
-
+    backendIP: "192.168.178.201:3200"
 };
