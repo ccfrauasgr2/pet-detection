@@ -5,13 +5,14 @@ import { PostsComponent } from './posts/posts.component';
 import { AboutComponent } from './about/about.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/posts', pathMatch:'full'},
-  {path: 'posts', component: PostsComponent},
-  {path: 'about-us', component: AboutComponent}
+  { path: '', redirectTo: '/posts', pathMatch: 'full' },
+  { path: 'posts', component: PostsComponent },
+  { path: 'about-us', component: AboutComponent }
 ];
+
 @NgModule({
   declarations: [],
-  imports: [ CommonModule, RouterModule.forRoot(routes) ],
+  imports: [CommonModule, RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

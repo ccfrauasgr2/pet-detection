@@ -9,21 +9,14 @@ import { environment } from 'src/environments/environment';
 })
 export class PetsService {
 
-  //readonly APIUrl = "http://127.0.0.1:8000/"
   readonly APIUrl = "http://" + environment.backendIP + "/";
 
   constructor(private http: HttpClient) { }
 
+  // Request one capture for a given filter
   requestCaptures(filter: any): Observable<any> {
-    const filterString = JSON.stringify(filter);
-    const params = new HttpParams().set('filter', filterString);
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
-    return this.http.get<any>(this.APIUrl + 'pets/get_images', { headers: headers, params: params });
-  }
-
-  checkForNewImages(id: Number): Observable<Number> {
-    const params = new HttpParams().set('id', id.toString());
-    return this.http.get<number>(this.APIUrl + 'pets/check_for_new_images', { params });
+    return this.http.post<any>(this.APIUrl + 'mongo/get_image', filter);
   }
 
 }

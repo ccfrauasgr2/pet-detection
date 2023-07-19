@@ -1,4 +1,6 @@
+// Model class for a capture containing date, time, image and pets
 export class Entry {
+
     id: number;
     date: Date;
     objects: { [id: number]: [string, number] }
