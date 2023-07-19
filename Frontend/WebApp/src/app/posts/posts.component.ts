@@ -2,7 +2,6 @@ import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Entry } from '../entry.model';
 import { PetsService } from '../pets.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Time } from '@angular/common';
 
 @Component({
   selector: 'app-posts',
@@ -23,14 +22,15 @@ export class PostsComponent implements OnInit, OnChanges {
 
 
   filter: {
-    id?: Number | null,         // From the given ID go backwards (0 means undefined)
-    date?: String | null,       // From the given Date go backwards (Either id or date will be undefined at each request)
-    type?: String,              // At least one of the given type: cat/dog/all
+    id?: Number | null,         // The needed ID if matching the filter, otherwise the next one
+    date?: String | null,       // From the given Date go backwards (Either id or date will be null at each request)
+    type?: String,              // At least one of the given type: Cat/Dog/All
     accuracy?: Number           // All objects on the pictures have mind. the given accuracy (0: any accuracy)
   } = {}
 
   show_error = false;
   show_no_more_images = false;
+  show_add_btn = false;
 
 
 
@@ -60,25 +60,39 @@ export class PostsComponent implements OnInit, OnChanges {
 
   // Load images from backend
   load_images() {
+    this.show_add_btn = false;
+    this.show_error = false;
+    this.show_no_more_images = false;
+
     if (this.filter['id']?.valueOf() != undefined) {
       if (this.filter['id'].valueOf() < 2) {
         this.show_no_more_images = true;
+        this.show_add_btn = false;
         this.counter = 0;
         return;
       }
     }
 
-    this.service.requestCaptures(this.filter).subscribe(
+    var filter_send = {
+      id: this.filter.id,
+      date: this.filter.date,
+      type: "all",
+      accuracy: 0
+    }
+
+    this.service.requestCaptures(filter_send).subscribe(
       res => {
         this.show_error = false;
         this.show_no_more_images = false;
         this.displayCapture(res);
+
         if (this.counter == 9) {
           this.counter = 0;
+          this.show_add_btn = true;
           return
         }
         else {
-          this.counter++;
+          //this.counter++;
           this.load_more()
         }
 
@@ -92,7 +106,7 @@ export class PostsComponent implements OnInit, OnChanges {
         else {
           this.show_error = true;
         }
-
+        this.show_add_btn = false;
       },
       () => { }
     );
@@ -125,7 +139,13 @@ export class PostsComponent implements OnInit, OnChanges {
     var image = "data:image/jpeg;base64," + capture['picture'];
     var id = capture['id']
     var entry: Entry = new Entry(id, date, objects, image);
-    this.loaded_images.push(entry);
+
+    if (this.match_filter(entry)) {
+      this.loaded_images.push(entry);
+      this.counter++;
+    }
+
+
   }
 
   // Allow accuracy only between 0 and 100
@@ -153,6 +173,31 @@ export class PostsComponent implements OnInit, OnChanges {
     var date: string = "" + year + "-" + month_str + "-" + day_str;
 
     return date;
+  }
+
+
+  //Check if received image match the filter
+  match_filter(entry: Entry) {
+
+    var match_type = false;
+    var match_accuracy = true;
+
+    for (const key in entry.objects) {
+      if (entry.objects[key][0] == this.filter.type || this.filter.type == "all") {
+        match_type = true;
+        if (this.filter.accuracy) {
+          if (entry.objects[key][1] < this.filter.accuracy?.valueOf()) {
+            match_accuracy = false;
+          }
+        }
+
+      }
+
+    }
+
+    var result = match_type && match_accuracy;
+    return result;
+
   }
 
 }
