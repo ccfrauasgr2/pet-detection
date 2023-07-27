@@ -16,7 +16,7 @@ class Package:
 		return {
 			'type': detected_type,
 			'accuracy': acc.tolist(),
-			'BID': bid
+			'bid': bid
 			}
 			
 	def _getType(self, cls):
@@ -42,7 +42,7 @@ class Package:
 		image_with_boxes = np.copy(image)
 		for box, item in zip(bounding_boxes, detections):
 			label=item['type']
-			bid=str(item['BID'])
+			bid=str(item['bid'])
 			x1, y1, x2, y2 = map(int, box)
 			cv2.rectangle(image_with_boxes, (x1, y1), (x2, y2), (0, 255, 0), 2)
 			label_text = label+bid
