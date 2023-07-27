@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-k@+v06je+)=do=-35r(t*pba7^2+$3uewapk_i)gc^2f3$c&!!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -53,9 +53,13 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+"""
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',  # or the URL where your Angular app is hosted
 ]
+"""
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'pics.urls'
 

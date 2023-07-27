@@ -8,6 +8,7 @@ import json
 import zlib
 from pymongo import MongoClient
 import os
+from . import telebot
 
 
 """
@@ -207,6 +208,7 @@ def mongo_establish_connection_write():
 @api_view(['POST'])
 def mongo_camera_post(request, format=None):
     if request.method == 'POST':
+        request.data = zlib.decompress(request.data).decode()
         package = mongo_establish_connection_write()
 
         if package["code"] == 0:
@@ -263,6 +265,7 @@ def mongo_camera_post(request, format=None):
             except:
                 return Response(data="pet konnte nicht gespeichert werden", status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
+        telebot.send_telegram_notification(request.data)
         return Response(data="Erfolg", status=status.HTTP_201_CREATED)
 
 
